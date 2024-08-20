@@ -45,10 +45,14 @@ x_data = torch.tensor(data)
 ```
 
 From a NumPy array:  
+> Tensors on the CPU and NumPy arrays can share their underlying memory locations, and changing one will change the other  
 ```py
-# NumPy arrays can also be created from tensors
 np_array = np.array(data)
-x_np = torch.from_numpy(np_array)
+t = torch.from_numpy(np_array)
+
+# NumPy arrays can also be created from tensors
+t2 = torch.ones(5)
+np_array2 = t2.numpy()
 ```  
 
 From another tensor:  
@@ -56,7 +60,7 @@ From another tensor:
 # The new tensor retains the properties (shape, datatype) of the argument tensor, unless explicitly overridden
 x_ones = torch.ones_like(x_data) # retains the properties of x_data
 x_rand = torch.rand_like(x_data, dtype=torch.float) # overrides the datatype of x_data
-# rand_like by default expects input to be floating-point tensor, but can override as shown here if input does not match.
+# rand_like by default expects input to be floating-point tensor, but can override as shown here if input does not match
 ```
 
 With random or constant values:  
@@ -194,6 +198,20 @@ z3 = torch.rand_like(tensor)  # initialises z3 to same shape and data type as 't
 torch.mul(tensor, tensor, out=z3)  # performs element-wise multiplication (same as above), then stores result in z3
 ```
 
+Convert single-element tensors to Python numerical value:  
+```py
+agg = tensor.sum()  # example of aggregating all values of a tensor into one value
+agg_item = agg.item()  # converts to float using .item()
+```
+
+In-place operations:  
+> In-place operations save some memory, but can be problematic when computing derivatives because of an immediate loss of history. Hence, their use is discouraged
+```py
+# operations that store result in operand are denoted by a _ suffix
+x.copy_(y)  # copies tensor y to tensor x - shapes must match
+x.t_()  # transposes x and stores back to x
+tensor.add_(5)  # adds 5 to every element in tensor and stores back to tensor
+```
 
 <br>
 
@@ -201,4 +219,23 @@ torch.mul(tensor, tensor, out=z3)  # performs element-wise multiplication (same 
 
 ---  
 
-### <u>Tensors</u>
+### <u>Tensors2</u>
+
+* 
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+---  
+
+
+### <u>Tensors3</u>
+
+* 
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+---  
