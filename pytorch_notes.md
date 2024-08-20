@@ -55,7 +55,8 @@ From another tensor:
 ```py
 # The new tensor retains the properties (shape, datatype) of the argument tensor, unless explicitly overridden
 x_ones = torch.ones_like(x_data) # retains the properties of x_data
-x_rand = torch.rand_like(x_data, dtype=torch.float) # overrides the datatype of x_data. rand_like by default expects input to be floating-point tensor, but can override as shown here if input does not match.
+x_rand = torch.rand_like(x_data, dtype=torch.float) # overrides the datatype of x_data
+# rand_like by default expects input to be floating-point tensor, but can override as shown here if input does not match.
 ```
 
 With random or constant values:  
@@ -96,8 +97,10 @@ if torch.cuda.is_available():
 
 # Alternatively
 device = (
-            "cuda" if torch.cuda.is_available()  # available on systems with NIVIDIA GPUs
-            else "mps" if torch.backends.mps.is_available()  # available on macOS systems that support Metal (Apple silicon e.g. M1/M2 chips)
+            # cuda is available on systems with NIVIDIA GPUs
+            "cuda" if torch.cuda.is_available()  
+            # mps is available on macOS systems that support Metal (Apple silicon e.g. M1/M2 chips)
+            else "mps" if torch.backends.mps.is_available()  
             else "cpu"
         )
 tensor = tensor.to(device)
