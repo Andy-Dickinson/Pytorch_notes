@@ -3,10 +3,11 @@
 ---  
 
 ### <center>Table of Contents</center>  
-|Item|Heading|Sub Contents|
+|Item|Heading|Subcontents|
 |:---:|:---:|:---:|
 | **1.** | [Reference Links](#reference-links) ||
 | **2.** | [Tensors](#tensors) | [Initialising](#initialising-a-tensor),<br>[Attributes](#attributes-of-a-tensor),<br>[Operations](#operations-on-a-tensor) - indexing, joining, arithmetic etc., |
+| **3.** | [Datasets & DataLoaders](#datasets--dataloaders) ||
 
 <br>
 
@@ -37,14 +38,22 @@ import numpy as np
 
 ##### <u>Initialising a Tensor</u>  
 
-Directly from data:  
+|Item|Subheading|
+|:---:|:---:|
+| **1.** | [Directly from data](#directly-from-data) |
+| **2.** | [From a NumPy array](#from-a-numpy-array) |
+| **3.** | [From another tensor](#from-another-tensor) |
+| **4.** | [With random or constant values](#with-random-or-constant-values) |
+
+
+###### Directly from data:  
 ```py
 # Data type is automatically inferred
 data = [[1, 2],[3, 4]]
 x_data = torch.tensor(data)
 ```
 
-From a NumPy array:  
+###### From a NumPy array:  
 > Tensors on the CPU and NumPy arrays can share their underlying memory locations, and changing one will change the other  
 ```py
 np_array = np.array(data)
@@ -55,7 +64,7 @@ t2 = torch.ones(5)
 np_array2 = t2.numpy()
 ```  
 
-From another tensor:  
+###### From another tensor:  
 ```py
 # The new tensor retains the properties (shape, datatype) of the argument tensor, unless explicitly overridden
 x_ones = torch.ones_like(x_data) # retains the properties of x_data
@@ -63,7 +72,7 @@ x_rand = torch.rand_like(x_data, dtype=torch.float) # overrides the datatype of 
 # rand_like by default expects input to be floating-point tensor, but can override as shown here if input does not match
 ```
 
-With random or constant values:  
+###### With random or constant values:  
 ```py
 # Shape is a tuple of tensor dimensions
 shape = (2,3,)
@@ -91,7 +100,17 @@ device = tensor.device  # device tensor is stored on (CPU, GPU)
 
 [Availiable operations](https://pytorch.org/docs/stable/torch.html) includes **arithmetic, linear algebra, matrix manipulation (transposing, indexing, slicing), sampling** and more.  
 
-CPU / GPU device:
+|Item|Subheading|
+|:---:|:---:|
+| **1.** | [CPU / GPU device](#cpu--gpu-device) |
+| **2.** | [Indexing and slicing](#indexing-and-slicing) |
+| **3.** | [Joining tensors](#joining-tensors) |
+| **4.** | [Matrix multiplication](#matrix-multiplication) |
+| **5.** | [Element-wise product](#element-wise-product) |
+| **6.** | [Convert single-element tensors to Python numerical value](#convert-single-element-tensors-to-python-numerical-value) |
+| **7.** | [In-place operations](#in-place-operations) |
+
+###### CPU / GPU device:
 * By default, operations are run on CPU. Can be run on GPU (typically faster) but need to **explicitly move tensors to the GPU** using `.to` method (after checking for GPU availability).  
 * If using Colab, allocate a GPU by going to `Runtime > Change runtime type > GPU`.  
 ```py
@@ -110,7 +129,7 @@ device = (
 tensor = tensor.to(device)
 ```  
 
-Indexing and slicing:  
+###### Indexing and slicing:  
 ```py
 tensor = torch.tensor([[1, 2, 3], 
                        [4, 5, 6]])
@@ -131,7 +150,7 @@ last_col = 3d_tensor[..., -1]  # Slice last ele of last dimension across all dim
 last_ele_2nd_dim = 3d_tensor[:, -1]  # Slice last ele of 2nd dimension for all rows: tensor([[ 4,  5,  6], [10, 11, 12]])
 ```
 
-Joining tensors:  
+###### Joining tensors:  
 ```py
 # torch.cat concatenates a sequence of tensors along a given dimension 
 #   - tensors must have the same shape except along the dimension specified by dim
@@ -177,7 +196,7 @@ stacked_1 = torch.stack([tensor, tensor, tensor], dim=1)
              [4, 5, 6]]])  shape: [2, 3, 3] """
 ```
 
-Matrix multiplication:  
+###### Matrix multiplication:  
 ```py
 # @ is matrix multiplication operator
 y1 = tensor @ tensor.T  # matrix multiplication between tensor and its transpose
@@ -188,7 +207,7 @@ y3 = torch.rand_like(y1)  # initialises y3 to same shape and data type as y1, bu
 torch.matmul(tensor, tensor.T, out=y3)  # performs matrix multiplication (same as above), then stores result in y3
 ```
 
-Element-wise product:  
+###### Element-wise product:  
 ```py
 z1 = tensor * tensor  # element-wise multiplication
 z2 = tensor.mul(tensor)  # equivalent to previous operation
@@ -198,13 +217,13 @@ z3 = torch.rand_like(tensor)  # initialises z3 to same shape and data type as 't
 torch.mul(tensor, tensor, out=z3)  # performs element-wise multiplication (same as above), then stores result in z3
 ```
 
-Convert single-element tensors to Python numerical value:  
+###### Convert single-element tensors to Python numerical value:  
 ```py
 agg = tensor.sum()  # example of aggregating all values of a tensor into one value
 agg_item = agg.item()  # converts to float using .item()
 ```
 
-In-place operations:  
+###### In-place operations:  
 > In-place operations save some memory, but can be problematic when computing derivatives because of an immediate loss of history. Hence, their use is discouraged
 ```py
 # operations that store result in operand are denoted by a _ suffix
@@ -219,7 +238,7 @@ tensor.add_(5)  # adds 5 to every element in tensor and stores back to tensor
 
 ---  
 
-### <u>Tensors2</u>
+### <u>Datasets & DataLoaders</u>
 
 * 
 
