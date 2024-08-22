@@ -8,6 +8,7 @@
 | **1.** | [Reference Links](#reference-links) ||
 | **2.** | [Tensors](#tensors) | [Initialising](#initialising-a-tensor),<br>[Attributes](#attributes-of-a-tensor),<br>[Operations](#operations-on-a-tensor) - indexing, joining, arithmetic etc., |
 | **3.** | [Datasets & DataLoaders](#datasets--dataloaders) | [Loading datasets](#loading-datasets),<br>[Transforms](#transforms),<br>[Creating a Custom Dataset](#creating-a-custom-dataset),<br>[Iterating and Visualising the Dataset](#iterating-and-visualising-the-dataset),<br>[Preparing Data for Training with DataLoaders](#preparing-data-for-training-with-dataloaders) |
+| **4.** | [Building a Neural Network](#building-a-neural-network) | [Get Device for Training](#get-device-for-training),<br>[Define the Class](#define-the-class),<br>[Using a Model](#using-a-model) |
 
 <br>
 
@@ -98,7 +99,7 @@ device = tensor.device  # device tensor is stored on (CPU, GPU)
 
 ##### <u>Operations on a Tensor</u>  
 
-[Availiable operations](https://pytorch.org/docs/stable/torch.html) includes **arithmetic, linear algebra, matrix manipulation (transposing, indexing, slicing), sampling** (generating random values, seeding, sample from various distributions, random selection, noise addition, shuffling etc.) and more.  
+[Available operations](https://pytorch.org/docs/stable/torch.html) includes **arithmetic, linear algebra, matrix manipulation (transposing, indexing, slicing), sampling** (generating random values, seeding, sample from various distributions, random selection, noise addition, shuffling etc.) and more.  
 
 |Item|Subheading|
 |:---:|:---:|
@@ -118,15 +119,8 @@ device = tensor.device  # device tensor is stored on (CPU, GPU)
 if torch.cuda.is_available():
     tensor = tensor.to("cuda")
 
-# Alternatively
-device = (
-            # cuda is available on systems with NIVIDIA GPUs
-            "cuda" if torch.cuda.is_available()  
-            # mps is available on macOS systems that support Metal (Apple silicon e.g. M1/M2 chips)
-            else "mps" if torch.backends.mps.is_available()  
-            else "cpu"
-        )
-tensor = tensor.to(device)
+# Alternatively define when creating tensor
+X = torch.rand(1, 28, 28, device=device)  # see building-a-neural-network > get-device-for-training below
 ```  
 
 ###### Indexing and slicing:  
@@ -425,6 +419,112 @@ plt.show()
 
 ---  
 
+### <u>Building a Neural Network</u>
+
+* Comprise of layers/modules that perform operations on data.  
+* The [torch.nn](https://pytorch.org/docs/stable/nn.html) namespace contains everything required to build a neural network (building blocks, e.g. layers and utilities).  
+* All neural net modules subclass the [nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html). Your own modules (neural networks) should also subclass this class.  
+
+```py
+# typical imports required
+import os  # handling file and directory paths
+import torch  # tensor operations, basic operations (core PyTorch utilities), autograd functionality
+from torch import nn  # classes and functions for building neural net layers and modules
+from torch.utils.data import DataLoader  # load data in batches, shuffle, handle multiprocessing
+from torchvision import (
+    datasets,  # preloaded datasets (e.g., CIFAR-10, MNIST)
+    transforms  # transforms data, usually image preprocessing and augmentation (e.g. images to tensors)
+)
+```
+
+##### <u>Get Device for Training</u>  
+```py
+device = (
+            # cuda is available on systems with NIVIDIA GPUs
+            "cuda" if torch.cuda.is_available()  
+            # mps is available on macOS systems that support Metal (Apple silicon e.g. M1/M2 chips)
+            else "mps" if torch.backends.mps.is_available()  
+            else "cpu"
+        )
+
+# Move instance of neural network model (see below) to available device (default is CPU - typically slower)
+model = NeuralNetwork().to(device)
+
+# Can also move tensors to available device 
+tensor = tensor.to(device)
+```
+
+##### <u>Define the Class</u>  
+* Subclass [nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html).  
+* Initialise layers in `__init__`.  
+* Operations on input data are done in the `forward` method (same for all `nn.module` subclasses). **Do NOT** directly call `model.forward()`, it is automatically called (via `nn.Module`) when we pass the model input data.  
+* Move instance of NeuralNetwork to available device ([see above](#get-device-for-training)).  
+* Non-linear activations (e.g. ReLU) are what create the complex mappings between the model’s inputs and outputs. They are applied after linear transformations to introduce nonlinearity, helping neural networks learn a wide variety of phenomena.  
+```py
+class NeuralNetwork(nn.Module):
+        def __init__(self):
+        super().__init__()
+        self.flatten = nn.Flatten()  # converts each image to a 1D vector e.g. [1,28,28] -> [1, 784]
+        self.linear_relu_stack = nn.Sequential(  # container module to stack layers in sequence. Each output becomes input to next
+            nn.Linear(28 * 28, 512),  # each of the 784 (28*28) input features is connected to each of the 512 output features
+            nn.ReLU(),  # element-wise activation function, introducing non-linearity into the model. Shape of tensor remains the same, but values are transformed
+            nn.Linear(512, 512),  # transforms 512-dimensional input to another 512-dimensional output to learn new representation of the features
+            nn.ReLU(),
+            nn.Linear(512, 10),  # maps 512-dimensional input to 10-dimensional output corresponding to logits (in forward()) for each of the 10 classes in the classification task
+        )
+
+    # do not directly call model.forward()
+    # it is automatically called (via nn.Module) when we pass the model input data
+    def forward(self, x):
+        x = self.flatten(x)
+        logits = self.linear_relu_stack(x)
+        return logits
+
+# create instance and move to available device
+# do this before training or using the model
+model = NeuralNetwork().to(device)
+```
+* All fields inside your model object are automatically tracked by `nn.Module`, and makes all parameters accessible using your model’s `parameters()` or `named_parameters()` methods:
+```py
+# prints models structure
+print(model)
+
+# iterate over each parameter, and print its size and a preview of its values
+for name, param in model.named_parameters():
+    print(f"Layer: {name} | Size: {param.size()} | Values : {param[:2]} \n")
+```
+
+##### <u>Using a Model</u>  
+* First create a model and move to desired device.  
+* Model should be pre-trained (unless you are varifying the models architecture or benchmarking its performance prior to training etc.).  
+* **Do NOT** directly call `forward()` - automatically called (via [nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html) when passing the model input data).
+```py
+# create input data, typically will load in the data > see Datasets & DataLoaders above
+X = torch.rand(1, 28, 28, device=device)  # [batch size, height, width], [1 image, 28 x 28]
+
+# pass model input data. 
+# Example input shape: [1,28,28] -> output shape: [batch_size, output_classes_defined_in_NeuralNetwork], [1,10]
+logits = model(X)  # internally calls forward() and returns the networks logits (raw output values) as tensor
+
+""" 
+Softmax normalizes the logits to a probability distribution over the classes, 
+applied across the class dimension (dim=1).
+
+pred_probab is a tensor the same shape as logits [1,10], 
+but now represents probabilities instead of raw values. 
+Each value is between 0 and 1 and will sum to 1 along class dimension (as specified: dim=1)
+"""
+pred_probab = nn.Softmax(dim=1)(logits)
+
+# get index of the highest probability in pred_probab dim=1
+y_pred = pred_probab.argmax(1)  
+```
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+---  
 
 ### <u>Tensors3</u>
 
