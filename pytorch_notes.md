@@ -9,6 +9,7 @@
 | **2.** | [Tensors](#tensors) | [Initialising](#initialising-a-tensor),<br>[Attributes](#attributes-of-a-tensor),<br>[Operations](#operations-on-a-tensor) - indexing, joining, arithmetic etc., |
 | **3.** | [Datasets & DataLoaders](#datasets--dataloaders) | [Loading datasets](#loading-datasets),<br>[Transforms](#transforms),<br>[Creating a Custom Dataset](#creating-a-custom-dataset),<br>[Iterating and Visualising the Dataset](#iterating-and-visualising-the-dataset),<br>[Preparing Data for Training with DataLoaders](#preparing-data-for-training-with-dataloaders) |
 | **4.** | [Building a Neural Network](#building-a-neural-network) | [Get Device for Training](#get-device-for-training),<br>[Define the Class](#define-the-class),<br>[Using a Model](#using-a-model) |
+| **5.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations and Tracking](#operations-and-tracking)|
 
 <br>
 
@@ -518,6 +519,109 @@ pred_probab = nn.Softmax(dim=1)(logits)
 
 # get index of the highest probability in pred_probab dim=1
 y_pred = pred_probab.argmax(1)  
+```
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+---  
+
+### <u>Automatic Differentiation With Autograd</u>
+* [Autograd](https://pytorch.org/docs/stable/autograd.html) keeps a record of data (tensors) and all executed operations (along with the resulting new tensors) in a directed acyclic graph (DAG) consisting of Function objects. In this DAG, leaf nodes are the input tensors, roots are the output tensors. By tracing this graph from roots to leaves, you can automatically compute the gradients using the chain rule.  
+* In forward pass autograd:  
+    * Runs requested operation to compute a resulting tensor.  
+    * Maintains the operation’s gradient function in the DAG.  
+* In backward pass (by calling `.backward()`) autograd:  
+    * Computes the gradients by applying the chain rule to the operations stored in each `.grad_fn`.  
+    * Accumulates them in the respective tensor’s `.grad` attribute.  
+    * Propergates gradients all the way to the leaf tensors.  
+* **Note** each graph is recreated from scratch after each `.backward()` call unless `retain_graph=True` is passed in call.  
+* Custom [Function](https://pytorch.org/docs/stable/autograd.html#function) classes can be created to implement non-standard operations, customise gradients, optimise memory usage, customise backpropergation rules etc.  
+```py
+"""
+A simple one-layer network with input x, parameters w, b and some loss function
+We need to optimise params w and b. 
+"""
+import torch
+
+x = torch.ones(5)  # input tensor (vector of 5 ones)
+y = torch.zeros(3)  # expected output (vector of 3 zeros)
+w = torch.randn(5, 3, requires_grad=True)  # weight matrix, initialised randomly
+b = torch.randn(3, requires_grad=True)  # bias vector, initialised randomly
+
+z = torch.matmul(x, w)+b  # linear output (logits) of the network before applying any activation function
+loss = torch.nn.functional.binary_cross_entropy_with_logits(z, y)  # computes the loss (binary cross-entropy with logits)
+```
+##### <u>Compute Gradients</u>
+* To compute gradients of a loss function with respect to its variables (e.g. weights and biases), need to set `requires_grad` property of those tensors. Gradients will not be available for other graph nodes.  
+    * Either set `requires_grad` **when creating tensor**,  
+    * or later with `x.requires_grad_(True)` method.  
+*  Can only perform gradient calculations using `backward()` **once on a given graph** by default, for performance reasons. If we need to do several backward calls on the same graph, we need to pass `retain_graph=True` to the `backward()` call.  
+*  **Zero gradients between training iterations** to prevent accumulation from multiple backward passes, see below.  
+*  Avoid in-place operations on tensors that require gradients as can cause errors during backpropergation.  
+```py
+# first call backward() 
+loss.backward()  # calculates gradient of the loss tensor wrt graph leaves (all tensors in graph with requires_grad=true)
+
+# then retrieve gradients from the .grad attributes
+gradient_wrt_w = w.grad  
+gradient_wrt_b = b.grad 
+
+# gradients are accumulated in '.grad' attribute
+# beneficial for certain optimisation algorithms,
+# but require manually zeroing between training iterations to prevent accumulations from multiple backward passes
+w.grad.zero()
+b.grad.zero()
+
+# alternatively 
+# zeroing all parameters that an optimiser is responsible for can be done by calling `.zero_grad()` on the optimiser
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+optimizer.zero_grad()  # zeroes the gradients of all model parameters
+```
+
+##### <u>Operations and Tracking</u>  
+
+|Item|Subheading|
+|:---:|:---:|
+| **1.** | [Disable gradient tracking](#disable-gradient-tracking) |
+| **2.** | [Access reference to backward propergation function](#access-reference-to-backward-propergation-function) |
+| **3.** | [Check leaf node tensor](#check-leaf-node-tensor) |
+
+###### Disable gradient tracking:  
+* All tensors with `requires_grad=True` are tracking their computational history and support gradient computation.  
+* If only want to do forward computations (e.g. when we have trained the model and just want to apply it to some input data), you can stop tracking to save memory and computation.  
+```py
+z = torch.matmul(x, w)+b
+print(f"tracking on: {z.requires_grad}")  # True
+
+# surround code to turn off gradient tracking
+with torch.no_grad():  
+    z = torch.matmul(x, w)+b
+print(f"tracking on: {z.requires_grad}")  # False
+
+z.requires_grad_(True)  # turns tracking back on
+print(f"tracking on: {z.requires_grad}")  # True
+
+
+# alternatively detach a tensor from its computational graph
+z_det = z.detach()  # creates a new tensor that shares same data but with tracking off
+print(f"tracking on: {z_det.requires_grad}")  # False
+```
+
+###### Access reference to backward propergation function:
+* A function applied to tensors to construct computational graph is an object of [Function](https://pytorch.org/docs/stable/autograd.html#function) class, which knows how to compute the function in the forwards direction, and how to compute derivative during back propergation step.  
+* Reference to backward propergation function is stored in `grad_fn` - automatically created when a tensor is the result of an operation involving other tensors with `requires_grad=True`.  
+```py
+grad_fn_ref_z = z.grad_fn  # <AddBackward0 object at 0x00000125CBAFFE20>
+grad_fn_ref_loss = loss.grad_fn  # <BinaryCrossEntropyWithLogitsBackward0 object at 0x00000125CBAFFE20> 
+```
+
+###### Check leaf node tensor:  
+* Leaf tensors are tensors created by the user that have `requires_grad=True` and store their gradients in the `.grad` attribute.  
+```py
+print(f"w leaf tensor: {w.is_leaf}")  # True
+print(f"z leaf tensor: {z.is_leaf} \n")  # False
 ```
 
 <br>
