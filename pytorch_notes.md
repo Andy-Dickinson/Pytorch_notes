@@ -7,9 +7,14 @@
 |:---:|:---:|:---:|
 | **1.** | [Reference Links](#reference-links) ||
 | **2.** | [Tensors](#tensors) | [Initialising](#initialising-a-tensor),<br>[Attributes](#attributes-of-a-tensor),<br>[Operations](#operations-on-a-tensor) - indexing, joining, arithmetic etc., |
-| **3.** | [Datasets & DataLoaders](#datasets--dataloaders) | [Loading datasets](#loading-datasets),<br>[Transforms](#transforms),<br>[Creating a Custom Dataset](#creating-a-custom-dataset),<br>[Iterating and Visualising the Dataset](#iterating-and-visualising-the-dataset),<br>[Preparing Data for Training with DataLoaders](#preparing-data-for-training-with-dataloaders) |
+| **3.** | [Datasets & DataLoaders](#datasets--dataloaders) | [Loading datasets](#loading-datasets),<br>[Transforms](#transforms),<br>[Creating a Custom Dataset](#creating-a-custom-dataset),<br>[Iterating & Visualising the Dataset](#iterating--visualising-the-dataset),<br>[Preparing Data for Training with DataLoaders](#preparing-data-for-training-with-dataloaders) |
 | **4.** | [Building a Neural Network](#building-a-neural-network) | [Get Device for Training](#get-device-for-training),<br>[Define the Class](#define-the-class),<br>[Using a Model](#using-a-model) |
-| **5.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations and Tracking](#operations-and-tracking)|
+| **5.** | [`torch.nn` Module](#torchnn-module) | Basic building blocks for graphs including neural net layers, activation functions and loss functions |
+| **6.** | [Activation Functions](#activation-functions) ||
+| **7.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
+| **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimiser](#initialise-optimiser) |
+| **9.** | [Loss Functions](#loss-functions) ||
+| **10.** | [Optimisers](#optimisers) ||
 
 <br>
 
@@ -345,7 +350,7 @@ class CustomImageDataset(Dataset):
         return image, label
 ```
 
-##### <u>Iterating and Visualising the Dataset</u>  
+##### <u>Iterating & Visualising the Dataset</u>  
 * Can index Datasets manually like a list.  
 * Use matplotlib to visualise some samples.  
 ```py
@@ -460,7 +465,8 @@ tensor = tensor.to(device)
 * Initialise layers in `__init__`.  
 * Operations on input data are done in the `forward` method (same for all `nn.module` subclasses). **Do NOT** directly call `model.forward()`, it is automatically called (via `nn.Module`) when we pass the model input data.  
 * Move instance of NeuralNetwork to available device ([see above](#get-device-for-training)).  
-* Non-linear activations (e.g. ReLU) are what create the complex mappings between the model’s inputs and outputs. They are applied after linear transformations to introduce nonlinearity, helping neural networks learn a wide variety of phenomena.  
+* [Non-linear activations](https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity) (e.g. ReLU) are what create the complex mappings between the model’s inputs and outputs. They are applied after linear transformations to introduce nonlinearity, helping neural networks learn a wide variety of phenomena.  
+* See [`torch.nn` Module](#torchnn-module) below for information on neural network **layers** and **activation functions**.  
 ```py
 class NeuralNetwork(nn.Module):
         def __init__(self):
@@ -508,7 +514,7 @@ X = torch.rand(1, 28, 28, device=device)  # [batch size, height, width], [1 imag
 logits = model(X)  # internally calls forward() and returns the networks logits (raw output values) as tensor
 
 """ 
-Softmax normalizes the logits to a probability distribution over the classes, 
+Softmax normalises the logits to a probability distribution over the classes, 
 applied across the class dimension (dim=1).
 
 pred_probab is a tensor the same shape as logits [1,10], 
@@ -527,7 +533,45 @@ y_pred = pred_probab.argmax(1)
 
 ---  
 
+### <u>`torch.nn` Module</u>
+
+[Basic building blocks](https://pytorch.org/docs/stable/nn.html) for graphs including neural net layers and activation functions:  
+* [Loss functions](https://pytorch.org/docs/stable/nn.html#loss-functions) quantify the difference between the predicted output and the actual target, guiding the optimisation process. See [Loss Function](#loss-function) below for more information.  
+* [Containers](https://pytorch.org/docs/stable/nn.html#containers) organize layers and operations in a modular, sequential manner.  
+* [Convolution layers](https://pytorch.org/docs/stable/nn.html#convolution-layers) detect spatial hierarchies in data, commonly used in image processing for extracting features.  
+* [Pooling layers](https://pytorch.org/docs/stable/nn.html#pooling-layers) reduce the spatial dimensions of the data while retaining important information, typically for down-sampling by selecting the maximum or average value in a region.  
+* [Padding layers](https://pytorch.org/docs/stable/nn.html#padding-layers) adjust the spatial dimensions of data by adding extra values (typically zeros) around the edges, useful for maintaining dimensionality before and after convolutions.  
+* [Non-linear activations](https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity) (e.g. ReLU) are what create the complex mappings between the model’s inputs and outputs. They are applied after linear transformations to introduce nonlinearity, helping neural networks learn a wide variety of phenomena. See [Activation Functions](#activation-functions) below for more information.  
+* [Linear layers](https://pytorch.org/docs/stable/nn.html#linear-layers) perform affine transformations (linear transformations), used to map inputs to outputs, often as the final layer in a network (aka dense layer or fully connected layer).  
+* [Dropout layers](https://pytorch.org/docs/stable/nn.html#dropout-layers) helps reduce overfitting by randomly setting a fraction of input units (or elements with a specifyied probability) to zero during training.  
+* [Sparce layers](https://pytorch.org/docs/stable/nn.html#sparse-layers) efficiently handle operations with sparse tensors, commonly used in large-scale data with many zeroes.  
+* [Normalisation layers](https://pytorch.org/docs/stable/nn.html#normalization-layers) stabilise and accelerate training by normalising activations (across the batch or across the layer).  
+* [Recurrent layers](https://pytorch.org/docs/stable/nn.html#recurrent-layers) process sequential data by maintaining a hidden state that can capture temporal dependencies and patterns over time. Current input is influenced by previous inputs due to the use of a feedback loop. Includes long short-term memory and Elman RNN.  
+* [Transformer layers](https://pytorch.org/docs/stable/nn.html#transformer-layers) handle sequence data by leveraging attention mechanisms for parallelisable processing - used in language models like GPT and BERT.  
+* [Distance functions](https://pytorch.org/docs/stable/nn.html#distance-functions) measure similarity or dissimilarity between data points. `nn.PairwiseDistance` calculates Euclidean distance.  
+* [Vision layers](https://pytorch.org/docs/stable/nn.html#vision-layers) contains specialised layers for image processing tasks.  
+* [Shuffle layers](https://pytorch.org/docs/stable/nn.html#shuffle-layers) rearrange data order, often used to improve generalisation.  
+* [DataParallel Layers](https://pytorch.org/docs/stable/nn.html#module-torch.nn.parallel) distribute computations across multiple GPUs or machines.  
+* [Utilities](https://pytorch.org/docs/stable/nn.html#module-torch.nn.utils) helper functions and classes for managing and manipulating models and tensors - clip parameter gradients, flatten/unflatten Module parameters to/from a single vector, fuse Modules with BatchNorm modules, convert Module parameter memory formats, apply/remove weight normalisation from Module parameters, initialise Module parameters, pruning Module parameters, parametisation.  
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+---  
+
+### <u>Activation Functions</u>
+
+* 
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+---  
+
 ### <u>Automatic Differentiation With Autograd</u>
+
 * [Autograd](https://pytorch.org/docs/stable/autograd.html) keeps a record of data (tensors) and all executed operations (along with the resulting new tensors) in a directed acyclic graph (DAG) consisting of Function objects. In this DAG, leaf nodes are the input tensors, roots are the output tensors. By tracing this graph from roots to leaves, you can automatically compute the gradients using the chain rule.  
 * In forward pass autograd:  
     * Runs requested operation to compute a resulting tensor.  
@@ -576,11 +620,11 @@ b.grad.zero()
 
 # alternatively 
 # zeroing all parameters that an optimiser is responsible for can be done by calling `.zero_grad()` on the optimiser
-optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
-optimizer.zero_grad()  # zeroes the gradients of all model parameters
+optimiser = torch.optim.SGD(model.parameters(), lr=0.01)
+optimiser.zero_grad()  # zeroes the gradients of all model parameters
 ```
 
-##### <u>Operations and Tracking</u>  
+##### <u>Operations & Tracking</u>  
 
 |Item|Subheading|
 |:---:|:---:|
@@ -623,6 +667,80 @@ grad_fn_ref_loss = loss.grad_fn  # <BinaryCrossEntropyWithLogitsBackward0 object
 print(f"w leaf tensor: {w.is_leaf}")  # True
 print(f"z leaf tensor: {z.is_leaf} \n")  # False
 ```
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+---  
+
+### <u>Optimising Model Parameters - Train/Test</u>
+
+* Training is an iterative process. Each iteration, model makes a guess about output, calculates error (loss), collects the derivatives of the error wrt its parameters, and optimises these parameters using gradient decent (or other optimiser).  
+* Each iteration is called an epoch which consists of two main parts:
+  * The **train loop** - iterate over the training dataset and try to converge to optimal parameters.  
+  * The **validation/test loop** - iterate over the test dataset to check if model performance is improving.  
+* First load the [datasets and DataLoader](#datasets--dataloaders) objects - you may wish to set `batch_size` hyperparameter prior to this (to pass to the DataLoaders).  
+* [Build the model](#building-a-neural-network).  
+* Set the [hyperparameters](#hyperparameters).  
+* Initialise a [loss function](#initialise-loss-function).  
+* Define and initialise an [optimiser](#initialise-optimiser).  
+
+##### <u>Hyperparameters</u>  
+* Adjustable parameters that let you control the model optimisation process. Different hyperparameter values can impact model training and convergence rates.  
+* Can use tools such as [Ray Tune](https://pytorch.org/tutorials/beginner/hyperparameter_tuning_tutorial.html) to help find best combination of parameters.  
+* Define the following hyperparameters for training:  
+```py
+epochs = 5  # the number times to iterate over the dataset 
+batch_size = 64  # the number of data samples propagated through the network before the parameters are updated  
+learning_rate = 1e-3  # how much to update models parameters at each batch/epoch. Smaller values yield slow learning speed, while large values may result in unpredictable behavior during training  
+```
+
+##### <u>Initialise Loss Function</u>  
+* **Loss function classes** - [torch.nn.<loss_function>](https://pytorch.org/docs/stable/nn.html#loss-functions) requires instantiation and is used as an object. They can maintain internal states or configurations that persist across calls to the instance - use when you need to maintain or reuse specific configurations across multiple invocations - **usual choice**.  
+* **Stateless Loss Functions** - [torch.nn.functional.<loss_function>](https://pytorch.org/docs/stable/nn.functional.html#loss-functions) are called directly without needing to create an instance. All necessary arguments/options need to be provided in each function call - use for a more concise and straightforward implementation where state management is not required.  
+* See [Loss Functions](#loss-functions) below for more information.  
+```py
+# example loss function class
+loss_fn = torch.nn.CrossEntropyLoss()  # initialise the loss function
+loss = loss_fn(predictions, targets)  # calculating loss
+
+# example stateless loss function usage
+loss = torch.nn.functional.cross_entropy(predictions, targets)  # calculating loss
+```
+
+##### <u>Initialise Optimiser</u>  
+* Process of adjusting model parameters to reduce model error in each training step.  
+* 
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+---  
+
+### <u>Loss Functions</u>
+
+* Measures the degree of dissimilarity of obtained result to the target value - want to **minimise** during training.  
+* See [Initialise Loss Function](#initialise-loss-function) above for more information on initialising and use.  
+
+|Function|Function class|For task|Notes|
+|:---:|:---:|:---:|:---:|
+|Mean Square Error|[nn.MSELoss](https://pytorch.org/docs/stable/generated/torch.nn.MSELoss.html#torch.nn.MSELoss)|Regression||
+|Negative Log Likelihood|[nn.NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss)|Classification|Typically used instead of `nn.CrossEntropyLoss` when you have already applied a softmax or log-softmax operation to your model's output.|
+|Cross Entropy|[nn.CrossEntropyLoss](https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html#torch.nn.CrossEntropyLoss)|Classification|Combines `nn.NLLLoss` and `nn.LogSoftmax`.<br><br>Input should be raw, unnormalised logits output by the model. These are passed through a softmax operation inside the loss function to convert them into probabilities, and then the negative log-likelihood of the correct class is computed.<br><br>Target labels should be provided as class indices (not one-hot encoded).|
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+---  
+
+### <u>Optimisers</u>
+
+* [torch.optim](https://pytorch.org/docs/stable/optim.html) package is for implementing various optimisation algorithms.  
+* See [Initialise Optimiser](#initialise-optimiser) above for more information on initialising and use.  
+* 
 
 <br>
 
