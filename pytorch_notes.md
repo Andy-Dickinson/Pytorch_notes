@@ -1,8 +1,8 @@
-# <center>Pytorch Notes</center>
+# <p align="center">Pytorch Notes</p>
 
 ---  
 
-### <center>Table of Contents</center>  
+### <p align="center">Table of Contents</p>  
 |Item|Heading|Subcontents|
 |:---:|:---:|:---:|
 | **1.** | [Reference Links](#reference-links) ||
