@@ -12,9 +12,9 @@
 | **5.** | [`torch.nn` Module](#torchnn-module) | Basic building blocks for graphs including neural net layers, activation functions and loss functions |
 | **6.** | [Activation Functions](#activation-functions) ||
 | **7.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
-| **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimiser](#initialise-optimiser) |
+| **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process) |
 | **9.** | [Loss Functions](#loss-functions) ||
-| **10.** | [Optimisers](#optimisers) ||
+| **10.** | [Optimizers](#optimizers) ||
 
 <br>
 
@@ -615,13 +615,13 @@ gradient_wrt_b = b.grad
 # gradients are accumulated in '.grad' attribute
 # beneficial for certain optimisation algorithms,
 # but require manually zeroing between training iterations to prevent accumulations from multiple backward passes
-w.grad.zero()
-b.grad.zero()
+w.grad.zero_()
+b.grad.zero_()
 
-# alternatively 
-# zeroing all parameters that an optimiser is responsible for can be done by calling `.zero_grad()` on the optimiser
-optimiser = torch.optim.SGD(model.parameters(), lr=0.01)
-optimiser.zero_grad()  # zeroes the gradients of all model parameters
+# alternatively - best practice  
+# zeroing all parameters that an optimizer is responsible for can be done by calling `.zero_grad()` on the optimizer
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+optimizer.zero_grad()  # zeroes the gradients of all model parameters
 ```
 
 ##### <u>Operations & Tracking</u>  
@@ -680,11 +680,12 @@ print(f"z leaf tensor: {z.is_leaf} \n")  # False
 * Each iteration is called an epoch which consists of two main parts:
   * The **train loop** - iterate over the training dataset and try to converge to optimal parameters.  
   * The **validation/test loop** - iterate over the test dataset to check if model performance is improving.  
+* If `shuffle=True` specified when creating DataLoader object, after each epoch, the data is shuffled which helps reduce overfitting.  
 * First load the [datasets and DataLoader](#datasets--dataloaders) objects - you may wish to set `batch_size` hyperparameter prior to this (to pass to the DataLoaders).  
 * [Build the model](#building-a-neural-network).  
 * Set the [hyperparameters](#hyperparameters).  
 * Initialise a [loss function](#initialise-loss-function).  
-* Define and initialise an [optimiser](#initialise-optimiser).  
+* Define and initialise an [optimizer](#initialise-optimizer).  
 
 ##### <u>Hyperparameters</u>  
 * Adjustable parameters that let you control the model optimisation process. Different hyperparameter values can impact model training and convergence rates.  
@@ -709,9 +710,34 @@ loss = loss_fn(predictions, targets)  # calculating loss
 loss = torch.nn.functional.cross_entropy(predictions, targets)  # calculating loss
 ```
 
-##### <u>Initialise Optimiser</u>  
-* Process of adjusting model parameters to reduce model error in each training step.  
-* 
+##### <u>Initialise Optimizer</u>  
+* See [Optimizers](#optimizers) below for more information.  
+* Initialise the `optimizer` by registering the model’s parameters that need to be trained, and passing in the learning rate.  
+* Note **American spelling** is required.  
+* All optimisation logic is encapsulated in `optimizer` object.  
+```py
+# must be american spelling
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+```
+
+##### <u>Optimisation Process</u>  
+* Optimisation is the process of adjusting model parameters to reduce model error in each training step.  
+* Inside the training loop, optimisation happens in three steps:  
+```py
+# reset gradients of model parameters. By default, gradients add up; resetting prevents double-counting
+# this MUST be placed either before the forward pass (model(X)) OR after the optimizer.step() call
+optimizer.zero_grad()
+
+# backpropagate the prediction loss - PyTorch deposits gradients of the loss wrt each parameter
+loss.backward()
+
+# adjust parameters by the gradient collected in the backward pass
+optimizer.step()
+```
+
+##### <u>Define Train/Test Loops</u>  
+* Training loop makes a prediction, calculates loss and optimises the parameters.  
+* Test loop evaluates the models performance 
 
 <br>
 
@@ -736,11 +762,11 @@ loss = torch.nn.functional.cross_entropy(predictions, targets)  # calculating lo
 
 ---  
 
-### <u>Optimisers</u>
+### <u>Optimizers</u>
 
 * [torch.optim](https://pytorch.org/docs/stable/optim.html) package is for implementing various optimisation algorithms.  
-* See [Initialise Optimiser](#initialise-optimiser) above for more information on initialising and use.  
-* 
+* See [Initialise Optimizer](#initialise-optimizer) above for more information on initialising and use.  
+* Note **American spelling** is required.  
 
 <br>
 

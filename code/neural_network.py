@@ -8,7 +8,7 @@ from torchvision import (
 )
 
 device = (
-    # cuda is available on systems with NIVIDIA GPUs
+    # cuda is available on systems with NVIDIA GPUs
     "cuda" if torch.cuda.is_available()
     # mps is available on macOS systems that support Metal (Apple silicon e.g. M1/M2 chips)
     else "mps" if torch.backends.mps.is_available()
@@ -30,9 +30,9 @@ class NeuralNetwork(nn.Module):
 
     # do not directly call model.forward()
     # it is automatically called (via nn.Module) when we pass the model input data
-    def forward(self, x):
-        x = self.flatten(x)
-        logits: object = self.linear_relu_stack(x)
+    def forward(self, inputs):
+        inputs_flat = self.flatten(inputs)
+        logits: object = self.linear_relu_stack(inputs_flat)
         return logits
 
 

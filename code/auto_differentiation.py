@@ -50,8 +50,9 @@ print(f"Gradient with respect to b: \n {b.grad} \n")  # retrieve gradient of los
 # gradients are accumulated in '.grad' attribute
 # beneficial for certain optimisation algs,
 # but require manually zeroing between training iterations to prevent accumulations from multiple backward passes
-w.grad.zero()
-b.grad.zero()
+# this is better done by zeroing all parameters on the optimizer object
+w.grad.zero_()
+b.grad.zero_()
 
 
 # disable gradient tracking:
@@ -71,6 +72,4 @@ print(f"tracking on: {z.requires_grad}")
 # alternatively detach a tensor from its computational graph
 z_det = z.detach()  # creates a new tensor that shares same data but with tracking off
 print(f"tracking on: {z_det.requires_grad}")
-
-
 
