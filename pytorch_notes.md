@@ -856,10 +856,7 @@ print("Done!")
 | **7.** | [Test loop showing metric calculations](#test-loop-showing-metric-calculations)
 
 ###### Confusion matrix:  
-|| Predicted Positive | Predicted Negative |
-|:---:|:---:|:---:|
-| **Actual Positive** | <span style="background-color:lightgreen;">True Positive (TP)</span> | <span style="background-color:lightcoral;">False Negative (FN)</span> |
-| **Actual Negative** | <span style="background-color:lightcoral;">False Positive (FP)</span> | <span style="background-color:lightgreen;">True Negative (TN)</span> |
+![confusion_matrix](./img/confusion_matrix.png)
 
 * Positive = in class
 * Negative = not in class
@@ -869,9 +866,9 @@ print("Done!")
 ###### Accuracy:  
 > Ratio of the number of correct predictions to the total number of samples.  
 
-\[
+$$
 \text{Accuracy} = \frac{\text{True Positives} + \text{True Negatives}}{\text{Total Number of Samples}}
-\]
+$$
 * How many predictions were accurate - **overall performance**.  
 * Simple to understand and compute.  
 * Useful when classes are balanced and every prediction is equally important and want a general sense of models performance.  
@@ -880,9 +877,9 @@ print("Done!")
 ###### Precision:  
 > Ratio of true positive predictions to the sum of true and false positive predictions (or negative to sum of negatives).  
 
-\[
+$$
 \text{Precision} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Positives}}
-\]
+$$
 * **For those predicted class x, how many are actually class x**.  
 * Useful for understanding how many of the positive (or negative) predictions were correct.  
 * Important when the cost of false positives is high, such as in spam detection or medical diagnosis (false positives could mean misdiagnosis).  
@@ -891,9 +888,9 @@ print("Done!")
 ###### Recall:  
 > Ratio of true positive predictions to the sum of true positive and false negative predictions.  
 
-\[
+$$
 \text{Recall} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}
-\]
+$$
 * **For all in class x, how many were predicted class x**.  
 * Useful for understanding how many of the actual positives were correctly predicted.  
 * Crucial when the cost of false negatives is high, such as in detecting fraudulent transactions (missing a fraud is costly).  
@@ -903,9 +900,9 @@ print("Done!")
 > The harmonic mean of precision and recall, providing a balance between them.  
 
 
-\[
+$$
 \text{F1\text{-}Score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
-\]
+$$
 * Useful when you need to balance precision and recall, especially in cases of imbalanced datasets.  
 * It might not give a clear picture if the precision and recall vary significantly.  
 
