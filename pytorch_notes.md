@@ -12,7 +12,7 @@
 | **5.** | [`torch.nn` Module](#torchnn-module) | Basic building blocks for graphs including neural net layers, activation functions and loss functions |
 | **6.** | [Activation Functions](#activation-functions) ||
 | **7.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
-| **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process) |
+| **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
 | **9.** | [Loss Functions](#loss-functions) ||
 | **10.** | [Optimizers](#optimizers) ||
 
@@ -350,6 +350,37 @@ class CustomImageDataset(Dataset):
         return image, label
 ```
 
+###### Create instance of custom dataset:  
+```py
+from torchvision.transforms import ToTensor, Resize, Compose
+from sklearn.preprocessing import LabelBinarizer
+
+# define paths
+labels_file = 'annotations.csv'
+img_dir = 'images'
+
+# define any required transformations for images and labels
+image_transform = Compose([
+    Resize((128, 128)),  # resize image to 128x128
+    ToTensor()  # convert image to tensor
+])
+
+# define any required transformation for labels (e.g., one-hot encoding)
+def label_transform(label):
+    lb = LabelBinarizer()
+    lb.fit(range(num_classes))  # `num_classes` should be defined based on your dataset
+    return lb.transform([label])[0]
+
+# create an instance of the dataset
+dataset = CustomImageDataset(
+    annotations_file=annotations_file,
+    img_dir=img_dir,
+    transform=image_transform,
+    target_transform=label_transform
+)
+
+```
+
 ##### <u>Iterating & Visualising the Dataset</u>  
 * Can index Datasets manually like a list.  
 * Use matplotlib to visualise some samples.  
@@ -394,6 +425,7 @@ plt.show()  # renders entire figure with all subplots
 * `Dataset` retrieves datasets features and labels one sample at a time.  
 * While training a model, typically want to pass samples in "minibatches",reshuffle the data at every epoch to reduce model overfitting, and use Python's 'multiprocessing' to speed up data retrieval.  
 * `DataLoader` is an iterable that abstracts this complexity in an API.  
+* First load data to [datasets](#loading-datasets), or create instances of train/test [custom datasets](#creating-a-custom-dataset).  
 ```py
 from torch.utils.data import DataLoader
 
@@ -680,12 +712,15 @@ print(f"z leaf tensor: {z.is_leaf} \n")  # False
 * Each iteration is called an epoch which consists of two main parts:
   * The **train loop** - iterate over the training dataset and try to converge to optimal parameters.  
   * The **validation/test loop** - iterate over the test dataset to check if model performance is improving.  
-* If `shuffle=True` specified when creating DataLoader object, after each epoch, the data is shuffled which helps reduce overfitting.  
+* If `shuffle=True` specified when creating DataLoader objects, after each epoch, the data is shuffled which helps reduce overfitting.  
 * First load the [datasets and DataLoader](#datasets--dataloaders) objects - you may wish to set `batch_size` hyperparameter prior to this (to pass to the DataLoaders).  
 * [Build the model](#building-a-neural-network).  
 * Set the [hyperparameters](#hyperparameters).  
 * Initialise a [loss function](#initialise-loss-function).  
 * Define and initialise an [optimizer](#initialise-optimizer).  
+* Define [train/test](#define-traintest-loops) loops.  
+* Iterate train/test loops in [Epochs](#iterate-traintest-loops-in-epochs)
+* Decide if you want to add other [metrics](#metrics) to test loop - typically `average loss` and `accuracy` will suffice
 
 ##### <u>Hyperparameters</u>  
 * Adjustable parameters that let you control the model optimisation process. Different hyperparameter values can impact model training and convergence rates.  
@@ -698,8 +733,6 @@ learning_rate = 1e-3  # how much to update models parameters at each batch/epoch
 ```
 
 ##### <u>Initialise Loss Function</u>  
-* **Loss function classes** - [torch.nn.<loss_function>](https://pytorch.org/docs/stable/nn.html#loss-functions) requires instantiation and is used as an object. They can maintain internal states or configurations that persist across calls to the instance - use when you need to maintain or reuse specific configurations across multiple invocations - **usual choice**.  
-* **Stateless Loss Functions** - [torch.nn.functional.<loss_function>](https://pytorch.org/docs/stable/nn.functional.html#loss-functions) are called directly without needing to create an instance. All necessary arguments/options need to be provided in each function call - use for a more concise and straightforward implementation where state management is not required.  
 * See [Loss Functions](#loss-functions) below for more information.  
 ```py
 # example loss function class
@@ -736,8 +769,219 @@ optimizer.step()
 ```
 
 ##### <u>Define Train/Test Loops</u>  
-* Training loop makes a prediction, calculates loss and optimises the parameters.  
-* Test loop evaluates the models performance 
+* [Training loop](#training-loop) makes a prediction, calculates loss and optimises the parameters.  
+* [Test loop](#test-loop) evaluates the models performance  
+
+###### Training loop:  
+```py
+def train_loop(train_loader, model, loss_fn, optimizer):
+    ds_size = len(train_loader.dataset)  # total number of samples in training dataset
+
+    # Set the model to training mode - important for batch_idx normalization and dropout layers
+    # Unnecessary in this situation but added for best practices
+    model.train()
+
+    # iterates training data in batches
+    # for each batch loop, makes a prediction, calculates loss, optimises the parameters
+    for batch_idx, (inputs, labels) in enumerate(train_loader):
+        # Compute prediction and loss
+        pred = model(inputs)  # forward pass
+        loss = loss_fn(pred, labels)
+
+        # Backpropagation
+        loss.backward()  # compute gradients of loss wrt model parameters
+        optimizer.step()  # update model parameters based on computed gradients
+        optimizer.zero_grad()  # reset gradients to prevent accumulating across batches
+
+        # every 100 batches, log current loss and progress
+        if batch_idx % 100 == 0:
+            loss, samples_processed = loss.item(), (batch_idx + 1) * batch_size
+            print(f"loss: {loss:>7f}  [{samples_processed:>5d}/{ds_size:>5d}]")
+```
+###### Test loop:  
+* Typically `average loss` and `accuracy` will suffice, but see [Metrics](#metrics) below for others.  
+```py
+def test_loop(test_loader, model, loss_fn):
+    # Set the model to evaluation mode - important for batch normalization and dropout layers
+    # Unnecessary in this situation but added for best practices
+    model.eval()
+
+    ds_size = len(test_loader.dataset)  # total number of samples in test dataset
+    num_batches = len(test_loader)
+
+    # initialise cumulative total test loss and number of correct predictions
+    total_test_loss, correct = 0, 0
+
+    # Evaluating the model with torch.no_grad() ensures that no gradients are computed during test mode
+    # also serves to reduce unnecessary gradient computations and memory usage for tensors with requires_grad=True
+    with torch.no_grad():
+        # iterates test data in batches
+        for inputs, labels in test_loader:
+            pred = model(inputs)  # forward pass, pred.shape = [64, 10] = [samples_in_batch, class_scores-logits_for_each_sample]
+            total_test_loss += loss_fn(pred, labels).item()  # calculates loss for batch and accumulates it in total_test_loss
+
+            # pred.argmax(1) gives the index of the maximum logit (class prediction) for each sample
+            # pred.argmax(1).shape = [64] = number of samples in the batch
+            # (pred.argmax(1) == labels) compares predicted class indices with true label indices -> boolean tensor
+            # (pred.argmax(1) == labels).type(torch.float) converts boolean tensor to float (1.0 for correct, 0.0 for incorrect)
+            # .sum() adds up all the 1.0 values, counting the total number of correct predictions
+            # .item() converts the result to a Python float
+            correct += (pred.argmax(1) == labels).type(torch.float).sum().item()  # number of correct predictions
+
+    total_test_loss /= num_batches  # average loss across all batches
+    correct /= ds_size  # accuracy = number_of_correct_predictions / total_number_of_samples
+    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {total_test_loss:>8f} \n")  # accuracy displayed as percentage
+```
+
+##### <u>Iterate Train/Test Loops in Epochs</u>  
+* After each epoch, DataLoader will shuffle the samples if `shuffle=True` was defined when creating DataLoader objects, which helps reduce overfitting.  
+```py
+for t in range(epochs):
+    print(f"Epoch {t+1}\n-------------------------------")
+    train_loop(train_dataloader, nn_model, ce_loss, sgd_optimizer)
+    test_loop(test_dataloader, nn_model, ce_loss)
+print("Done!")
+```
+
+##### <u>Metrics</u>  
+
+|Item|Subheading|
+|:---:|:---:|
+| **1.** | [Confusion matrix](#confusion-matrix) |
+| **2.** | [Accuracy](#accuracy) |
+| **3.** | [Precision](#precision) |
+| **4.** | [Recall](#recall) |
+| **5.** | [F1-Score](#f1-score) |
+| **6.** | [Weighted metrics](#weighted-metrics) |
+| **7.** | [Test loop showing metric calculations](#test-loop-showing-metric-calculations)
+
+###### Confusion matrix:  
+|| Predicted Positive | Predicted Negative |
+|:---:|:---:|:---:|
+| **Actual Positive** | <span style="background-color:lightgreen;">True Positive (TP)</span> | <span style="background-color:lightcoral;">False Negative (FN)</span> |
+| **Actual Negative** | <span style="background-color:lightcoral;">False Positive (FP)</span> | <span style="background-color:lightgreen;">True Negative (TN)</span> |
+
+* Positive = in class
+* Negative = not in class
+* Actual = labeled as such
+* Predicted = model prediction
+
+###### Accuracy:  
+> Ratio of the number of correct predictions to the total number of samples.  
+
+\[
+\text{Accuracy} = \frac{\text{True Positives} + \text{True Negatives}}{\text{Total Number of Samples}}
+\]
+* How many predictions were accurate - **overall performance**.  
+* Simple to understand and compute.  
+* Useful when classes are balanced and every prediction is equally important and want a general sense of models performance.  
+* Not informative if the dataset is imbalanced, as can give misleading sense of performance by overestimating the importance of the majority class.  
+
+###### Precision:  
+> Ratio of true positive predictions to the sum of true and false positive predictions (or negative to sum of negatives).  
+
+\[
+\text{Precision} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Positives}}
+\]
+* **For those predicted class x, how many are actually class x**.  
+* Useful for understanding how many of the positive (or negative) predictions were correct.  
+* Important when the cost of false positives is high, such as in spam detection or medical diagnosis (false positives could mean misdiagnosis).  
+* Can be misleading if not considered alongside recall.  
+
+###### Recall:  
+> Ratio of true positive predictions to the sum of true positive and false negative predictions.  
+
+\[
+\text{Recall} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}
+\]
+* **For all in class x, how many were predicted class x**.  
+* Useful for understanding how many of the actual positives were correctly predicted.  
+* Crucial when the cost of false negatives is high, such as in detecting fraudulent transactions (missing a fraud is costly).  
+* Can be misleading if not considered alongside precision.  
+
+###### F1-Score:  
+> The harmonic mean of precision and recall, providing a balance between them.  
+
+
+\[
+\text{F1\text{-}Score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+\]
+* Useful when you need to balance precision and recall, especially in cases of imbalanced datasets.  
+* It might not give a clear picture if the precision and recall vary significantly.  
+
+###### Weighted metrics:  
+* Takes into account the number of samples (support) for each class when averaging.  
+* Classes with more samples have a larger influence on the final metric.  
+* Provides a more accurate representation of the model's performance on imbalanced datasets because it considers the distribution of classes.  
+* However it can mask poor performance on minority classes.  
+
+###### Test loop showing metric calculations:  
+* Typically `average loss` and `accuracy` will suffice.  
+* See [Define Train/Test Loops](#define-traintest-loops) for more information on rest of loop.  
+```py
+def test_loop(test_loader, model, loss_fn):
+    model.eval()
+
+    ds_size = len(test_loader.dataset)  # total number of samples in test dataset
+    num_batches = len(test_loader)
+
+    total_test_loss = 0
+
+    # initialise tensors to store predictions and labels
+    all_preds = torch.tensor([], dtype=torch.long, device=device)  # Ensure it's on the correct device
+    all_labels = torch.tensor([], dtype=torch.long, device=device)  # Ensure it's on the correct device
+
+    with torch.no_grad():
+        for inputs, labels in test_loader:
+            pred = model(inputs)  
+            total_test_loss += loss_fn(pred, labels).item()  
+
+            # concatenate predictions (index of highest raw logit) and labels (index of correct class)
+            all_preds = torch.cat((all_preds, pred.argmax(1)))
+            all_labels = torch.cat((all_labels, labels))
+
+    # average loss across all batches
+    total_test_loss /= num_batches
+
+    # Calculate accuracy
+    # if just calculating accuracy, 'correct' can be moved into for loop initialised as an int = 0;
+    # then use: correct += (pred.argmax(1) == labels).type(torch.float).sum().item()
+    correct = (all_preds == all_labels).type(torch.float).sum().item()  # compares predicted class to true class (indices), converts to float tensor, sums correct predictions and extracts to float
+    accuracy = correct / ds_size
+
+    # total number of classes
+    num_classes = torch.numel(torch.unique(all_labels))
+
+    # initialise tensors for precision, recall, and f1-score
+    precision_per_class = torch.zeros(num_classes)
+    recall_per_class = torch.zeros(num_classes)
+    f1_per_class = torch.zeros(num_classes)
+
+    # calculate precision, recall, and F1-score for each class
+    for cla in range(num_classes):
+        true_positive = ((all_preds == cla) & (all_labels == cla)).sum().item()  # correctly predicted the class
+        false_positive = ((all_preds == cla) & (all_labels != cla)).sum().item()  # type 1 error, incorrectly predicted the class
+        false_negative = ((all_preds != cla) & (all_labels == cla)).sum().item()  # type 2 error, incorrectly predicted a different class
+
+        precision = true_positive / (true_positive + false_positive) if (true_positive + false_positive) > 0 else 0
+        recall = true_positive / (true_positive + false_negative) if (true_positive + false_negative) > 0 else 0
+
+        # unweighted metrics
+        precision_per_class[cla] = precision
+        recall_per_class[cla] = recall
+        f1_per_class[cla] = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+
+    # number of samples per class (support) for use in weighted calculations
+    support_per_class = torch.tensor([(all_labels == i).sum().item() for i in range(num_classes)])
+
+    # calculate weighted average precision, recall, and F1-score
+    weighted_precision = (precision_per_class * support_per_class).sum().item() / ds_size
+    weighted_recall = (recall_per_class * support_per_class).sum().item() / ds_size
+    weighted_f1 = (f1_per_class * support_per_class).sum().item() / ds_size
+
+    print(f"Test Error: \n Accuracy: {(100*accuracy):>0.1f}%, Avg loss: {total_test_loss:>8f}")  # accuracy displayed as percentage
+    print(f" Precision: {weighted_precision:.4f}, Recall: {weighted_recall:.4f}, F1-Score: {weighted_f1:.4f}\n")
+```
 
 <br>
 
@@ -748,6 +992,8 @@ optimizer.step()
 ### <u>Loss Functions</u>
 
 * Measures the degree of dissimilarity of obtained result to the target value - want to **minimise** during training.  
+* **Loss function classes** - [torch.nn.<loss_function>](https://pytorch.org/docs/stable/nn.html#loss-functions) requires instantiation and is used as an object. They can maintain internal states or configurations that persist across calls to the instance - use when you need to maintain or reuse specific configurations across multiple invocations - **usual choice**.  
+* **Stateless Loss Functions** - [torch.nn.functional.<loss_function>](https://pytorch.org/docs/stable/nn.functional.html#loss-functions) are called directly without needing to create an instance. All necessary arguments/options need to be provided in each function call - use for a more concise and straightforward implementation where state management is not required.  
 * See [Initialise Loss Function](#initialise-loss-function) above for more information on initialising and use.  
 
 |Function|Function class|For task|Notes|
