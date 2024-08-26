@@ -899,7 +899,6 @@ $$
 ###### F1-Score:  
 > The harmonic mean of precision and recall, providing a balance between them.  
 
-
 $$
 \text{F1\text{-}Score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
 $$
