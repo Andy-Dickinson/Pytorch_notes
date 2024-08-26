@@ -900,7 +900,7 @@ $$
 > The harmonic mean of precision and recall, providing a balance between them.  
 
 $$
-\text{F1\text{-}Score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+\text{F1-Score} = 2 \times \frac{\mathrm{Precision} \times \mathrm{Recall}}{\mathrm{Precision} + \mathrm{Recall}}
 $$
 * Useful when you need to balance precision and recall, especially in cases of imbalanced datasets.  
 * It might not give a clear picture if the precision and recall vary significantly.  
