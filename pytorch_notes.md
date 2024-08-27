@@ -635,12 +635,11 @@ $$
 \text{Leaky ReLU}(x) = \begin{cases} 
 x & \text{if } x \geq 0, \\ 
 \alpha x & \text{otherwise}\end{cases}
-\\
-\\
-\text{\footnotesize Where } \footnotesize\alpha \text{ is a small constant representing negative slope}
-\\
-\text{\footnotesize Default: }\footnotesize\alpha = 1e^{-2}
 $$
+<div align="center">
+
+<sup>Where $\alpha$ is a small constant representing negative slope. Default: $\alpha = 1e^{-2}$</sup>
+</div>
 
 <p align="center">
 <img src="./img/LeakyReLU.png" alt="Leaky_ReLU" width="400"> 
@@ -661,9 +660,11 @@ $$
 \text{PReLU}(x) = \begin{cases} 
 x & \text{if } x \geq 0, \\ 
 \alpha x & \text{otherwise}\end{cases}
-\\
-\text{\footnotesize Where }\footnotesize\alpha \text{ is a learnable parameter for the negative slope}
 $$
+<div align="center"> 
+
+<sup>Where $\alpha$ is a learnable parameter for the negative slope.</sup>
+</div>
 
 <p align="center">
 <img src="./img/PReLU.png" alt="PReLU" width="400"> 
@@ -683,11 +684,11 @@ $$
 \text{ELU}(x) = \begin{cases} 
 x & \text{if } x \gt 0, \\ 
 \alpha * (\text{exp}(x)-1), & \text{otherwise}\end{cases}
-\\
-\text{\footnotesize Where }\footnotesize\alpha \text{ is a positive constant for ELU formulation}
-\\
-\text{\footnotesize Default:}\footnotesize\alpha = 1.0
 $$
+<div align="center">
+
+<sup>Where $\alpha$ is a positive constant for ELU formulation. Default: $\alpha = 1.0$</sup>
+</div>
 
 <p align="center">
 <img src="./img/ELU.png" alt="ELU" width="400"> 
@@ -706,11 +707,11 @@ $$
 \text{SELU}(x) = \lambda \begin{cases} 
 x & \text{if } x \gt 0, \\ 
 \alpha * (\text{exp}(x)-1), & \text{otherwise}\end{cases}
-\\
-\text{\footnotesize Where }\footnotesize\lambda \text{ (scale) and }\alpha \text{ are fixed parameters} 
-\\
-\text{\footnotesize Default: }\footnotesize\lambda \text{\footnotesize { (scale)}} = 1.0507..., \footnotesize\alpha = 1.67326...
 $$
+<div align="center">
+
+<sup>Where $\lambda$ (scale) and $\alpha$ are fixed parameters. Default: $\lambda$ (scale) $= 1.0507..., \alpha = 1.67326...$</sup>
+</div>
 
 <p align="center">
 <img src="./img/SELU.png" alt="SELU" width="400"> 
@@ -762,9 +763,11 @@ $$
 
 $$
 \text{Softmax}(x_i) = \frac{\text{exp}(x_i)}{\sum_{j}\text{exp}(x_j)}
-\\
-\text{\footnotesize Elements of the n-dimensional output Tensor lie in the range }\footnotesize [0,1]  \text{\footnotesize{ and sum to 1}}
 $$
+<div align="center">
+
+Elements of the n-dimensional output Tensor lie in the range $[0,1]$ and sum to $1$
+</div>
 
 |Pros|Cons|Use|
 |:---:|:---:|:---:|
@@ -779,11 +782,13 @@ $$
 
 $$
 \text{Softplus}(x) = \frac{1}{\beta}*\text{log}(1 + \text{exp}(\beta * x))
-\\
-\text {\footnotesize Where }\footnotesize\beta \text{ is the value for Softplus formulation}
-\\
-\text {\footnotesize Default: }1
 $$
+<div align="center">
+
+<sup>Where $\beta$ is the value for Softplus formulation. Default: $1$</sup>
+</div>
+
+
 
 <p align="center">
 <img src="./img/Softplus.png" alt="Softplus" width="400"> 
