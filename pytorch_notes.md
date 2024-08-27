@@ -785,7 +785,7 @@ $$
 $$
 <div align="center">
 
-<sup>Where $\beta$ is the value for Softplus formulation. Default: $1$</sup>
+<sup>Where $^{\beta}$ is the value for Softplus formulation. Default: $1$</sup>
 </div>
 
 
