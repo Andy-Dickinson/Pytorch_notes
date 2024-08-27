@@ -101,8 +101,8 @@ def test_loop(test_loader, model, loss_fn):
     total_test_loss = 0
 
     # initialise tensors to store predictions and labels
-    all_preds = torch.tensor([], dtype=torch.long, device=device)  # Ensure it's on the correct device
-    all_labels = torch.tensor([], dtype=torch.long, device=device)  # Ensure it's on the correct device
+    all_preds = torch.tensor([], dtype=torch.long, device=device)  # ensure it's on the correct device
+    all_labels = torch.tensor([], dtype=torch.long, device=device)  # ensure it's on the correct device
 
     # Evaluating the model with torch.no_grad() ensures that no gradients are computed during test mode
     # also serves to reduce unnecessary gradient computations and memory usage for tensors with requires_grad=True
@@ -137,13 +137,37 @@ def test_loop(test_loader, model, loss_fn):
         Important when the cost of false positives is high, such as in spam detection or medical diagnosis (false positives could mean misdiagnosis).
         Can be misleading if not considered alongside recall.
         
-    Recall:
+    Recall (aka Recall Sensitivity):
         Ratio of true positive predictions to the sum of true positive and false negative predictions.
         
         For all in class x, how many were predicted class x.
+        Performance with respect to positive class.
         Useful for understanding how many of the actual positives were correctly predicted.
         Crucial when the cost of false negatives is high, such as in detecting fraudulent transactions (missing a fraud is costly).
         Can be misleading if not considered alongside precision.
+        
+    False Negative Rate:
+        Ratio of actual positives that are incorrectly classified as negatives.
+        
+        For all in class x, how many were incorrectly identified as NOT in class x.  
+        Flip side of recall (sensitivity).  
+        Provides insight into how often the model fails to identify the positive class and misses positive cases.  
+        Crucial when the cost of missing a positive case (false negative) is high (e.g. in medical diagnosis could mean a significant number of patients with a disease are not being identified).  
+
+    Specificity (aka True Negative Rate (TNR)):  
+        Ratio of true negative predictions to the sum of true negative and false positive predictions - coverage of actual negative samples.  
+
+        For all NOT in class x, how many were predicted NOT in class x.  
+        Performance with respect to negative class.  
+        Useful in scenarios where it is important to correctly identify the negative class. Particularly when negative class is much more common than positive class (e.g. the absence of a disease, non-fraudulent transactions).  
+        High specificity indicates model is effectively reducing the number of false alarms (false positives).  
+
+    False Positive Rate (FPR):  
+        Ratio of false positive predictions to the sum of true negative and false positive predictions.  
+
+        For all NOT in class x, how many were incorrectly identified as being in class x.  
+        Flip side of specificity.  
+        Provides insight into how often the model makes mistakes by labeling negative cases as positive. 
         
     F1-Score:
         The harmonic mean of precision and recall, providing a balance between them.
@@ -157,7 +181,7 @@ def test_loop(test_loader, model, loss_fn):
         however it can mask poor performance on minority classes.
     """
 
-    # Calculate accuracy
+    # calculate accuracy
     # if just calculating accuracy, 'correct' can be moved into for loop initialised as an int = 0;
     # then use: correct += (pred.argmax(1) == labels).type(torch.float).sum().item()
     correct = (all_preds == all_labels).type(torch.float).sum().item()  # compares predicted class to true class (indices), converts to float tensor, sums correct predictions and extracts to float
@@ -166,40 +190,54 @@ def test_loop(test_loader, model, loss_fn):
     # total number of classes
     num_classes = torch.numel(torch.unique(all_labels))
 
-    # initialise tensors for precision, recall, and f1-score
+    # initialize tensors for metrics
     precision_per_class = torch.zeros(num_classes)
     recall_per_class = torch.zeros(num_classes)
     f1_per_class = torch.zeros(num_classes)
+    fnr_per_class = torch.zeros(num_classes)
+    specificity_per_class = torch.zeros(num_classes)
+    fpr_per_class = torch.zeros(num_classes)
 
-    # calculate precision, recall, and F1-score for each class
+    # calculate metrics for each class
     for cla in range(num_classes):
-        true_positive = ((all_preds == cla) & (all_labels == cla)).sum().item()  # correctly predicted the class
-        false_positive = ((all_preds == cla) & (all_labels != cla)).sum().item()  # type 1 error, incorrectly predicted the class
-        false_negative = ((all_preds != cla) & (all_labels == cla)).sum().item()  # type 2 error, incorrectly predicted a different class
+        true_positive = ((all_preds == cla) & (all_labels == cla)).sum().item()
+        false_positive = ((all_preds == cla) & (all_labels != cla)).sum().item()
+        false_negative = ((all_preds != cla) & (all_labels == cla)).sum().item()
+        true_negative = ((all_preds != cla) & (all_labels != cla)).sum().item()
 
         precision = true_positive / (true_positive + false_positive) if (true_positive + false_positive) > 0 else 0
         recall = true_positive / (true_positive + false_negative) if (true_positive + false_negative) > 0 else 0
+        fnr = false_negative / (false_negative + true_positive) if (false_negative + true_positive) > 0 else 0
+        specificity = true_negative / (true_negative + false_positive) if (true_negative + false_positive) > 0 else 0
+        fpr = false_positive / (false_positive + true_negative) if (false_positive + true_negative) > 0 else 0
 
-        # unweighted metrics
+        # unweighted metrics per-class
         precision_per_class[cla] = precision
         recall_per_class[cla] = recall
+        fnr_per_class[cla] = fnr
+        specificity_per_class[cla] = specificity
+        fpr_per_class[cla] = fpr
         f1_per_class[cla] = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
 
     # number of samples per class (support) for use in weighted calculations
     support_per_class = torch.tensor([(all_labels == i).sum().item() for i in range(num_classes)])
 
-    # calculate weighted average precision, recall, and F1-score
+    # calculate weighted average metrics
     weighted_precision = (precision_per_class * support_per_class).sum().item() / ds_size
     weighted_recall = (recall_per_class * support_per_class).sum().item() / ds_size
     weighted_f1 = (f1_per_class * support_per_class).sum().item() / ds_size
+    weighted_fnr = (fnr_per_class * support_per_class).sum().item() / ds_size
+    weighted_specificity = (specificity_per_class * support_per_class).sum().item() / ds_size
+    weighted_fpr = (fpr_per_class * support_per_class).sum().item() / ds_size
 
     print(f"Test Error: \n Accuracy: {(100*accuracy):>0.1f}%, Avg loss: {total_test_loss:>8f}")  # accuracy displayed as percentage
-    print(f" Precision: {weighted_precision:.4f}, Recall: {weighted_recall:.4f}, F1-Score: {weighted_f1:.4f}\n")
+    print(f" Precision: {weighted_precision:.4f}, Recall: {weighted_recall:.4f}, F1-Score: {weighted_f1:.4f}")
+    print(f" FNR: {weighted_fnr:.4f}, Specificity: {weighted_specificity:.4f}, FPR: {weighted_fpr:.4f}\n")
 
 
 # define loss function and optimizer
-ce_loss = nn.CrossEntropyLoss()
-sgd_optimizer = torch.optim.SGD(nn_model.parameters(), lr=learning_rate)
+ce_loss: nn.Module = nn.CrossEntropyLoss()
+sgd_optimizer: torch.optim.Optimizer = torch.optim.SGD(nn_model.parameters(), lr=learning_rate)
 
 
 # iterate train/test loops in epochs
