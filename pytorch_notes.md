@@ -498,7 +498,7 @@ tensor = tensor.to(device)
 * Operations on input data are done in the `forward` method (same for all `nn.module` subclasses). **Do NOT** directly call `model.forward()`, it is automatically called (via `nn.Module`) when we pass the model input data.  
 * Move instance of NeuralNetwork to available device ([see above](#get-device-for-training)).  
 * [Non-linear activations](https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity) (e.g. ReLU) are what create the complex mappings between the model’s inputs and outputs. They are applied after linear transformations to introduce nonlinearity, helping neural networks learn a wide variety of phenomena.  
-* See [`torch.nn` Module](#torchnn-module) below for information on neural network **layers** and **activation functions**.  
+* See [`torch.nn` module](#torchnn-module) and [activation functions](#activation-functions) below for information on neural network **layers** and **activation functions**.  
 ```py
 class NeuralNetwork(nn.Module):
         def __init__(self):
@@ -594,7 +594,204 @@ y_pred = pred_probab.argmax(1)
 
 ### <u>Activation Functions</u>
 
-* 
+* [Non-linear activations](https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity) play a crucial role by introducing non-linearity into the network, which allows the model to learn complex patterns.  
+
+|Function|Type|Graph|
+|:---:|:---:|:---:|
+|[ReLU (Rectified Linear Unit)](#relu-rectified-linear-unit)|<ul><li>Piecewise linear</li><li>Non-linear</li></ul>|<img src="./img/ReLU.png" alt="ReLU" width="200">|
+|[Leaky ReLU](#leaky-relu)|<ul><li>Piecewise linear</li><li>Non-linear</li></ul>|!<img src="./img/LeakyReLU.png" alt="Leaky_ReLU" width="200">|
+|[PReLU (Parametric ReLU)](#prelu-parametric-relu)|<ul><li>Piecewise linear</li><li>Non-linear</li></ul>|<img src="./img/PReLU.png" alt="PReLU" width="200">|
+|[ELU (Exponential Linear Unit)](#elu-exponential-linear-unit)|<ul><li>Non-linear</li><li>Smooth</li></ul>|<img src="./img/ELU.png" alt="ELU" width="200">|
+|[SELU (Scaled Exponential Linear Unit)](#selu-scaled-exponential-linear-unit)|<ul><li>Non-linear</li><li>Smooth</li><li>Self-normalising</li><ul>|<img src="./img/SELU.png" alt="SELU" width="200">|
+|[Sigmoid](#sigmoid)|<ul><li>Non-linear</li><li>Saturating</li><ul>|<img src="./img/Sigmoid.png" alt="Sigmoid" width="200">|
+|[Tanh (Hyperbolic Tangent)](#tanh-hyperbolic-tangent)|<ul><li>Non-linear</li><li>Smooth</li><ul>|<img src="./img/Tanh.png" alt="Tanh" width="200">|
+|[Softmax](#softmax)|<ul><li>Non-linear</li><li>Normalisation function</li><ul>|Converts (normalises) logits (a Tensor) of K real numbers into a probability distribution of K possible outcomes. After applying Softmax, each element will be in the interval $[0,1]$ and will sum to $1$|
+|[Softplus](#softplus)|<ul><li>Non-linear</li><li>Smooth</li><ul>|<img src="./img/Softplus.png" alt="Softplus" width="200">|
+
+
+###### ReLU (Rectified Linear Unit):  
+
+> `torch.nn.ReLU()`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html#torch.nn.ReLU).  
+
+$$
+\text{ReLU}(x) = \text{max}(0, x)
+$$
+
+<p align="center">
+<img src="./img/ReLU.png" alt="ReLU" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Computationally efficient (simple thresholding)</li><li>Helps mitigate the vanishing gradient problem</li><li>Introduces sparsity in the network (some neurons become inactive)</li></ul>|<ul><li>Can suffer from the "dying ReLU" problem, where neurons can become inactive and stuck at zero</li></ul>|<ul><li>Commonly used in hidden layers of deep neural networks</li><li>Suitable for most general-purpose tasks like image recognition, text processing, etc</li></ul>|
+
+###### Leaky ReLU:  
+
+> `torch.nn.LeakyReLU(negative_slope=0.01)`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.LeakyReLU.html#torch.nn.LeakyReLU).  
+
+$$
+\text{Leaky ReLU}(x) = \begin{cases} 
+x & \text{if } x \geq 0, \\ 
+\alpha x & \text{otherwise}\end{cases}
+\\
+\\
+\text{\footnotesize Where } \footnotesize\alpha \text{ is a small constant representing negative slope}
+\\
+\text{\footnotesize Default: }\footnotesize\alpha = 1e^{-2}
+$$
+
+<p align="center">
+<img src="./img/LeakyReLU.png" alt="Leaky_ReLU" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Prevents the dying ReLU problem by allowing a small gradient when $x$ is negative</li></ul>|<ul><li>May introduce a slight bias towards negative values</li></ul>|<ul><li>When you encounter the dying ReLU problem</li><li>Often used in generative networks like GANs</li></ul>|
+
+###### PReLU (Parametric ReLU):  
+
+> `torch.nn.PReLU(num_parameters=1, init=0.25, device=None, dtype=None)`  
+> `num_parameters – number of alpha to learn. Only two values are legitimate: 1, or number of channels at input. Default: 1`  
+> `init -  initial value of alpha. Default: 0.25`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.PReLU.html#torch.nn.PReLU).  
+
+$$
+\text{PReLU}(x) = \begin{cases} 
+x & \text{if } x \geq 0, \\ 
+\alpha x & \text{otherwise}\end{cases}
+\\
+\text{\footnotesize Where }\footnotesize\alpha \text{ is a learnable parameter for the negative slope}
+$$
+
+<p align="center">
+<img src="./img/PReLU.png" alt="PReLU" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Allows the network to learn the best slope for negative values</li><li>Provides more flexibility than Leaky ReLU</li></ul>|<ul><li>Slightly more complex to implement and may increase the risk of overfitting</li></ul>|<ul><li>When you want the model to adaptively learn the slope of the negative part</li></ul>|
+
+###### ELU (Exponential Linear Unit):  
+
+> `torch.nn.ELU(alpha=1.0)`  
+> `alpha - the alpha value for the ELU formulation. Default: 1.0`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.ELU.html#torch.nn.ELU).  
+
+$$
+\text{ELU}(x) = \begin{cases} 
+x & \text{if } x \gt 0, \\ 
+\alpha * (\text{exp}(x)-1), & \text{otherwise}\end{cases}
+\\
+\text{\footnotesize Where }\footnotesize\alpha \text{ is a positive constant for ELU formulation}
+\\
+\text{\footnotesize Default:}\footnotesize\alpha = 1.0
+$$
+
+<p align="center">
+<img src="./img/ELU.png" alt="ELU" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Helps mitigate the vanishing gradient problem</li><li>Smooth function, unlike ReLU, which can lead to better performance</li></ul>|<ul><li>More computationally expensive than ReLU</li><li>Can saturate for large negative inputs, which might slow down learning</li></ul>|<ul><li>When training deep networks where ReLU is not performing well</li></ul>|
+
+###### SELU (Scaled Exponential Linear Unit):  
+
+> `torch.nn.SELU()`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.SELU.html#torch.nn.SELU).  
+
+$$
+\text{SELU}(x) = \lambda \begin{cases} 
+x & \text{if } x \gt 0, \\ 
+\alpha * (\text{exp}(x)-1), & \text{otherwise}\end{cases}
+\\
+\text{\footnotesize Where }\footnotesize\lambda \text{ (scale) and }\alpha \text{ are fixed parameters} 
+\\
+\text{\footnotesize Default: }\footnotesize\lambda \text{\footnotesize { (scale)}} = 1.0507..., \footnotesize\alpha = 1.67326...
+$$
+
+<p align="center">
+<img src="./img/SELU.png" alt="SELU" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Self-normalising property helps maintain a stable mean and variance during training</li></ul>|<ul><li>Requires careful initialisation and architecture choices to work effectively</li></ul>|<ul><li>In deep networks where maintaining normalised activations is critical</li></ul>|
+
+###### Sigmoid:  
+
+> `torch.nn.Sigmoid()`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Sigmoid.html#torch.nn.Sigmoid).  
+
+$$
+\text{Sigmoid}(x) = \sigma(x) = \frac{1}{1 + \text{exp}(-x)}
+$$
+
+<p align="center">
+<img src="./img/Sigmoid.png" alt="Sigmoid" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Output values are in the range [0,1], which is useful for binary classification</li></ul>|<ul><li>Suffers from the vanishing gradient problem</li><li>Saturates at both extremes, leading to slow learning</li></ul>|<ul><li>Typically used in the output layer for binary classification problems</li></ul>|
+
+###### Tanh (Hyperbolic Tangent):  
+
+> `torch.nn.Tanh()`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Tanh.html#torch.nn.Tanh).  
+
+$$
+\text{Tanh}(x) = \text{tanh}(x) = \frac{2}{1 + \text{exp}(-2x)} - 1 = \frac{\text{sinh}(x)}{\text{cosh}(x)} = \frac{\text{exp}(x)-\text{exp}(-x)}{\text{exp}(x)+\text{exp}(-x)}
+$$
+
+<p align="center">
+<img src="./img/Tanh.png" alt="Tanh" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Output values are in the range [−1,1], which can help with centreing data</li></ul>|<ul><li>Suffers from the vanishing gradient problem</li><li>Can saturate and slow down learning, similar to the sigmoid function</li></ul>|<ul><li>Often used in hidden layers when the data needs to be centered around zero</li></ul>|
+
+###### Softmax:  
+
+> `torch.nn.Softmax(dim=None)`  
+> `dim(int) - a dimension along which Softmax will be computed (so every slice along dim will sum to 1)`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html#torch.nn.Softmax).  
+
+$$
+\text{Softmax}(x_i) = \frac{\text{exp}(x_i)}{\sum_{j}\text{exp}(x_j)}
+\\
+\text{\footnotesize Elements of the n-dimensional output Tensor lie in the range }\footnotesize [0,1]  \text{\footnotesize{ and sum to 1}}
+$$
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Converts logits to probabilities that sum to 1, useful for multi-class classification</li></ul>|<ul><li>Sensitive to outliers due to the exponential function</li></ul>|<ul><li>Typically used in the output layer (last layer) of a network for multi-class classification problems</li></ul>|
+
+###### Softplus:  
+
+> `torch.nn.Softplus(beta=1.0, threshold=20.0)`  
+> `beta – the beta value for the Softplus formulation. Default: 1`  
+> `threshold – values above this revert to a linear function. Default: 20`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Softplus.html#torch.nn.Softplus).  
+
+$$
+\text{Softplus}(x) = \frac{1}{\beta}*\text{log}(1 + \text{exp}(\beta * x))
+\\
+\text {\footnotesize Where }\footnotesize\beta \text{ is the value for Softplus formulation}
+\\
+\text {\footnotesize Default: }1
+$$
+
+<p align="center">
+<img src="./img/Softplus.png" alt="Softplus" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Smooth approximation to ReLU</li><li>Avoids the zero gradient problem in ReLU</li></ul>|<ul><li>Computationally more expensive than ReLU</li><li>May not introduce as much sparsity as ReLU</li></ul>|<ul><li>When a smooth version of ReLU is preferred</li><li>Constrains output to always be positive</ul>|
 
 <br>
 
@@ -859,7 +1056,9 @@ print("Done!")
 | **9.** | [Test loop showing metric calculations](#test-loop-showing-metric-calculations)
 
 ###### Confusion matrix:  
+<p align="center">
 <img src="./img/confusion_matrix.png" alt="confusion_matrix" width="700">  
+</p>
 
 * Positive = in class
 * Negative = not in class
