@@ -712,7 +712,7 @@ x & \text{if } x \gt 0, \\
 $$
 <div align="center">
 
-Where $\lambda$ (scale) and $\alpha$ are fixed parameters.
+Where $\lambda$ (scale) and $\alpha$ are fixed parameters.<br>
 Default: $\lambda$ (scale) $= 1.0507..., \alpha = 1.67326...$
 </div>
 
@@ -788,7 +788,8 @@ $$
 $$
 <div align="center">
 
-Where $\beta$ is the value for Softplus formulation. Default: $1$
+Where $\beta$ is the value for Softplus formulation.
+Default: $1$
 </div>
 
 
