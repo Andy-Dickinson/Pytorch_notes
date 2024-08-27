@@ -638,7 +638,8 @@ x & \text{if } x \geq 0, \\
 $$
 <div align="center">
 
-<sup>Where $\alpha$ is a small constant representing negative slope. Default: $\alpha = 1e^{-2}$</sup>
+Where $\alpha$ is a small constant representing negative slope.
+Default: $\alpha = 1e^{-2}$
 </div>
 
 <p align="center">
@@ -663,7 +664,7 @@ x & \text{if } x \geq 0, \\
 $$
 <div align="center"> 
 
-<sup>Where $\alpha$ is a learnable parameter for the negative slope.</sup>
+Where $\alpha$ is a learnable parameter for the negative slope.
 </div>
 
 <p align="center">
@@ -687,7 +688,8 @@ x & \text{if } x \gt 0, \\
 $$
 <div align="center">
 
-<sup>Where $\alpha$ is a positive constant for ELU formulation. Default: $\alpha = 1.0$</sup>
+Where $\alpha$ is a positive constant for ELU formulation.
+Default: $\alpha = 1.0$
 </div>
 
 <p align="center">
@@ -710,7 +712,8 @@ x & \text{if } x \gt 0, \\
 $$
 <div align="center">
 
-<sup>Where $\lambda$ (scale) and $\alpha$ are fixed parameters. Default: $\lambda$ (scale) $= 1.0507..., \alpha = 1.67326...$</sup>
+Where $\lambda$ (scale) and $\alpha$ are fixed parameters.
+Default: $\lambda$ (scale) $= 1.0507..., \alpha = 1.67326...$
 </div>
 
 <p align="center">
@@ -785,7 +788,7 @@ $$
 $$
 <div align="center">
 
-<sup>Where $^{\beta}$ is the value for Softplus formulation. Default: $^{1}$</sup>
+Where $\beta$ is the value for Softplus formulation. Default: $1$
 </div>
 
 
