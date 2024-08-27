@@ -638,7 +638,7 @@ x & \text{if } x \geq 0, \\
 $$
 <div align="center">
 
-Where $\alpha$ is a small constant representing negative slope.
+Where $\alpha$ is a small constant representing negative slope.<br>
 Default: $\alpha = 1e^{-2}$
 </div>
 
@@ -688,7 +688,7 @@ x & \text{if } x \gt 0, \\
 $$
 <div align="center">
 
-Where $\alpha$ is a positive constant for ELU formulation.
+Where $\alpha$ is a positive constant for ELU formulation.<br>
 Default: $\alpha = 1.0$
 </div>
 
@@ -788,7 +788,7 @@ $$
 $$
 <div align="center">
 
-Where $\beta$ is the value for Softplus formulation.
+Where $\beta$ is the value for Softplus formulation.<br>
 Default: $1$
 </div>
 
