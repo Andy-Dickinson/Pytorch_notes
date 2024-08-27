@@ -850,13 +850,16 @@ print("Done!")
 | **1.** | [Confusion matrix](#confusion-matrix) |
 | **2.** | [Accuracy](#accuracy) |
 | **3.** | [Precision](#precision) |
-| **4.** | [Recall](#recall) |
-| **5.** | [F1-Score](#f1-score) |
-| **6.** | [Weighted metrics](#weighted-metrics) |
-| **7.** | [Test loop showing metric calculations](#test-loop-showing-metric-calculations)
+| **4.** | [Recall (TPR)](#recall-aka-recall-sensitivity-aka-true-positive-rate-tpr) |
+| **5.** | [False Negative Rate (FNR)](#false-negative-rate-fnr) |
+| **5.** | [Specificity (TNR)](#specificity-aka-true-negative-rate-tnr) |
+| **6.** | [False Positive Rate (FPR)](#false-positive-rate-fpr) |
+| **7.** | [F1-Score](#f1-score) |
+| **8.** | [Weighted metrics](#weighted-metrics) |
+| **9.** | [Test loop showing metric calculations](#test-loop-showing-metric-calculations)
 
 ###### Confusion matrix:  
-![confusion_matrix](./img/confusion_matrix.png)
+<img src="./img/confusion_matrix.png" alt="confusion_matrix" width="700">  
 
 * Positive = in class
 * Negative = not in class
@@ -885,16 +888,50 @@ $$
 * Important when the cost of false positives is high, such as in spam detection or medical diagnosis (false positives could mean misdiagnosis).  
 * Can be misleading if not considered alongside recall.  
 
-###### Recall:  
-> Ratio of true positive predictions to the sum of true positive and false negative predictions.  
+###### Recall (aka Recall Sensitivity, aka True Positive Rate (TPR)):  
+> Ratio of true positive predictions to the sum of true positive and false negative predictions - coverage of actual positive samples.  
+
 
 $$
 \text{Recall} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}
 $$
 * **For all in class x, how many were predicted class x**.  
+* Performance with respect to postive class.  
 * Useful for understanding how many of the actual positives were correctly predicted.  
 * Crucial when the cost of false negatives is high, such as in detecting fraudulent transactions (missing a fraud is costly).  
-* Can be misleading if not considered alongside precision.  
+* Can be misleading if not considered alongside precision, as it doesn't account for the number of false positives.  
+
+###### False Negative Rate (FNR):  
+> Ratio of actual positives that are incorrectly classified as negatives.  
+
+$$
+\text{False Negative Rate} = \frac{\text{False Negatives}}{\text{True Positives} + \text{False Negatives}} = 1 - \text{Recall (Sensitivity)}
+$$
+* **For all in class x, how many were incorrectly identified as *NOT* in class x**.  
+* Flip side of recall (sensitivity).  
+* Provides insight into how often the model fails to identify the positive class and misses positive cases.  
+* Crucial when the cost of missing a positive case (false negative) is high (e.g. in medical diagnosis could mean a significant number of patients with a disease are not being identified).  
+
+###### Specificity (aka True Negative Rate (TNR)):  
+> Ratio of true negative predictions to the sum of true negative and false positive predictions - coverage of actual negative samples.  
+
+$$
+\text{Specificity} = \frac{\text{True Negatives}}{\text{True Negatives} + \text{False Positives}}
+$$
+* **For all *NOT* in class x, how many were predicted *NOT* in class x**.  
+* Performance with respect to negative class.  
+* Useful in scenarios where it is important to correctly identify the negative class. Particularly when negative class is much more common than positive class (e.g. the absence of a disease, non-fraudulent transactions).  
+* High specificity indicates model is effectively reducing the number of false alarms (false positives).  
+
+###### False Positive Rate (FPR):  
+> Ratio of false positive predictions to the sum of true negative and false positive predictions.  
+
+$$
+\text{False Positive Rate} = \frac{\text{False Positives}}{\text{False Positives} + \text{True Negatives}} = 1 - \text{Specificity}
+$$
+* **For all *NOT* in class x, how many were incorrectly identified as being in class x**.  
+* Flip side of specificity.  
+* Provides insight into how often the model makes mistakes by labeling negative cases as positive.  
 
 ###### F1-Score:  
 > The harmonic mean of precision and recall, providing a balance between them.  
