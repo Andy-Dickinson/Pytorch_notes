@@ -605,8 +605,18 @@ y_pred = pred_probab.argmax(1)
 |[SELU (Scaled Exponential Linear Unit)](#selu-scaled-exponential-linear-unit)|<ul><li>Non-linear</li><li>Smooth</li><li>Self-normalising</li><ul>|<img src="./img/SELU.png" alt="SELU" width="200">|
 |[Sigmoid](#sigmoid)|<ul><li>Non-linear</li><li>Saturating</li><ul>|<img src="./img/Sigmoid.png" alt="Sigmoid" width="200">|
 |[Tanh (Hyperbolic Tangent)](#tanh-hyperbolic-tangent)|<ul><li>Non-linear</li><li>Smooth</li><ul>|<img src="./img/Tanh.png" alt="Tanh" width="200">|
-|[Softmax](#softmax)|<ul><li>Non-linear</li><li>Normalisation function</li><ul>|Converts (normalises) logits (a Tensor) of K real numbers into a probability distribution of K possible outcomes. After applying Softmax, each element will be in the interval $[0,1]$ and will sum to $1$|
+|[Softmax](#softmax)|<ul><li>Non-linear</li><li>Normalisation function</li><ul>|Converts (normalises) logits (a Tensor) of K real numbers into a probability distribution of K possible outcomes. After applying Softmax, each element will be in the interval $[0,1]$ and will sum to $1$.<br>Focus is on large values (i.e. the largest input value will have the highest probability value|
 |[Softplus](#softplus)|<ul><li>Non-linear</li><li>Smooth</li><ul>|<img src="./img/Softplus.png" alt="Softplus" width="200">|
+|[SiLU (Sigmoid Linear Unit, aka Swish)](#silu-sigmoid-linear-unit-aka-swish)|<ul><li>Non-linear</li><li>Smooth</li></ul>|<img src="./img/SiLU.png" alt="SiLU" width="200">|
+|[GELU (Gaussian Error Linear Unit)](#gelu-gaussian-error-linear-unit)|<ul><li>Non-linear</li><li>Smooth</li></ul>|<img src="./img/GELU.png" alt="GELU" width="200">|
+|[Mish](#mish)|<ul><li>Non-linear</li><li>Smooth</li><li>Self Regularised</li><li>Non-Monotonic</li></ul>|<img src="./img/GELU.png" alt="GELU" width="200">|
+|[Hardtanh](#hardtanh)|<ul><li>Piecewise linear</li><li>Non-linear</li></ul>|<img src="./img/Hardtanh.png" alt="Hardtanh" width="200">|
+|[Softsign](#softsign)|<ul><li>Non-linear</li><li>Smooth</li></ul>|<img src="./img/Softsign.png" alt="Softsign" width="200">|
+|[LogSigmoid](#logsigmoid)|<ul><li>Non-linear</li><li>Smooth</li></ul>|<img src="./img/LogSigmoid.png" alt="LogSigmoid" width="200">|
+|[Hardshrink](#hardshrink)|<ul><li>Piecewise linear</li><li>Thresholding</li></ul>|<img src="./img/Hardshrink.png" alt="Hardshrink" width="200">|
+|[Softshrink](#softshrink)|<ul><li>Piecewise linear</li><li>Thresholding</li></ul>|<img src="./img/Softshrink.png" alt="Softshrink" width="200">|
+|[Threshold](#threshold)|<ul><li>Piecewise linear</li><li>Thresholding</li></ul>|Replaces values below a certain threshold with a fixed value|
+|[Softmin](#softmin)|<ul><li>Non-linear</li><li>Normalisation function</li><ul>|Converts (normalises) logits (a Tensor) of K real numbers into a probability distribution of K possible outcomes. After applying Softmin, each element will be in the interval $[0,1]$ and will sum to $1$.<br>Focus is on small values (i.e. the smallest input value will have the highest probability value|
 
 
 ###### ReLU (Rectified Linear Unit):  
@@ -633,7 +643,7 @@ $$
 
 $$
 \text{Leaky ReLU}(x) = \begin{cases} 
-x & \text{if } x \geq 0, \\ 
+x & \text{if } x \geq 0 \\ 
 \alpha x & \text{otherwise}\end{cases}
 $$
 <div align="center">
@@ -659,7 +669,7 @@ Default: $\alpha = 1e^{-2}$
 
 $$
 \text{PReLU}(x) = \begin{cases} 
-x & \text{if } x \geq 0, \\ 
+x & \text{if } x \geq 0 \\ 
 \alpha x & \text{otherwise}\end{cases}
 $$
 <div align="center"> 
@@ -683,8 +693,8 @@ Where $\alpha$ is a learnable parameter for the negative slope.
 
 $$
 \text{ELU}(x) = \begin{cases} 
-x & \text{if } x \gt 0, \\ 
-\alpha * (\text{exp}(x)-1), & \text{otherwise}\end{cases}
+x & \text{if } x \gt 0 \\ 
+\alpha * (\text{exp}(x)-1) & \text{otherwise}\end{cases}
 $$
 <div align="center">
 
@@ -707,8 +717,8 @@ Default: $\alpha = 1.0$
 
 $$
 \text{SELU}(x) = \lambda \begin{cases} 
-x & \text{if } x \gt 0, \\ 
-\alpha * (\text{exp}(x)-1), & \text{otherwise}\end{cases}
+x & \text{if } x \gt 0 \\ 
+\alpha * (\text{exp}(x)-1) & \text{otherwise}\end{cases}
 $$
 <div align="center">
 
@@ -792,15 +802,217 @@ Where $\beta$ is the value for Softplus formulation.<br>
 Default: $1$
 </div>
 
-
-
 <p align="center">
 <img src="./img/Softplus.png" alt="Softplus" width="400"> 
 </p>
 
 |Pros|Cons|Use|
 |:---:|:---:|:---:|
-|<ul><li>Smooth approximation to ReLU</li><li>Avoids the zero gradient problem in ReLU</li></ul>|<ul><li>Computationally more expensive than ReLU</li><li>May not introduce as much sparsity as ReLU</li></ul>|<ul><li>When a smooth version of ReLU is preferred</li><li>Constrains output to always be positive</ul>|
+|<ul><li>Smooth approximation to ReLU</li><li>Avoids the zero gradient problem in ReLU</li></ul>|<ul><li>Computationally more expensive than ReLU</li><li>May not introduce as much sparsity as ReLU</li></ul>|<ul><li>When a smooth version of ReLU is preferred</li><li>Constrains output to always be positive</li></ul>|
+
+###### SiLU (Sigmoid Linear Unit, aka Swish):  
+
+> `torch.nn.SiLU()`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.SiLU.html#torch.nn.SiLU).  
+
+$$
+\text{SiLU}(x) = x * \text{Sigmoid}(x)
+$$
+
+<p align="center">
+<img src="./img/SiLU.png" alt="SiLU" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Smooth non-linearity, often outperforms ReLU in deep networks</li></ul>|<ul><li>Computationally more expensive than ReLU</li></ul>|<ul><li>When you want better performance in deep networks, especially in NLP or image classification tasks</li></ul>|
+
+###### GELU (Gaussian Error Linear Unit):  
+
+> `torch.nn.GELU(approximate='none')`  
+> `approximate – the gelu approximation algorithm to use: 'none' | 'tanh'. Default: 'none'`
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.GELU.html#torch.nn.GELU).  
+
+$$
+\text{GELU}(x) = x * \Phi(x)
+$$
+<div align="center">
+
+Where $\Phi(x)$ is the Cumulative Distribution Function (CDF) of the Gaussian distribution.<br>
+When the approximate argument is ‘tanh’, Gelu is estimated with:
+</div>
+
+$$
+\text{GELU}(x) = 0.5 ∗ x ∗ (1 + \text{Tanh}(\sqrt{2/\pi} * (x + 0.044715 ∗ x^{3})))
+$$
+
+<p align="center">
+<img src="./img/GELU.png" alt="GELU" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Smooth non-linearity that often leads to better performance in deep models</li><li>Natural approximation to the ReLU and Softplus functions</li></ul>|<ul><li>More complex and computationally expensive</li></ul>|<ul><li>Popular in NLP models like BERT and other transformer architectures</li></ul>|
+
+###### Mish:  
+
+> `torch.nn.Mish()`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Mish.html#torch.nn.Mish).  
+
+$$
+\text{Mish}(x) = x * \text{Tanh}(\text{Softplus}(x))
+$$
+
+<p align="center">
+<img src="./img/Mish.png" alt="Mish" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Retains small negative values and smooth non-linearity</li><li>Can outperform ReLU and Swish in certain tasks</li></ul>|<ul><li>Computationally expensive</li><li>Relatively new, so less studied in various architectures</li></ul>|<ul><li>Experimental use in deep networks, often in vision tasks</li></ul>|
+
+###### Hardtanh:  
+
+> `torch.nn.Hardtanh(min_val=-1.0, max_val=1.0)`  
+> `min_val - minimum value of the linear region range. Default: -1`  
+> `max_val - maximum value of the linear region range. Default: 1`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Hardtanh.html#torch.nn.Hardtanh).  
+
+$$
+\text{Hardtanh}(x) = \begin{cases} 
+\text{min\_val} & \text{if } x \lt \text{min\_val} \\ 
+\text{max\_val} & \text{if } x \gt \text{max\_val} \\
+x & \text{otherwise}\end{cases}
+$$
+
+<p align="center">
+<img src="./img/Hardtanh.png" alt="Hardtanh" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Computationally efficient</li><li>Bounded output, preventing exploding activations</li></ul>|<ul><li>Non-smooth, which may affect gradient-based optimisation</li></ul>|<ul><li>When you need a bounded activation function with a linear range</li></ul>|
+
+###### Softsign:  
+
+> `torch.nn.Softsign()`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Softsign.html#torch.nn.Softsign).  
+
+$$
+\text{Softsign}(x) = \frac{x}{1 + |x|}
+$$
+
+<p align="center">
+<img src="./img/Softsign.png" alt="Softsign" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Smooth approximation to the identity function</li><li>Outputs are bounded between [-1, 1]</li></ul>|<ul><li>Similar saturation problems as sigmoid and tanh</li></ul>|<ul><li>When a smooth, bounded activation function is required</li></ul>|
+
+###### LogSigmoid:  
+
+> `torch.nn.LogSigmoid()`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.LogSigmoid.html#torch.nn.LogSigmoid).  
+
+$$
+\text{LogSigmoid}(x) = \text{log}(\frac{1}{1 + \text{exp}(-x)})
+$$
+
+<p align="center">
+<img src="./img/LogSigmoid.png" alt="LogSigmoid" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Combines the benefits of the sigmoid function with log compression</li></ul>|<ul><li>Computationally expensive due to the logarithm and exponential operations</li></ul>|<ul><li>Useful in probabilistic models where log-probabilities are required</li></ul>|
+
+###### Hardshrink:  
+
+> `torch.nn.Hardshrink(lambd=0.5)`  
+> `lambd – the λ value for the Hardshrink formulation. Default: 0.5`    
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Hardshrink.html#torch.nn.Hardshrink).  
+
+$$
+\text{Hardshrink}(x) = \begin{cases}
+x & \text{if }|x| \gt \lambda \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+<p align="center">
+<img src="./img/Hardshrink.png" alt="Hardshrink" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Introduces sparsity by thresholding small values</li></ul>|<ul><li>Non-differentiable at ±𝜆</li></ul>|<ul><li>In tasks where sparsity is desired, like in certain signal processing tasks</li></ul>|
+
+###### Softshrink:  
+
+> `torch.nn.Softshrink(lambd=0.5)`  
+> `lambd – the λ (must be no less than zero) value for the Softshrink formulation. Default: 0.5`    
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Softshrink.html#torch.nn.Softshrink).  
+
+$$
+\text{Softshrink}(x) = \begin{cases}
+x - \lambda & \text{if }x \gt \lambda \\
+x + \lambda & \text{if }x \lt - \lambda \\
+0 & \text{otherwise}
+\end{cases}
+$$
+<div align="center">
+
+Where $\lambda$ is a threshold value
+</div>
+
+<p align="center">
+<img src="./img/Softshrink.png" alt="Softshrink" width="400"> 
+</p>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Introduces sparsity by thresholding small values</li><li>Smooth version of Hardshrink</li></ul>|<ul><li>Requires tuning of the 𝜆 parameter</li></ul>|<ul><li>In tasks requiring smooth thresholding and sparsity</li></ul>|
+
+###### Threshold:  
+
+> `torch.nn.Threshold(threshold, value)`  
+> `threshold – The value to threshold at`    
+> `value – The value to replace with`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Threshold.html#torch.nn.Threshold).  
+
+$$
+\text{Threshold}(x) = \begin{cases}
+x & \text{if }x \gt \theta \\
+\text{value} & \text{otherwise}
+\end{cases}
+$$
+<div align="center">
+
+where $\theta$ is the threshold.
+</div>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Simple thresholding function</li></ul>|<ul><li>Requires careful choice of threshold value</li></ul>|<ul><li>When a specific thresholding behavior is desired</li></ul>|
+
+###### Softmin:  
+
+> `torch.nn.Softmin(dim=None)`  
+> `dim (int) – A dimension along which Softmin will be computed (so every slice along dim will sum to 1)`    
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Softmin.html#torch.nn.Softmin).  
+
+$$
+\text{Softmin}(x_i) = \frac{\text{exp}(-x_i)}{\sum_{j}\text{exp}(-x_j)}
+$$
+<div align="center">
+
+Elements of the n-dimensional output Tensor lie in the range $[0,1]$ and sum to $1$
+</div>
+
+|Pros|Cons|Use|
+|:---:|:---:|:---:|
+|<ul><li>Similar to softmax but emphasises smaller values</li></ul>|<ul><li>May not be as intuitive or commonly used as softmax</li></ul>|<ul><li>When you need to emphasise smaller values in the output</li></ul>|
 
 <br>
 
