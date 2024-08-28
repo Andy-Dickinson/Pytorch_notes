@@ -880,8 +880,8 @@ $$
 
 $$
 \text{Hardtanh}(x) = \begin{cases} 
-\text{min}\_\text{val} & \text{if } x \lt \text{min}\_\text{val} \\ 
-\text{max}\_\text{val} & \text{if } x \gt \text{max}\_\text{val} \\
+\text{min val} & \text{if } x \lt \text{min val} \\ 
+\text{max val} & \text{if } x \gt \text{max val} \\
 x & \text{otherwise}\end{cases}
 $$
 
