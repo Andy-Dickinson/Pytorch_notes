@@ -3,6 +3,8 @@
 ---  
 
 ### <p align="center">Table of Contents</p>  
+<div align="center">
+
 |Item|<div align="center">Heading</div>|<div align="center">Subcontents</div>|
 |:---:|:---|:---|
 | **1.** | [Reference Links](#reference-links) ||
@@ -15,6 +17,8 @@
 | **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
 | **9.** | [Loss Functions](#loss-functions) ||
 | **10.** | [Optimizers](#optimizers) ||
+
+</div>
 
 <br>
 
