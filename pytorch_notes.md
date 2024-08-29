@@ -600,7 +600,7 @@ y_pred = pred_probab.argmax(1)
 
 [⬇ Jump to Functions ⬇](#table-of-activation-functions)    
 
-* [Non-linear activations](https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity) (one that **cannot be represented as a straight line** in a graph) play a crucial role by introducing non-linearity into the network, which allows the model to learn complex patterns.  
+* [Non-linear activations](https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity) (one that **cannot be represented as a straight line** in a graph) play a crucial role by introducing non-linearity into the network, which allows the model to learn complex patterns. The emphasis on transforming low values while maintaining high values in activation functions is a deliberate design choice aimed at ensuring effective learning, stability during training, efficient computation, and the ability to model complex, non-linear relationships.  
 * A **piecewise linear** function is one **composed of straight-line segments**. Meaning the function is linear over certain intervals, but the overall function is not a single continous line - computationally efficient (due to their simplicity) and still introduce non-linearity.  
 * **Smooth** functions are ones that are **continuously differentiable**, meaning there are no abrupt changes or sharp corners in the function’s graph.   
 * A **non-monotonic** function is one that **does not consistently increase or decrease but instead can change direction**. In other words, it can have multiple local maxima and minima. Can capture more complex relationships between inputs and outputs, potentially leading to better performance in certain tasks.  
