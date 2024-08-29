@@ -625,7 +625,7 @@ y_pred = pred_probab.argmax(1)
 |Function|<div align="center">Type and Differentiability</div>|Graph|
 |:---:|:---|:---:|
 |[ReLU (Rectified Linear Unit)](#relu-rectified-linear-unit)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Differentiable everywhere except at zero</li></ul>|<img src="./img/ReLU.png" alt="ReLU" width="200">|
-|[Leaky ReLU](#leaky-relu)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Differentiable everywhere, including at zero</li></ul>|!<img src="./img/LeakyReLU.png" alt="Leaky_ReLU" width="200">|
+|[Leaky ReLU](#leaky-relu)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Differentiable everywhere, including at zero</li></ul>|<img src="./img/LeakyReLU.png" alt="Leaky_ReLU" width="200">|
 |[PReLU (Parametric ReLU)](#prelu-parametric-relu)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/PReLU.png" alt="PReLU" width="200">|
 |[Hardtanh](#hardtanh)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Saturating</li></ul><ul><li>Non-differentiable at the points where it transitions (min_val and max_val)</li></ul>|<img src="./img/Hardtanh.png" alt="Hardtanh" width="200">|
 |[Hardshrink](#hardshrink)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Non-differentiable at the thresholds</li></ul>|<img src="./img/Hardshrink.png" alt="Hardshrink" width="200">|
