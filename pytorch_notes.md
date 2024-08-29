@@ -3,13 +3,13 @@
 ---  
 
 ### <p align="center">Table of Contents</p>  
-|Item|Heading|Subcontents|
-|:---:|:---:|:---:|
+|Item|<div align="center">Heading</div>|<div align="center">Subcontents</div>|
+|:---:|:---|:---|
 | **1.** | [Reference Links](#reference-links) ||
 | **2.** | [Tensors](#tensors) | [Initialising](#initialising-a-tensor),<br>[Attributes](#attributes-of-a-tensor),<br>[Operations](#operations-on-a-tensor) - indexing, joining, arithmetic etc., |
 | **3.** | [Datasets & DataLoaders](#datasets--dataloaders) | [Loading datasets](#loading-datasets),<br>[Transforms](#transforms),<br>[Creating a Custom Dataset](#creating-a-custom-dataset),<br>[Iterating & Visualising the Dataset](#iterating--visualising-the-dataset),<br>[Preparing Data for Training with DataLoaders](#preparing-data-for-training-with-dataloaders) |
 | **4.** | [Building a Neural Network](#building-a-neural-network) | [Get Device for Training](#get-device-for-training),<br>[Define the Class](#define-the-class),<br>[Using a Model](#using-a-model) |
-| **5.** | [`torch.nn` Module](#torchnn-module) | Basic building blocks for graphs including neural net **layers, activation functions and loss functions** |
+| **5.** | [`torch.nn` Module](#torchnn-module) | Basic building blocks for graphs including neural net:<br>**layers, activation functions and loss functions** |
 | **6.** | [Activation Functions](#activation-functions) |[Information on Function Types and Problems](#activation-functions),<br>[Table of Activation Functions](#table-of-activation-functions)|
 | **7.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
 | **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
@@ -45,8 +45,8 @@ import numpy as np
 
 ##### <u>Initialising a Tensor</u>  
 
-|Item|Subheading|
-|:---:|:---:|
+|Item|<div align="center">Subheading</div>|
+|:---:|:---|
 | **1.** | [Directly from data](#directly-from-data) |
 | **2.** | [From a NumPy array](#from-a-numpy-array) |
 | **3.** | [From another tensor](#from-another-tensor) |
@@ -107,8 +107,8 @@ device = tensor.device  # device tensor is stored on (CPU, GPU)
 
 [Available operations](https://pytorch.org/docs/stable/torch.html) includes **arithmetic, linear algebra, matrix manipulation (transposing, indexing, slicing), sampling** (generating random values, seeding, sample from various distributions, random selection, noise addition, shuffling etc.) and more.  
 
-|Item|Subheading|
-|:---:|:---:|
+|Item|<div align="center">Subheading</div>|
+|:---:|:---|
 | **1.** | [CPU / GPU device](#cpu--gpu-device) |
 | **2.** | [Indexing and slicing](#indexing-and-slicing) |
 | **3.** | [Joining tensors](#joining-tensors) |
@@ -611,8 +611,8 @@ y_pred = pred_probab.argmax(1)
 * The **dying ReLU problem** occurs when **neurons** in a neural network **consistently output zero for any input**. This typically happens when a ReLU neuron’s weights are updated in such a way that its input is always negative, causing it to output zero and stop contributing to the model ("dying"). ReLU variants allow a small, non-zero gradient when the input is negative to mitigate this.  
 
 ###### Table of activation functions:  
-|Grouped by type|
-|:---:|
+|<div align="center">Grouped by type</div>|
+|:---|
 |[Piecewise linear and thresholding functions](#piecewise-linear-and-thresholding-functions)|
 |[Smooth and non-linear functions](#smooth-and-non-linear-functions)|
 |[Normalising functions](#normalising-functions)|
@@ -629,8 +629,8 @@ y_pred = pred_probab.argmax(1)
 |[Threshold](#threshold)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Non-differentiable at the threshold</li></ul>|Replaces values below a certain threshold with a fixed value|
 
 ###### Smooth and non-linear functions:  
-|Function|Type and Differentiability|Graph|
-|:---:|:---:|:---:|
+|Function|<div align="center">Type and Differentiability</div>|Graph|
+|:---:|:---|:---:|
 |[ELU (Exponential Linear Unit)](#elu-exponential-linear-unit)|<ul><li>Non-linear</li><li>Smooth</li><li>Self-normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/ELU.png" alt="ELU" width="200">|
 |[SELU (Scaled Exponential Linear Unit)](#selu-scaled-exponential-linear-unit)|<ul><li>Non-linear</li><li>Smooth</li><li>Self-normalising</li><li>Saturating</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/SELU.png" alt="SELU" width="200">|
 |[Sigmoid](#sigmoid)|<ul><li>Non-linear</li><li>Smooth</li><li>Saturating</li><li>Normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/Sigmoid.png" alt="Sigmoid" width="200">|
@@ -643,10 +643,10 @@ y_pred = pred_probab.argmax(1)
 |[LogSigmoid](#logsigmoid)|<ul><li>Non-linear</li><li>Smooth</li><li>Saturating</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/LogSigmoid.png" alt="LogSigmoid" width="200">|
 
 ###### Normalising functions:  
-|Function|Type and Differentiability|Graph|
-|:---:|:---:|:---:|
-|[Softmax](#softmax)|<ul><li>Non-linear</li><li>Smooth</li><li>Normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|Converts (normalises) logits (a Tensor) of K real numbers into a probability distribution of K possible outcomes. After applying Softmax, each element will be in the interval $[0,1]$ and will sum to $1$.<br>Focus is on large values (i.e. the largest input value will have the highest probability value)|
-|[Softmin](#softmin)|<ul><li>Non-linear</li><li>Smooth</li><li>Normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|Converts (normalises) logits (a Tensor) of K real numbers into a probability distribution of K possible outcomes. After applying Softmin, each element will be in the interval $[0,1]$ and will sum to $1$.<br>Focus is on small values (i.e. the smallest input value will have the highest probability value)|
+|Function|<div align="center">Type and Differentiability</div>|<div align="center">Description</div>|
+|:---:|:---|:---|
+|[Softmax](#softmax)|<ul><li>Non-linear</li><li>Smooth</li><li>Normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|Converts (normalises) logits (a Tensor) of K real numbers into a probability distribution of K possible outcomes.<br>After applying Softmax, each element will be in the interval $[0,1]$ and will sum to $1$.<br>Focus is on large values (i.e. the largest input value will have the highest probability value)|
+|[Softmin](#softmin)|<ul><li>Non-linear</li><li>Smooth</li><li>Normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|Converts (normalises) logits (a Tensor) of K real numbers into a probability distribution of K possible outcomes.<br>After applying Softmin, each element will be in the interval $[0,1]$ and will sum to $1$.<br>Focus is on small values (i.e. the smallest input value will have the highest probability value)|
 
 
 ###### ReLU (Rectified Linear Unit):  
@@ -662,8 +662,8 @@ $$
 <img src="./img/ReLU.png" alt="ReLU" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Computationally efficient (simple thresholding)</li><li>Helps mitigate the vanishing gradient problem</li><li>Introduces sparsity in the network (some neurons become inactive)</li><li>Less prone to exploding gradients but can still experience this problem in very deep networks</li></ul>|<ul><li>Can suffer from the "dying ReLU" problem, where neurons can become inactive and stuck at zero</li></ul>|<ul><li>Commonly used in hidden layers of deep neural networks, especially CNNs due to its simplicity and efficiency</li><li>Suitable for most general-purpose tasks like image recognition, text processing, etc</li></ul>|<ul><li>Very efficient since it only involves a simple comparison and has no complex operations</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)   
@@ -688,8 +688,8 @@ Default: $\alpha = 1e^{-2}$
 <img src="./img/LeakyReLU.png" alt="Leaky_ReLU" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Prevents the dying ReLU problem by allowing a small gradient when $x$ is negative</li><li>Less prone to exploding gradients but can still experience this problem in very deep networks</li></ul>|<ul><li>May introduce a slight bias towards negative values</li></ul>|<ul><li>When you encounter the dying ReLU problem</li><li>Often used in generative networks like GANs</li></ul>|<ul><li>Slightly more computationally expensive than ReLU, but still very efficient</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -715,8 +715,8 @@ Where $\alpha$ is a learnable parameter for the negative slope.
 <img src="./img/PReLU.png" alt="PReLU" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Allows the network to learn the best slope for negative values</li><li>Provides more flexibility than Leaky ReLU</li><li>Less prone to exploding gradients but can still experience this problem in very deep networks</li></ul>|<ul><li>Slightly more complex to implement and may increase the risk of overfitting</li></ul>|<ul><li>When you encounter the dying ReLU problem</li><li>When you want the model to adaptively learn the slope of the negative part</li><li>Preferred to Leaky ReLU in very deep networks where a small trainable parameter can be beneficial</li></ul>|<ul><li>Slightly more computationally expensive than ReLU, but still very efficient</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -739,8 +739,8 @@ $$
 <img src="./img/Hardtanh.png" alt="Hardtanh" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Computationally efficient</li><li>Bounded output, preventing exploding activations</li></ul>|<ul><li>Non-smooth, which may affect gradient-based optimisation</li></ul>|<ul><li>When you need a bounded activation function with a linear range, such as quantised neural networks</li></ul>|<ul><li>Very efficient, similar to ReLU</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -762,8 +762,8 @@ $$
 <img src="./img/Hardshrink.png" alt="Hardshrink" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Introduces sparsity by thresholding small values</li></ul>|<ul><li>Non-differentiable at ±𝜆</li></ul>|<ul><li>In tasks where sparsity is desired, like in certain signal processing tasks</li><li>Useful in sparse coding or noise reduction tasks where certain small activations are intentionally shrunk to zero</li></ul>|<ul><li>Very efficient, only involves simple thresholding</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -790,8 +790,8 @@ Where $\lambda$ is a threshold value
 <img src="./img/Softshrink.png" alt="Softshrink" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Introduces sparsity by thresholding small values</li><li>Smooth version of Hardshrink</li></ul>|<ul><li>Requires tuning of the 𝜆 parameter</li></ul>|<ul><li>In tasks requiring smooth thresholding and sparsity</li><li>Similar to Hardshrink but with a softer transition, useful in noise reduction tasks</li></ul>|<ul><li>Slightly more complex than Hardshrink but still efficient</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -814,8 +814,8 @@ $$
 where $\theta$ is the threshold.
 </div>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Simple thresholding function</li></ul>|<ul><li>Requires careful choice of threshold value</li></ul>|<ul><li>When a specific thresholding behavior is desired</li><li>Employed in models where activations need to be hard-limited, such as in certain sparsity-inducing architectures</li></ul>|<ul><li>Extremely efficient, only involves a simple comparison</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -841,8 +841,8 @@ Default: $\alpha = 1.0$
 <img src="./img/ELU.png" alt="ELU" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Helps mitigate the vanishing gradient problem</li><li>Smooth function, unlike ReLU, which can lead to better performance</li><li>Helps in reducing bias shifts by pushing mean activations closer to zero, though not as effectively as SELU</li><li>Designed to mitigate the risk of exploding gradients, especially in deep networks</li></ul>|<ul><li>More computationally expensive than ReLU</li><li>Can saturate for large negative inputs, which might slow down learning</li></ul>|<ul><li>When training deep networks where ReLU is not performing well</li><li>Preferred in deep networks where maintaining a mean activation close to zero is desired, which helps speed up learning</li></ul>|<ul><li>More computationally expensive than ReLU due to the exponential calculation</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -867,8 +867,8 @@ Default: $\lambda$ (scale) $= 1.0507..., \alpha = 1.67326...$
 <img src="./img/SELU.png" alt="SELU" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Self-normalising property helps maintain a stable mean and variance during training</li><li>Explicitly designed to avoid bias shifts by maintaining normalised activations</li><li>Designed to mitigate the risk of exploding gradients, especially in deep networks</li></ul>|<ul><li>Requires careful initialisation and architecture choices to work effectively</li></ul>|<ul><li>In deep networks where maintaining normalised activations is critical</li></ul>|<ul><li>Similar to ELU, it is more expensive than ReLU because of the exponential operation</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -886,8 +886,8 @@ $$
 <img src="./img/Sigmoid.png" alt="Sigmoid" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Output values are in the range [0,1], which is useful for binary classification</li></ul>|<ul><li>Suffers from the vanishing gradient problem</li><li>In certain conditions (e.g., very large weights), can contribute to exploding gradients</li><li>Saturates at both extremes, leading to slow learning</li><li>Does not avoid bias shifts effectively because its output is not zero-centered</li></ul>|<ul><li>Typically used in the output layer for binary classification problems</li></ul>|<ul><li>Computationally expensive due to the exponential function and division</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -905,8 +905,8 @@ $$
 <img src="./img/Tanh.png" alt="Tanh" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Output values are in the range [−1,1], which can help with centreing data</li><li>Naturally avoids bias shifts due to its zero-centered output</li></ul>|<ul><li>Suffers from the vanishing gradient problem</li><li>In certain conditions (e.g., very large weights), can contribute to exploding gradients</li><li>Can saturate and slow down learning, similar to the sigmoid function</li></ul>|<ul><li>Often used in hidden layers when the data needs to be centered around zero</li></ul>|<ul><li>Similar to Sigmoid, it is computationally expensive due to the need for exponentiation</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -931,8 +931,8 @@ Default: $1$
 <img src="./img/Softplus.png" alt="Softplus" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Smooth approximation to ReLU</li><li>Avoids the zero gradient problem in ReLU</li></ul>|<ul><li>Computationally more expensive than ReLU</li><li>May not introduce as much sparsity as ReLU</li></ul>|<ul><li>When a smooth version of ReLU is preferred (particularly in probabilistic models)</li><li>Constrains output to always be positive</li></ul>|<ul><li>More expensive than ReLU but less so than Sigmoid or Tanh</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -950,8 +950,8 @@ $$
 <img src="./img/SiLU.png" alt="SiLU" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Smooth non-linearity, often outperforms ReLU in deep networks</li></ul>|<ul><li>Computationally more expensive than ReLU</li></ul>|<ul><li>When you want better performance in deep networks, especially in NLP or image classification tasks</li></ul>|<ul><li>More computationally expensive than ReLU due to the sigmoid operation</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -979,8 +979,8 @@ $$
 <img src="./img/GELU.png" alt="GELU" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Smooth non-linearity that often leads to better performance in deep models</li><li>Natural approximation to the ReLU and Softplus functions</li></ul>|<ul><li>More complex and computationally expensive</li></ul>|<ul><li>Popular in NLP models like BERT and other transformer architectures</li></ul>|<ul><li>Computationally expensive, especially the exact formulation which involves an error function</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -998,8 +998,8 @@ $$
 <img src="./img/Mish.png" alt="Mish" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Retains small negative values and smooth non-linearity</li><li>Can outperform ReLU and SiLU (Swish) in certain tasks</li><li>Less prone to exploding gradients compared to other non-linear functions due to its smooth and bounded nature</li></ul>|<ul><li>Computationally expensive</li><li>Relatively new, so less studied in various architectures</li></ul>|<ul><li>Experimental use in deep networks, often in vision tasks</li></ul>|<ul><li>More computationally intensive than ReLU or Swish due to the complex combination of logarithmic and hyperbolic tangent functions</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -1017,8 +1017,8 @@ $$
 <img src="./img/Softsign.png" alt="Softsign" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Smooth approximation to the identity function</li><li>Outputs are bounded between [-1, 1]</li></ul>|<ul><li>Similar saturation problems as sigmoid and tanh</li></ul>|<ul><li>When a smooth, bounded activation function is required</li><li>Occasionally used as an alternative to Tanh in situations where a more gradual activation curve is needed</li></ul>|<ul><li>Less efficient than ReLU, similar to Tanh but less complex</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -1036,8 +1036,8 @@ $$
 <img src="./img/LogSigmoid.png" alt="LogSigmoid" width="400"> 
 </p>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Combines the benefits of the sigmoid function with log compression</li></ul>|<ul><li>Computationally expensive due to the logarithm and exponential operations</li></ul>|<ul><li>Useful in probabilistic models where log-probabilities are required</li></ul>|<ul><li>Similar computational cost to Sigmoid due to logarithm and exponential calculations</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -1056,8 +1056,8 @@ $$
 Elements of the n-dimensional output Tensor lie in the range $[0,1]$ and sum to $1$
 </div>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Converts logits to probabilities that sum to 1, useful for multi-class classification</li></ul>|<ul><li>Sensitive to outliers due to the exponential function</li><li>Can contribute to exploding gradients if not used with caution, particularly if the logits are large</li></ul>|<ul><li>Typically used in the output layer (last layer) of a network for multi-class classification problems</li></ul>|<ul><li>Computationally expensive because it involves exponentiation and normalisation</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -1076,8 +1076,8 @@ $$
 Elements of the n-dimensional output Tensor lie in the range $[0,1]$ and sum to $1$
 </div>
 
-|Pros|Cons|Use|Computational Efficiency|
-|:---:|:---:|:---:|:---:|
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
 |<ul><li>Similar to softmax but emphasises smaller values</li></ul>|<ul><li>May not be as intuitive or commonly used as softmax</li></ul>|<ul><li>When you need to emphasise smaller values in the output</li></ul>|<ul><li>Similar to Softmax, computationally expensive due to exponentiation and normalisation</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
@@ -1142,8 +1142,8 @@ optimizer.zero_grad()  # zeroes the gradients of all model parameters
 
 ##### <u>Operations & Tracking</u>  
 
-|Item|Subheading|
-|:---:|:---:|
+|Item|<div align="center">Subheading</div>|
+|:---:|:---|
 | **1.** | [Disable gradient tracking](#disable-gradient-tracking) |
 | **2.** | [Access reference to backward propergation function](#access-reference-to-backward-propergation-function) |
 | **3.** | [Check leaf node tensor](#check-leaf-node-tensor) |
@@ -1329,8 +1329,8 @@ print("Done!")
 
 ##### <u>Metrics</u>  
 
-|Item|Subheading|
-|:---:|:---:|
+|Item|<div align="center">Subheading</div>|
+|:---:|:---|
 | **1.** | [Confusion matrix](#confusion-matrix) |
 | **2.** | [Accuracy](#accuracy) |
 | **3.** | [Precision](#precision) |
@@ -1529,8 +1529,8 @@ def test_loop(test_loader, model, loss_fn):
 * **Stateless Loss Functions** - [torch.nn.functional.<loss_function>](https://pytorch.org/docs/stable/nn.functional.html#loss-functions) are called directly without needing to create an instance. All necessary arguments/options need to be provided in each function call - use for a more concise and straightforward implementation where state management is not required.  
 * See [Initialise Loss Function](#initialise-loss-function) above for more information on initialising and use.  
 
-|Function|Function class|For task|Notes|
-|:---:|:---:|:---:|:---:|
+|Function|Function class|For task|<div align="center">Notes</div>|
+|:---:|:---:|:---:|:---|
 |Mean Square Error|[nn.MSELoss](https://pytorch.org/docs/stable/generated/torch.nn.MSELoss.html#torch.nn.MSELoss)|Regression||
 |Negative Log Likelihood|[nn.NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss)|Classification|Typically used instead of `nn.CrossEntropyLoss` when you have already applied a softmax or log-softmax operation to your model's output.|
 |Cross Entropy|[nn.CrossEntropyLoss](https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html#torch.nn.CrossEntropyLoss)|Classification|Combines `nn.NLLLoss` and `nn.LogSoftmax`.<br><br>Input should be raw, unnormalised logits output by the model. These are passed through a softmax operation inside the loss function to convert them into probabilities, and then the negative log-likelihood of the correct class is computed.<br><br>Target labels should be provided as class indices (not one-hot encoded).|
