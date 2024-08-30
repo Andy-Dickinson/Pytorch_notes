@@ -613,6 +613,11 @@ y_pred = pred_probab.argmax(1)
 * **Exploding gradients** occur when the **gradients used to update the weights** during backpropagation **grow exponentially**, leading to extremely large updates. This can cause the model to become unstable, with weights taking on very large values, and **often leads to the model failing to converge** during training. More common in deep networks, especially in Recurrent Neural Networks (RNNs), where gradients are propagated back through many layers (or time steps).  
 * **Bias shift** refers to the **gradual movement or shift in the bias term** of a neural network during training **due to the updates applied by the optimisation algorithm** (e.g., gradient descent). If this shift is significant, it **might affect** the model's **ability to learn effectively**. One of the symptoms of bias shift is when the network starts to consistently predict one class over others or when the loss does not reduce as expected.  
 * The **dying ReLU problem** occurs when **neurons** in a neural network **consistently output zero for any input**. This typically happens when a ReLU neuron’s weights are updated in such a way that its input is always negative, causing it to output zero and stop contributing to the model ("dying"). ReLU variants allow a small, non-zero gradient when the input is negative to mitigate this.  
+* **Attention Mechanisms** in neural networks are techniques designed to help models **focus on specific parts of the input data that are most relevant** to the current task. They **dynamically weigh the importance of different parts of the input**, allowing the model to handle complex, long-range dependencies and context-sensitive information effectively. Attention mechanisms are particularly useful in tasks like natural language processing (NLP), where understanding the relationships between words in a sentence is crucial.  
+* **Self-Attention (or Scaled Dot-Product Attention)** is a type of attention mechanism where a model **computes the attention scores between all pairs of positions in a sequence** (e.g., words in a sentence). This allows the model **to consider the relationship between each word and every other word** in the sequence, making it effective in capturing dependencies regardless of their distance from each other.  
+* **Attention Heads** are **components of self-attention mechanisms**. Multiple attention heads can be used in parallel, allowing the model **to focus on different parts of the input simultaneously**. Each head applies a separate attention mechanism, and their outputs are concatenated and transformed to create the final output of the attention layer.  
+* **Transformation in Attention Mechanisms** refers to the **linear transformations applied to the inputs** in an attention mechanism. Typically, three linear transformations are applied to create three vectors: Query (Q), Key (K), and Value (V). The attention scores are computed as the dot product between the Query and Key vectors, and these scores are **used to weight the Value vectors**. This process enables the model to focus on the most relevant parts of the input for the current task.
+
 
 ###### Table of activation functions:  
 |<div align="center">Grouped by type</div>|
@@ -620,6 +625,7 @@ y_pred = pred_probab.argmax(1)
 |[Piecewise linear and thresholding functions](#piecewise-linear-and-thresholding-functions)|
 |[Smooth and non-linear functions](#smooth-and-non-linear-functions)|
 |[Normalising functions](#normalising-functions)|
+|[Attention Mechanisms](#attention-mechanisms)|
 
 ###### Piecewise linear and thresholding functions:  
 |Function|<div align="center">Type and Differentiability</div>|Graph|
@@ -629,6 +635,7 @@ y_pred = pred_probab.argmax(1)
 |[PReLU (Parametric ReLU)](#prelu-parametric-relu)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/PReLU.png" alt="PReLU" width="200">|
 |[Hardtanh](#hardtanh)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Saturating</li></ul><ul><li>Non-differentiable at the points where it transitions (min_val and max_val)</li></ul>|<img src="./img/Hardtanh.png" alt="Hardtanh" width="200">|
 |[Hardshrink](#hardshrink)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Non-differentiable at the thresholds</li></ul>|<img src="./img/Hardshrink.png" alt="Hardshrink" width="200">|
+|[Hardsigmoid](#hardsigmoid)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li><li>Saturating</li></ul><ul><li>Differentiable almost everywhere, except at the points where the function's slope changes abruptly</li></ul>|<img src="./img/Hardsigmoid.png" alt="Hardsigmoid" width="200">|
 |[Softshrink](#softshrink)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/Softshrink.png" alt="Softshrink" width="200">|
 |[Threshold](#threshold)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Non-differentiable at the threshold</li></ul>|Replaces values below a certain threshold with a fixed value|
 
@@ -637,9 +644,12 @@ y_pred = pred_probab.argmax(1)
 |:---:|:---|:---:|
 |[ELU (Exponential Linear Unit)](#elu-exponential-linear-unit)|<ul><li>Non-linear</li><li>Smooth</li><li>Self-normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/ELU.png" alt="ELU" width="200">|
 |[SELU (Scaled Exponential Linear Unit)](#selu-scaled-exponential-linear-unit)|<ul><li>Non-linear</li><li>Smooth</li><li>Self-normalising</li><li>Saturating</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/SELU.png" alt="SELU" width="200">|
+|[CELU (Continuously Differentiable Exponential Linear Unit)](#celu-continuously-differentiable-exponential-linear-unit)|<ul><li>Non-linear</li><li>Smooth</li><li>Self-normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/CELU.png" alt="CELU" width="200">|
 |[Sigmoid](#sigmoid)|<ul><li>Non-linear</li><li>Smooth</li><li>Saturating</li><li>Normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/Sigmoid.png" alt="Sigmoid" width="200">|
 |[Tanh (Hyperbolic Tangent)](#tanh-hyperbolic-tangent)|<ul><li>Non-linear</li><li>Smooth</li><li>Saturating</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/Tanh.png" alt="Tanh" width="200">|
 |[Softplus](#softplus)|<ul><li>Non-linear</li><li>Smooth</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/Softplus.png" alt="Softplus" width="200">|
+|[TanhShrink](#tanhshrink)|<ul><li>Non-linear</li><li>Smooth</li><li>Thresholding (implicitly, as it reduces the magnitude of input)</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/Tanhshrink.png" alt="Tanhshrink" width="200">|
+|[HardSwish](#hardswish)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Smooth (but not continuously smooth)</li><li>Thresholding</li></ul><ul><li>Differentiable almost everywhere, except at the points where the function’s slope changes abruptly</li></ul>|<img src="./img/Hardswish.png" alt="Hardswish" width="200">|
 |[SiLU (Sigmoid Linear Unit, aka Swish)](#silu-sigmoid-linear-unit-aka-swish)|<ul><li>Non-linear</li><li>Smooth</li><li>Non-monotonic</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/SiLU.png" alt="SiLU" width="200">|
 |[GELU (Gaussian Error Linear Unit)](#gelu-gaussian-error-linear-unit)|<ul><li>Non-linear</li><li>Smooth</li><li>Non-monotonic</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/GELU.png" alt="GELU" width="200">|
 |[Mish](#mish)|<ul><li>Non-linear</li><li>Smooth</li><li>Self Regularised</li><li>Non-Monotonic</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/GELU.png" alt="GELU" width="200">|
@@ -649,8 +659,14 @@ y_pred = pred_probab.argmax(1)
 ###### Normalising functions:  
 |Function|<div align="center">Type and Differentiability</div>|<div align="center">Description</div>|
 |:---:|:---|:---|
+|[LogSoftmax](#logsoftmax)|<ul><li>Non-linear</li><li>Smooth</li><li>Normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|Computes the logarithm of the Softmax function. The LogSoftmax function converts logits into log-probabilities, which are numerically more stable for tasks like classification.<br>While Softmax produces a probability distribution, LogSoftmax is often preferred when combining the output with a loss function like Negative Log-Likelihood (NLLLoss), as it can avoid numerical underflow and improve computational stability.<br>It is frequently used in conjunction with NLLLoss for tasks like multi-class classification.|
 |[Softmax](#softmax)|<ul><li>Non-linear</li><li>Smooth</li><li>Normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|Converts (normalises) logits (a Tensor) of K real numbers into a probability distribution of K possible outcomes.<br>After applying Softmax, each element will be in the interval $[0,1]$ and will sum to $1$.<br>Focus is on large values (i.e. the largest input value will have the highest probability value)|
 |[Softmin](#softmin)|<ul><li>Non-linear</li><li>Smooth</li><li>Normalising</li></ul><ul><li>Differentiable everywhere</li></ul>|Converts (normalises) logits (a Tensor) of K real numbers into a probability distribution of K possible outcomes.<br>After applying Softmin, each element will be in the interval $[0,1]$ and will sum to $1$.<br>Focus is on small values (i.e. the smallest input value will have the highest probability value)|
+
+###### Attention Mechanisms:  
+|Function|<div align="center">Type and Differentiability</div>|<div align="center">Description</div>|
+|:---:|:---|:---|
+|[MultiheadAttention](#multiheadattention)|<ul><li>Non-linear (depending on activation)</li><li>Self-attention mechanism</li><li>Transformational</li></ul><ul><li>Differentiable everywhere (if components are differentiable, such as activations)</li></ul>|A core component of the Transformer architecture, MultiheadAttention allows the model to jointly attend to information from different representation subspaces at different positions. It extends the self-attention mechanism by splitting the input into multiple heads, each of which performs attention separately. The outputs of the heads are concatenated and transformed, enabling the model to capture a variety of dependencies from different perspectives.<br>Commonly used in models for NLP tasks like machine translation, summarisation, and language understanding.|
 
 
 ###### ReLU (Rectified Linear Unit):  
@@ -675,6 +691,8 @@ $$
 ###### Leaky ReLU:  
 
 > `torch.nn.LeakyReLU(negative_slope=0.01)`  
+> 
+> `negative_slope (float) – controls the angle of the negative slope (which is used for negative input values). Default: 1e-2`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.LeakyReLU.html#torch.nn.LeakyReLU).  
 
 $$
@@ -701,8 +719,9 @@ Default: $\alpha = 1e^{-2}$
 ###### PReLU (Parametric ReLU):  
 
 > `torch.nn.PReLU(num_parameters=1, init=0.25, device=None, dtype=None)`  
-> `num_parameters – number of alpha to learn. Only two values are legitimate: 1, or number of channels at input. Default: 1`  
-> `init -  initial value of alpha. Default: 0.25`  
+> 
+> `num_parameters (int) – number of alpha to learn. Only two values are legitimate: 1, or number of channels at input. Default: 1`  
+> `init (float) -  initial value of alpha. Default: 0.25`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.PReLU.html#torch.nn.PReLU).  
 
 $$
@@ -728,8 +747,9 @@ Where $\alpha$ is a learnable parameter for the negative slope.
 ###### Hardtanh:  
 
 > `torch.nn.Hardtanh(min_val=-1.0, max_val=1.0)`  
-> `min_val - minimum value of the linear region range. Default: -1`  
-> `max_val - maximum value of the linear region range. Default: 1`  
+> 
+> `min_val (float) - minimum value of the linear region range. Default: -1`  
+> `max_val (float) - maximum value of the linear region range. Default: 1`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Hardtanh.html#torch.nn.Hardtanh).  
 
 $$
@@ -752,7 +772,8 @@ $$
 ###### Hardshrink:  
 
 > `torch.nn.Hardshrink(lambd=0.5)`  
-> `lambd – the λ value for the Hardshrink formulation. Default: 0.5`    
+> 
+> `lambd (float) – the λ value for the Hardshrink formulation. Default: 0.5`    
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Hardshrink.html#torch.nn.Hardshrink).  
 
 $$
@@ -772,10 +793,34 @@ $$
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
 
+###### HardSigmoid:  
+
+> `torch.nn.Hardsigmoid()`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Hardsigmoid.html#torch.nn.Hardsigmoid).  
+
+$$
+\text{Hardsigmoid}(x) = \begin{cases}
+0 & \text{if }x \leq -3 \\
+1 & \text{if }x \geq 3 \\
+\frac{x}{6}+\frac{1}{2} & \text{otherwise}
+\end{cases}
+$$
+
+<p align="center">
+<img src="./img/Hardsigmoid.png" alt="Hardsigmoid" width="400"> 
+</p>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
+|<ul><li>Acts as an approximation of the Sigmoid function, but with reduced computational overhead</li><li>Helps mitigate the vanishing gradient problem, although less effectively than the true Sigmoid</li></ul>|<ul><li>Less smooth than the true Sigmoid function, which might slightly affect gradient-based optimization</li><li>Non-differentiable at the points where it transitions</li></ul>|<ul><li>Often used in resource-constrained environments where computational efficiency is crucial, such as mobile or embedded systems</li><li>Suitable for tasks that can tolerate the rough approximation of a smooth function</li></ul>|<ul><li>Very efficient, as it uses simple linear operations instead of exponential calculations</li></ul>|
+
+[⬆ Table of Functions ⬆](#table-of-activation-functions)  
+
 ###### Softshrink:  
 
 > `torch.nn.Softshrink(lambd=0.5)`  
-> `lambd – the λ (must be no less than zero) value for the Softshrink formulation. Default: 0.5`    
+> 
+> `lambd (float) – the λ (must be no less than zero) value for the Softshrink formulation. Default: 0.5`    
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Softshrink.html#torch.nn.Softshrink).  
 
 $$
@@ -803,8 +848,9 @@ Where $\lambda$ is a threshold value
 ###### Threshold:  
 
 > `torch.nn.Threshold(threshold, value)`  
-> `threshold – The value to threshold at`    
-> `value – The value to replace with`  
+> 
+> `threshold (float) – the value to threshold at.`    
+> `value (float) – the value to replace with.`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Threshold.html#torch.nn.Threshold).  
 
 $$
@@ -827,7 +873,8 @@ where $\theta$ is the threshold.
 ###### ELU (Exponential Linear Unit):  
 
 > `torch.nn.ELU(alpha=1.0)`  
-> `alpha - the alpha value for the ELU formulation. Default: 1.0`  
+> 
+> `alpha (float) - the alpha value for the ELU formulation. Default: 1.0`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.ELU.html#torch.nn.ELU).  
 
 $$
@@ -877,6 +924,34 @@ Default: $\lambda$ (scale) $= 1.0507..., \alpha = 1.67326...$
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
 
+###### CELU (Continuously Differentiable Exponential Linear Unit):  
+
+> `torch.nn.CELU(alpha=1.0)`  
+> 
+> `alpha (float) – the α value for the CELU formulation. Default: 1.0`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.CELU.html#torch.nn.CELU).  
+
+$$
+\text{CELU}(x) = \begin{cases} 
+x & \text{if } x \gt 0 \\ 
+\alpha * (\text{exp}(\frac{x}{\alpha})-1) & \text{otherwise}\end{cases}
+$$
+<div align="center">
+
+Where $\alpha$ is a scaling parameter.<br>
+Default: 1.0
+</div>
+
+<p align="center">
+<img src="./img/CELU.png" alt="CELU" width="400"> 
+</p>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
+|<ul><li>Like ELU but with the added benefit of being continuously differentiable, which helps with gradient-based optimisation</li><li>Helps mitigate the vanishing gradient problem by allowing negative values</li></ul>|<ul><li>Slightly more computationally expensive than ReLU and Leaky ReLU</li></ul>|<ul><li>Used in deep networks where smooth gradients are important</li><li>Suitable for tasks that benefit from the properties of ELU but require continuous differentiability</li></ul>|<ul><li>Efficient, but not as much as simpler activations like ReLU</li></ul>|
+
+[⬆ Table of Functions ⬆](#table-of-activation-functions)  
+
 ###### Sigmoid:  
 
 > `torch.nn.Sigmoid()`  
@@ -902,7 +977,7 @@ $$
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Tanh.html#torch.nn.Tanh).  
 
 $$
-\text{Tanh}(x) = \text{tanh}(x) = \frac{2}{1 + \text{exp}(-2x)} - 1 = \frac{\text{sinh}(x)}{\text{cosh}(x)} = \frac{\text{exp}(x)-\text{exp}(-x)}{\text{exp}(x)+\text{exp}(-x)}
+\text{Tanh}(x) = \frac{2}{1 + \text{exp}(-2x)} - 1 = \frac{\text{sinh}(x)}{\text{cosh}(x)} = \frac{\text{exp}(x)-\text{exp}(-x)}{\text{exp}(x)+\text{exp}(-x)}
 $$
 
 <p align="center">
@@ -918,8 +993,9 @@ $$
 ###### Softplus:  
 
 > `torch.nn.Softplus(beta=1.0, threshold=20.0)`  
-> `beta – the beta value for the Softplus formulation. Default: 1`  
-> `threshold – values above this revert to a linear function. Default: 20`  
+> 
+> `beta (float) – the beta value for the Softplus formulation. Default: 1`  
+> `threshold (float) – values above this revert to a linear function. Default: 20`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Softplus.html#torch.nn.Softplus).  
 
 $$
@@ -938,6 +1014,40 @@ Default: $1$
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
 |:---|:---|:---|:---|
 |<ul><li>Smooth approximation to ReLU</li><li>Avoids the zero gradient problem in ReLU</li></ul>|<ul><li>Computationally more expensive than ReLU</li><li>May not introduce as much sparsity as ReLU</li></ul>|<ul><li>When a smooth version of ReLU is preferred (particularly in probabilistic models)</li><li>Constrains output to always be positive</li></ul>|<ul><li>More expensive than ReLU but less so than Sigmoid or Tanh</li></ul>|
+
+###### TanhShrink:  
+
+> `torch.nn.Tanhshrink()`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Tanhshrink.html#torch.nn.Tanhshrink).  
+
+$$
+\text{TanhShrink}(x) = x-\text{Tanh}(x)
+$$
+
+<p align="center">
+<img src="./img/Tanhshrink.png" alt="Tanhshrink" width="400"> 
+</p>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
+|<ul><li>Reduces the magnitude of input, potentially helping with stability during training</li><li>Smooth and differentiable, making it suitable for gradient-based methods</li></ul>|<ul><li>Might introduce a bias towards smaller values, which can affect learning</li><li>Less commonly used compared to more standard activation functions</li></ul>|<ul><li>Used in specialised scenarios where shrinkage of the input values is desired</li><li>Could be useful in certain types of noise reduction or regularisation tasks</li><ul>|<ul><li>Fairly efficient, similar to Tanh with an additional subtraction operation</li></ul>|
+
+###### HardSwish:  
+
+> `torch.nn.Hardswish()`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Hardswish.html#torch.nn.Hardswish).  
+
+$$
+\text{HardSwish}(x) = x \cdot \text{HardSigmoid}(x)
+$$
+
+<p align="center">
+<img src="./img/Hardswish.png" alt="Hardswish" width="400"> 
+</p>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
+|<ul><li>Provides a good balance between smooth and efficient activation</li><li>Retains the benefits of SiLU (e.g., non-monotonicity and smooth gradient flow) while being computationally cheaper</li><li>Helps mitigate the vanishing gradient problem</li></ul>|<ul><li>Like HardSigmoid, it is not as smooth as true SiLU, which might affect performance in some models</li></ul>|<ul><li>Often used in mobile networks like MobileNetV3 due to its efficiency and performance balance</li><li>Suitable for tasks requiring a balance between computational efficiency and smooth gradient flow</li></ul>|<ul><li>More efficient than SiLU due to the use of piecewise linear components</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
 
@@ -963,7 +1073,8 @@ $$
 ###### GELU (Gaussian Error Linear Unit):  
 
 > `torch.nn.GELU(approximate='none')`  
-> `approximate – the gelu approximation algorithm to use: 'none' | 'tanh'. Default: 'none'`
+> 
+> `approximate (str, optional) – the gelu approximation algorithm to use: 'none' | 'tanh'. Default: 'none'`
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.GELU.html#torch.nn.GELU).  
 
 $$
@@ -1046,10 +1157,34 @@ $$
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
 
+###### LogSoftmax:  
+
+> `torch.nn.LogSoftmax(dim=None)`  
+> 
+> `dim (int) – a dimension along which LogSoftmax will be computed.`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.LogSoftmax.html#torch.nn.LogSoftmax).  
+
+Applies the $\text{log}(\text{Softmax}(x))$ function to an n-dimensional input Tensor.  
+
+$$
+\text{LogSoftmax}(x_i) = \text{log}(\frac{\text{exp}(x_i)}{\sum_j \text{exp}(x_j)})
+$$
+<div align="center">
+
+Where $x_i$ is an element of the input vector.
+</div>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
+|<ul><li>Combines the properties of softmax and logarithm, making it numerically stable for computing log-probabilities</li><li>Reduces the risk of overflow in the softmax calculation</li></ul>|<ul><li>Introduces a logarithmic operation, which can be more computationally intensive</li></ul>|<ul><li>Commonly used in classification tasks, especially in combination with the negative log-likelihood loss (cross-entropy)</li><li>Particularly useful in probabilistic models where log-probabilities are required</li></ul>|<ul><li>Efficient but slightly more complex than softmax due to the logarithmic operation</li></ul>|
+
+[⬆ Table of Functions ⬆](#table-of-activation-functions)  
+
 ###### Softmax:  
 
 > `torch.nn.Softmax(dim=None)`  
-> `dim(int) - a dimension along which Softmax will be computed (so every slice along dim will sum to 1)`  
+> 
+> `dim (int) - a dimension along which Softmax will be computed (so every slice along dim will sum to 1).`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html#torch.nn.Softmax).  
 
 $$
@@ -1069,7 +1204,8 @@ Elements of the n-dimensional output Tensor lie in the range $[0,1]$ and sum to 
 ###### Softmin:  
 
 > `torch.nn.Softmin(dim=None)`  
-> `dim (int) – A dimension along which Softmin will be computed (so every slice along dim will sum to 1)`    
+> 
+> `dim (int) – A dimension along which Softmin will be computed (so every slice along dim will sum to 1).`    
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Softmin.html#torch.nn.Softmin).  
 
 $$
@@ -1083,6 +1219,46 @@ Elements of the n-dimensional output Tensor lie in the range $[0,1]$ and sum to 
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
 |:---|:---|:---|:---|
 |<ul><li>Similar to softmax but emphasises smaller values</li></ul>|<ul><li>May not be as intuitive or commonly used as softmax</li></ul>|<ul><li>When you need to emphasise smaller values in the output</li></ul>|<ul><li>Similar to Softmax, computationally expensive due to exponentiation and normalisation</li></ul>|
+
+[⬆ Table of Functions ⬆](#table-of-activation-functions)  
+
+###### MultiheadAttention:  
+
+> `torch.nn.MultiheadAttention(embed_dim, num_heads, dropout=0.0, bias=True, add_bias_kv=False, add_zero_attn=False, kdim=None, vdim=None, batch_first=False, device=None, dtype=None)`  
+> 
+> `embed_dim – total dimension of the model.`  
+> `num_heads – number of parallel attention heads. Note that embed_dim will be split across num_heads (i.e. each head will have dimension embed_dim // num_heads).`  
+> `dropout – dropout probability on attn_output_weights. Default: 0.0 (no dropout)`  
+> `bias – ff specified, adds bias to input / output projection layers. Default: True`  
+> `add_bias_kv – if specified, adds bias to the key and value sequences at dim=0. Default: False`  
+> `add_zero_attn – if specified, adds a new batch of zeros to the key and value sequences at dim=1. Default: False`  
+> `kdim – total number of features for keys. Default: None (uses kdim=embed_dim)`  
+> `vdim – total number of features for values. Default: None (uses vdim=embed_dim)`  
+> `batch_first – if True, then the input and output tensors are provided as (batch, seq, feature). Default: False (seq, batch, feature)`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html#torch.nn.MultiheadAttention).  
+
+This function is complex, involving the calculation of multiple attention heads, which is typically described as:  
+$$
+\text{MultiHead}(Q,K,V) = \text{Concat}(\text{head}_1,\text{head}_2,...,\text{head}_\text{h})\text{W}^\text{O}
+$$
+<div>
+Where each head is defined as:  
+</div>
+
+$$
+\text{head}_i = \text{Attention}(\text{QW}_i^\text{Q},\text{KW}_i^\text{K},\text{VW}_i^\text{V})
+$$
+<div>
+And Attention is calculated using:  
+</div>
+
+$$
+\text{Attention}(\text{Q,K,V}) = \text{Softmax}(\frac{\text{QK}^\text{T}}{\sqrt{\text{d}_k}})\text{V}
+$$
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
+|<ul><li>Enables the model to focus on different parts of the input simultaneously</li><li>Highly effective for tasks involving sequences, such as natural language processing</li><li>Facilitates the learning of contextual relationships in data</li></ul>|<ul><li>Computationally expensive due to matrix multiplications and softmax operations</li><li>Requires careful tuning of the number of heads and dimensionality</li></ul>|<ul><li>Primarily used in Transformer models for NLP tasks like translation, summarisation, and text generation</li><li>Also used in vision transformers and other domains where self-attention is beneficial</li></ul>|<ul><li>Less efficient than simple activations due to the complexity of matrix operations</li></ul>|
 
 [⬆ Table of Functions ⬆](#table-of-activation-functions)  
 
