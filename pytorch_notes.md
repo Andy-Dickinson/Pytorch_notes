@@ -1244,10 +1244,10 @@ Elements of the n-dimensional output Tensor lie in the range $[0,1]$ and sum to 
 This function is complex, involving the calculation of multiple attention heads, which is typically described as:  
 
 $$
-\text{MultiHead}(\text{Q},\text{K},\text{V}) = \text{Concat}(\text{head}_1,\text{head}_2,
+\text{MultiHead}(\text{Q},\text{K},\text{V}) = \text{Concat}(\text{head}_1,\text{head}_2,...
 $$
 
-...,\text{head}_\text{h})\text{W}^\text{O}
+,\text{head}_\text{h})\text{W}^\text{O}
 <div>
 Where each head is defined as:  
 </div>
