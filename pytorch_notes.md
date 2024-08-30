@@ -1246,6 +1246,7 @@ This function is complex, involving the calculation of multiple attention heads,
 $$
 \text{MultiHead}(Q,K,V) = \text{Concat}(\text{head}_1,\text{head}_2,...,\text{head}_\text{h})\text{W}^\text{O}
 $$
+
 <div>
 Where each head is defined as:  
 </div>
