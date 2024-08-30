@@ -1015,6 +1015,8 @@ Default: $1$
 |:---|:---|:---|:---|
 |<ul><li>Smooth approximation to ReLU</li><li>Avoids the zero gradient problem in ReLU</li></ul>|<ul><li>Computationally more expensive than ReLU</li><li>May not introduce as much sparsity as ReLU</li></ul>|<ul><li>When a smooth version of ReLU is preferred (particularly in probabilistic models)</li><li>Constrains output to always be positive</li></ul>|<ul><li>More expensive than ReLU but less so than Sigmoid or Tanh</li></ul>|
 
+[⬆ Table of Functions ⬆](#table-of-activation-functions)  
+
 ###### TanhShrink:  
 
 > `torch.nn.Tanhshrink()`  
@@ -1031,6 +1033,8 @@ $$
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
 |:---|:---|:---|:---|
 |<ul><li>Reduces the magnitude of input, potentially helping with stability during training</li><li>Smooth and differentiable, making it suitable for gradient-based methods</li></ul>|<ul><li>Might introduce a bias towards smaller values, which can affect learning</li><li>Less commonly used compared to more standard activation functions</li></ul>|<ul><li>Used in specialised scenarios where shrinkage of the input values is desired</li><li>Could be useful in certain types of noise reduction or regularisation tasks</li><ul>|<ul><li>Fairly efficient, similar to Tanh with an additional subtraction operation</li></ul>|
+
+[⬆ Table of Functions ⬆](#table-of-activation-functions)  
 
 ###### HardSwish:  
 
@@ -1238,6 +1242,7 @@ Elements of the n-dimensional output Tensor lie in the range $[0,1]$ and sum to 
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html#torch.nn.MultiheadAttention).  
 
 This function is complex, involving the calculation of multiple attention heads, which is typically described as:  
+
 $$
 \text{MultiHead}(Q,K,V) = \text{Concat}(\text{head}_1,\text{head}_2,...,\text{head}_\text{h})\text{W}^\text{O}
 $$
