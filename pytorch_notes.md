@@ -15,7 +15,7 @@
 | **6.** | [Activation Functions](#activation-functions) |[Information on Function Types and Problems](#activation-functions),<br>[Table of Activation Functions](#table-of-activation-functions)|
 | **7.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
 | **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
-| **9.** | [Loss Functions](#loss-functions) ||
+| **9.** | [Loss Functions](#loss-functions) |[Table of Loss Functions](#table-of-loss-functions)|
 | **10.** | [Optimizers](#optimizers) ||
 
 </div>
