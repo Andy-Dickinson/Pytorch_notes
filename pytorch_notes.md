@@ -1709,6 +1709,8 @@ def test_loop(test_loader, model, loss_fn):
 
 ### <u>Loss Functions</u>
 
+[⬇ Jump to Functions ⬇](#table-of-loss-functions)   
+
 * Measures the degree of dissimilarity between the model's prediction and the target value, the goal during training is to  **minimise** this loss.  
 * **Loss function classes** - [torch.nn.<loss_function>](https://pytorch.org/docs/stable/nn.html#loss-functions) requires instantiation and is used as an object. They can maintain internal states or configurations that persist across calls to the instance - use when you need to maintain or reuse specific configurations across multiple invocations - **usual choice**.  
 * **Stateless Loss Functions** - [torch.nn.functional.<loss_function>](https://pytorch.org/docs/stable/nn.functional.html#loss-functions) are called directly without needing to create an instance. All necessary arguments/options need to be provided in each function call - use for a more concise and straightforward implementation where state management is not required.  
