@@ -11,11 +11,11 @@
 | **2.** | [Tensors](#tensors) | [Initialising](#initialising-a-tensor),<br>[Attributes](#attributes-of-a-tensor),<br>[Operations](#operations-on-a-tensor) - indexing, joining, arithmetic etc., |
 | **3.** | [Datasets & DataLoaders](#datasets--dataloaders) | [Loading datasets](#loading-datasets),<br>[Transforms](#transforms),<br>[Creating a Custom Dataset](#creating-a-custom-dataset),<br>[Iterating & Visualising the Dataset](#iterating--visualising-the-dataset),<br>[Preparing Data for Training with DataLoaders](#preparing-data-for-training-with-dataloaders) |
 | **4.** | [Building a Neural Network](#building-a-neural-network) | [Get Device for Training](#get-device-for-training),<br>[Define the Class](#define-the-class),<br>[Using a Model](#using-a-model) |
-| **5.** | [`torch.nn` Module](#torchnn-module) | Basic building blocks for graphs including neural net:<br>**layers, activation functions and loss functions** |
-| **6.** | [Activation Functions](#activation-functions) |[Information on Function Types and Problems](#activation-functions),<br>[Table of Activation Functions](#table-of-activation-functions)|
+| **5.** | [`torch.nn` Module](#torchnn-module) | Basic building blocks for graphs including neural net:<br>**layers, activation functions & loss functions** |
+| **6.** | [Activation Functions](#activation-functions) |[Information on Function Types & Problems](#activation-functions),<br>[Table of Activation Functions](#table-of-activation-functions)|
 | **7.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
 | **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
-| **9.** | [Loss Functions](#loss-functions) |[Table of Loss Functions](#table-of-loss-functions)|
+| **9.** | [Loss Functions](#loss-functions) |[Information on Losses, & Overview of Distributions & SVMs](#loss-functions),<br>[Table of Loss Functions](#table-of-loss-functions)|
 | **10.** | [Optimizers](#optimizers) ||
 
 </div>
@@ -1086,7 +1086,7 @@ $$
 $$
 <div align="center">
 
-Where $\Phi(x)$ is the Cumulative Distribution Function (CDF) of the Gaussian distribution.<br>
+Where $\Phi(x)$ is the Cumulative Distribution Function (CDF) of the Gaussian distribution (see notes in [loss functions](#loss-functions) for further information on Gaussian distribution).<br>
 When the approximate argument is ‘tanh’, Gelu is estimated with:
 </div>
 
@@ -1713,6 +1713,47 @@ def test_loop(test_loader, model, loss_fn):
 * **Loss function classes** - [torch.nn.<loss_function>](https://pytorch.org/docs/stable/nn.html#loss-functions) requires instantiation and is used as an object. They can maintain internal states or configurations that persist across calls to the instance - use when you need to maintain or reuse specific configurations across multiple invocations - **usual choice**.  
 * **Stateless Loss Functions** - [torch.nn.functional.<loss_function>](https://pytorch.org/docs/stable/nn.functional.html#loss-functions) are called directly without needing to create an instance. All necessary arguments/options need to be provided in each function call - use for a more concise and straightforward implementation where state management is not required.  
 * See [Initialise Loss Function](#initialise-loss-function) above for more information on initialising and use.  
+<br>
+* **Regression losses** - used in tasks where the goal is to predict **continuous** values. The loss measures the difference between the predicted values and the actual continuous targets.  
+Common losses:  
+  * [Mean squared error (MSE)](#mean-square-error-mse): Measures the average squared difference between predicted and actual values.  
+  * [Mean absolute error (MAE)](#l1-loss-mean-absolute-error): Measures the average absolute difference between predicted and actual values.  
+  * [Huber loss](#huber-loss): Combines MSE and MAE to be less sensitive to outliers.  
+<p align="center">
+<img src="./img/regression.webp" alt="regression" height="250">  
+</p>
+
+* **Classification losses** - used in tasks where the goal is to **assign input data to predefined categories**. These losses measure how well the predicted probabilities or logits match the true class labels.  
+Common losses:  
+  * [Cross-entropy loss](#cross-entropy-ce): Measures the difference between the predicted probability distribution and the actual distribution (one-hot encoded class labels).  
+  * [Binary cross-entropy loss](#binary-cross-entropy-bce): A special case of cross-entropy loss for binary classification tasks.  
+<p align="center">
+<img src="./img/classification.webp" alt="classification" height="250">  
+</p>
+
+* **Metric learning losses** - designed to **learn a distance metric that brings similar data points closer and pushes dissimilar points apart in the feature space**. These losses are often used in tasks like face recognition or image retrieval.  
+Common losses:  
+  * [Triplet loss](#triplet-margin-loss): Ensures that the distance between an anchor and a positive example is less than the distance between the anchor and a negative example by a margin.  
+<p align="center">
+<img src="./img/metric.png" alt="metric" height="200">  
+</p>
+<p align="center">
+<img src="./img/metric_train.png" alt="metric_train" height="200">  
+</p>
+
+* **Sequence modeling losses** - used in tasks involving sequences, such as language modeling, machine translation, or time series prediction. These losses are **designed to handle the sequential nature of the data**.  
+Common losses:  
+    * [CTC loss (connectionist temporal classification)](#ctc-loss-connectionist-temporal-classification): Used for sequence alignment tasks where the length of input and output sequences can differ, such as in speech recognition.  
+<p align="center">
+<img src="./img/ctc.svg" alt="ctc" height="500">  
+</p>
+
+* **Ranking losses** - used when the goal is to **predict an ordering or ranking of items**, such as in search engines or recommendation systems. These losses measure how well the predicted ranking matches the desired ranking.  
+Common losses:  
+  * [Margin ranking loss](#margin-ranking-loss): Encourages the correct ranking of pairs of items by enforcing a margin between the scores of the correctly and incorrectly ranked pairs.  
+<p align="center">
+<img src="./img" alt="ranking" height="250">  
+</p>
 
 
 ###### Table of loss functions:  
@@ -1721,19 +1762,19 @@ def test_loop(test_loader, model, loss_fn):
 |[Regression losses](#regression-losses)|
 |[Classification losses](#classification-losses)|
 |[Metric learning losses](#metric-learning-losses)|
-|[Sequence modeling losses](#sequence-modeling-losses)|
+|[Sequence modelling losses](#sequence-modelling-losses)|
 |[Ranking losses](#ranking-losses)|
 |[Distribution-based losses](#distribution-based-losses)|
 
 ###### Regression losses:  
 |Function<br>(click for formula and parameters)|Function class<br>(click for documentation)|For task|<div align="center">Notes</div>|
 |:---:|:---:|:---:|:---|
-|Mean Square Error (MSE - Squared L2 Norm)|[nn.MSELoss](https://pytorch.org/docs/stable/generated/torch.nn.MSELoss.html#torch.nn.MSELoss)|Regression|**Pros:**<ul><li>Simple and effective for regression tasks</li><li>Convex function - single global minimum, so easier to optimise and more predictable</li></ul>**Cons:**<ul><li>Sensitive to outliers as it squares the error, amplifying large differences</li><li>Gradient saturation - in cases of large errors, the gradients can become large, leading to large updates in the model parameters, potentially destabilising training</li></ul>**Computational Efficiency:**<ul><li>Efficient and easy to compute</li><li>Suitable for large datasets with continuous output variables</li></ul>**Best Use:**<ul><li>Predicting continuous variables (e.g., house prices)</li></ul>**Additional Notes:**<ul><li>Variance and bias trade-off - MSE tends to provide a balance between variance and bias, but in cases where outliers dominate, alternative loss functions like huber loss might be preferred</li><li>Feature scaling - MSE assumes that the input features are appropriately scaled. Unscaled features with vastly different ranges can lead to skewed loss values, making it harder to train the model</li></ul>|
-|L1 Loss|[nn.L1Loss](https://pytorch.org/docs/stable/generated/torch.nn.L1Loss.html#torch.nn.L1Loss)|Regression|**Pros:**<ul><li>Less sensitive to outliers compared to MSE</li></ul>**Cons:**<ul><li>May converge slower compared to MSE</li></ul>**Computational Efficiency:**<ul><li>Efficient, similar to MSE</li></ul>**Best Use:**<ul><li>Regression tasks with many outliers</li></ul>**Additional Notes:**<ul><li>L1 loss encourages sparsity in the model's predictions</li></ul>|
-|Huber Loss|[nn.HuberLoss](https://pytorch.org/docs/stable/generated/torch.nn.HuberLoss.html#torch.nn.HuberLoss)|Regression tasks that are robust to outliers|**Pros:**<ul><li>Robust to outliers - less sensitive to outliers compared to MSE</li><li>Smooth transition - the smooth transition between L1 and L2 loss makes it a good compromise between the two</li></ul>**Cons:**<ul><li>Hyperparameter tuning - requires careful tuning of the δ parameter</li><li>Not always the best fit - while robust, it may not always outperform either L1 or L2 in specific contexts</li></ul>**Computational Efficiency:**<ul><li>Slightly more complex than MSE but generally efficient, especially in large-scale applications</li></ul>**Best Use:**<ul><li>Ideal for regression tasks where you want robustness to outliers, such as in financial modeling or any real-world noisy data scenario</li></ul>**Additional Notes:**<ul><li>Delta selection - the choice of δ is important; smaller values make it closer to L1 loss, and larger values make it closer to MSE</li><li>Outlier sensitivity - particularly useful when outliers are present but not overly dominant</li></ul>|
-|Smooth L1 Loss (aka Huber Loss in some contexts)|[nn.SmoothL1Loss](https://pytorch.org/docs/stable/generated/torch.nn.SmoothL1Loss.html#torch.nn.SmoothL1Loss)|Regression|**Pros:**<ul><li>Less sensitive to outliers compared to MSE, combining the best of L1 and L2 losses</li></ul>**Cons:**<ul><li>Can be slower to converge if the problem is not noisy</li></ul>**Computational Efficiency:**<ul><li>Slightly less efficient than MSE due to conditional computation</li></ul>**Best Use:**<ul><li>Regression tasks where outliers are present but should not dominate the loss</li></ul>**Additional Notes:**<ul><li>Often used in reinforcement learning and object detection</li></ul>|
-|Poisson Negative Log Likelihood Loss (PoissonNLLLoss)|[nn.PoissonNLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.PoissonNLLLoss.html#torch.nn.PoissonNLLLoss)|Regression tasks where the target is modeled as a poisson distribution (e.g., count data)|**Pros:**<ul><li>Natural fit for count data - works well for data that represents counts or rates</li><li>Incorporates variance - the loss function naturally models the variance of the data based on the mean, which is a characteristic of poisson distributions</li></ul>**Cons:**<ul><li>Requires non-negative predictions - predictions must be non-negative, which can be limiting</li><li>Sensitivity to outliers - like other likelihood-based losses, it can be sensitive to outliers in the data</li></ul>**Computational Efficiency:**<ul><li>Generally efficient but may require careful implementation to avoid numerical issues, especially when dealing with large or small values</li></ul>**Best Use:**<ul><li>Suitable for count data regression tasks, such as predicting the number of occurrences of an event over a given period</li></ul>**Additional Notes:**<ul><li>Log input option - the log_input option can be used to input the log of predictions, which can help with numerical stability</li><li>Regularisation - consider using a regularisation term to handle overdispersion in data that does not strictly follow a poisson distribution</li></ul>|
-|Gaussian Negative Log Likelihood Loss (GaussianNLLLoss)|[nn.GaussianNLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.GaussianNLLLoss.html#torch.nn.GaussianNLLLoss)|Regression tasks where the target is modeled as a gaussian distribution with predicted mean and variance|**Pros:**<ul><li>Handles uncertainty - incorporates the prediction of variance, allowing the model to express uncertainty in its predictions</li><li>Natural fit for gaussian data - best suited for data that naturally follows a gaussian distribution</li></ul>**Cons:**<ul><li>Complexity - requires the model to predict both the mean and variance, adding complexity</li><li>Stability issues - poor prediction of variance can lead to instability and large losses</li></ul>**Computational Efficiency:**<ul><li>Slightly more complex than standard regression losses like MSE due to the additional variance prediction</li></ul>**Best Use:**<ul><li>Ideal for regression tasks with heteroscedastic data (where variance changes across data points), such as predicting prices with associated uncertainties</li></ul>**Additional Notes:**<ul><li>This loss requires the model to predict both mean and variance. It’s essential for tasks where uncertainty estimation is crucial</li><li>Variance regularisation - regularising the variance prediction can prevent the model from predicting extremely small variances, which can lead to large losses</li><li>Scale of inputs - ensure that inputs are appropriately scaled, as large input values can lead to unstable variance predictions</li></ul>|
+|[Mean Square Error (MSE - Squared L2 Norm)](#mean-square-error-mse)|[nn.MSELoss](https://pytorch.org/docs/stable/generated/torch.nn.MSELoss.html#torch.nn.MSELoss)|Regression|**Pros:**<ul><li>Simple and effective for regression tasks</li><li>Convex function - single global minimum, so easier to optimise and more predictable</li></ul>**Cons:**<ul><li>Sensitive to outliers as it squares the error, amplifying large differences</li><li>Gradient saturation - in cases of large errors, the gradients can become large, leading to large updates in the model parameters, potentially destabilising training</li></ul>**Computational Efficiency:**<ul><li>Efficient and easy to compute</li><li>Suitable for large datasets with continuous output variables</li></ul>**Best Use:**<ul><li>Predicting continuous variables (e.g., house prices)</li></ul>**Additional Notes:**<ul><li>Variance and bias trade-off - MSE tends to provide a balance between variance and bias, but in cases where outliers dominate, alternative loss functions like huber loss might be preferred</li><li>Feature scaling - MSE assumes that the input features are appropriately scaled. Unscaled features with vastly different ranges can lead to skewed loss values, making it harder to train the model</li></ul>|
+|[L1 Loss (Mean Absolute Error (MAE))](#l1-loss-mean-absolute-error)|[nn.L1Loss](https://pytorch.org/docs/stable/generated/torch.nn.L1Loss.html#torch.nn.L1Loss)|Regression|**Pros:**<ul><li>Less sensitive to outliers compared to MSE</li></ul>**Cons:**<ul><li>May converge slower compared to MSE</li></ul>**Computational Efficiency:**<ul><li>Efficient, similar to MSE</li></ul>**Best Use:**<ul><li>Regression tasks with many outliers</li></ul>**Additional Notes:**<ul><li>L1 loss encourages sparsity in the model's predictions</li></ul>|
+|[Huber Loss](#huber-loss)|[nn.HuberLoss](https://pytorch.org/docs/stable/generated/torch.nn.HuberLoss.html#torch.nn.HuberLoss)|Regression tasks that are robust to outliers|**Pros:**<ul><li>Robust to outliers - less sensitive to outliers compared to MSE</li><li>Smooth transition - the smooth transition between L1 and L2 loss makes it a good compromise between the two</li></ul>**Cons:**<ul><li>Hyperparameter tuning - requires careful tuning of the δ parameter</li><li>Not always the best fit - while robust, it may not always outperform either L1 or L2 in specific contexts</li></ul>**Computational Efficiency:**<ul><li>Slightly more complex than MSE but generally efficient, especially in large-scale applications</li></ul>**Best Use:**<ul><li>Ideal for regression tasks where you want robustness to outliers, such as in financial modeling or any real-world noisy data scenario</li></ul>**Additional Notes:**<ul><li>Delta selection - the choice of δ is important; smaller values make it closer to L1 loss, and larger values make it closer to MSE</li><li>Outlier sensitivity - particularly useful when outliers are present but not overly dominant</li></ul>|
+|[Smooth L1 Loss (aka Huber Loss in some contexts)](#smooth-l1-loss)|[nn.SmoothL1Loss](https://pytorch.org/docs/stable/generated/torch.nn.SmoothL1Loss.html#torch.nn.SmoothL1Loss)|Regression|**Pros:**<ul><li>Less sensitive to outliers compared to MSE, combining the best of L1 and L2 losses</li></ul>**Cons:**<ul><li>Can be slower to converge if the problem is not noisy</li></ul>**Computational Efficiency:**<ul><li>Slightly less efficient than MSE due to conditional computation</li></ul>**Best Use:**<ul><li>Regression tasks where outliers are present but should not dominate the loss</li></ul>**Additional Notes:**<ul><li>Often used in reinforcement learning and object detection</li></ul>|
+|[Poisson Negative Log Likelihood Loss (PoissonNLLLoss)](#poisson-negative-log-likelihood-loss-poisson-nll-loss)|[nn.PoissonNLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.PoissonNLLLoss.html#torch.nn.PoissonNLLLoss)|Regression tasks where the target is modeled as a poisson distribution (e.g., count data)|**Pros:**<ul><li>Natural fit for count data - works well for data that represents counts or rates</li><li>Incorporates variance - the loss function naturally models the variance of the data based on the mean, which is a characteristic of poisson distributions</li></ul>**Cons:**<ul><li>Requires non-negative predictions - predictions must be non-negative, which can be limiting</li><li>Sensitivity to outliers - like other likelihood-based losses, it can be sensitive to outliers in the data</li></ul>**Computational Efficiency:**<ul><li>Generally efficient but may require careful implementation to avoid numerical issues, especially when dealing with large or small values</li></ul>**Best Use:**<ul><li>Suitable for count data regression tasks, such as predicting the number of occurrences of an event over a given period</li></ul>**Additional Notes:**<ul><li>Log input option - the log_input option can be used to input the log of predictions, which can help with numerical stability</li><li>Regularisation - consider using a regularisation term to handle overdispersion in data that does not strictly follow a poisson distribution</li></ul>|
+|[Gaussian Negative Log Likelihood Loss (GaussianNLLLoss)](#gaussian-negative-log-likelihood-loss-gaussian-nll-loss)|[nn.GaussianNLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.GaussianNLLLoss.html#torch.nn.GaussianNLLLoss)|Regression tasks where the target is modeled as a gaussian distribution with predicted mean and variance|**Pros:**<ul><li>Handles uncertainty - incorporates the prediction of variance, allowing the model to express uncertainty in its predictions</li><li>Natural fit for gaussian data - best suited for data that naturally follows a gaussian distribution</li></ul>**Cons:**<ul><li>Complexity - requires the model to predict both the mean and variance, adding complexity</li><li>Stability issues - poor prediction of variance can lead to instability and large losses</li></ul>**Computational Efficiency:**<ul><li>Slightly more complex than standard regression losses like MSE due to the additional variance prediction</li></ul>**Best Use:**<ul><li>Ideal for regression tasks with heteroscedastic data (where variance changes across data points), such as predicting prices with associated uncertainties</li></ul>**Additional Notes:**<ul><li>This loss requires the model to predict both mean and variance. It’s essential for tasks where uncertainty estimation is crucial</li><li>Variance regularisation - regularising the variance prediction can prevent the model from predicting extremely small variances, which can lead to large losses</li><li>Scale of inputs - ensure that inputs are appropriately scaled, as large input values can lead to unstable variance predictions</li></ul>|
 
 ###### Classification losses:  
 |<div align="center">Grouped by type</div>|
@@ -1745,45 +1786,45 @@ def test_loop(test_loader, model, loss_fn):
 ###### Binary classification:  
 |Function<br>(click for formula and parameters)|Function class<br>(click for documentation)|For task|<div align="center">Notes</div>|
 |:---:|:---:|:---:|:---|
-|Binary Cross Entropy (BCE)|[nn.BCELoss](https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html#torch.nn.BCELoss)|Binary classification|**Pros:**<ul><li>Directly calculates binary cross-entropy loss for binary classification</li></ul>**Cons:**<ul><li>May suffer from numerical instability when predictions are very close to 0 or 1</li></ul>**Computational Efficiency:**<ul><li>Efficient for binary tasks</li></ul>**Best Use:**<ul><li>Binary classification tasks (e.g., spam detection)</li></ul>**Additional Notes:**<ul><li>Often paired with a sigmoid activation function before calculating the loss</li></ul>|
-|Binary Cross Entropy with Logits (BCE with Sigmoid layer)|[nn.BCEWithLogitsLoss](https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html#torch.nn.BCEWithLogitsLoss)|Binary classification|**Pros:**<ul><li>Combines sigmoid layer and binary cross-entropy loss in one for numerical stability</li></ul>**Cons:**<ul><li>More complex to understand due to combination but safer to use</li></ul>**Computational Efficiency:**<ul><li>Efficient as it combines two operations</li></ul>**Best Use:**<ul><li>Binary classification with logits as model output</li></ul>**Additional Notes:**<ul><li>Preferred over BCELoss when the model output is raw logits</li></ul>|
-|Hinge Loss|[nn.HingeEmbeddingLoss](https://pytorch.org/docs/stable/generated/torch.nn.HingeEmbeddingLoss.html#torch.nn.HingeEmbeddingLoss)|Binary classification (especially Support Vector Machine (SVM))|**Pros:**<ul><li>Useful for binary classification and works well with SVM-like objectives</li></ul>**Cons:**<ul><li>Not directly applicable to multi-class classification</li></ul>**Computational Efficiency:**<ul><li>Efficient for binary tasks</li></ul>**Best Use:**<ul><li>SVM-like binary classification tasks</li></ul>**Additional Notes:**<ul><li>Rarely used in modern deep learning compared to BCE or CrossEntropy</li></ul>|
-|Soft Margin Loss|[nn.SoftMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.SoftMarginLoss.html#torch.nn.SoftMarginLoss)|Binary classification tasks and multi-class problems|**Pros:**<ul><li>Smooth optimisation - provides a smooth gradient for optimisation, unlike the hard hinge loss</li><li>Margin maximisation - encourages the model to maximise the decision margin, which can lead to better generalisation</li></ul>**Cons:**<ul><li>Limited to binary - primarily for binary classification; not directly applicable to multi-class tasks without modifications</li><li>Sensitivity to misclassified points - like hinge loss, it can focus too much on misclassified points, which might not always be desirable</li></ul>**Computational Efficiency:**<ul><li>Generally efficient and well-suited for gradient-based optimisation</li></ul>**Best Use:**<ul><li>Best suited for binary classification tasks where the decision boundary's margin is important, such as binary support vector machines (SVMs) like hinge loss, however soft margin loss is a more general form used for multi-class problems</li></ul>**Additional Notes:**<ul><li>Binary labels - ensure that labels are in the form of ±1 for correct application of the loss</li><li>Comparison with BCE - often compared with binary cross entropy Loss (BCE), where soft margin loss can offer smoother gradients</li><li>Soft margin loss is an extension of hinge loss for multi-class classification</li></ul>|
+|[Binary Cross Entropy (BCE)](#binary-cross-entropy-bce)|[nn.BCELoss](https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html#torch.nn.BCELoss)|Binary classification|**Pros:**<ul><li>Directly calculates binary cross-entropy loss for binary classification</li></ul>**Cons:**<ul><li>May suffer from numerical instability when predictions are very close to 0 or 1</li></ul>**Computational Efficiency:**<ul><li>Efficient for binary tasks</li></ul>**Best Use:**<ul><li>Binary classification tasks (e.g., spam detection)</li></ul>**Additional Notes:**<ul><li>Often paired with a sigmoid activation function before calculating the loss</li></ul>|
+|[Binary Cross Entropy with Logits (BCE with Sigmoid layer)](#binary-cross-entropy-with-logits-bcewithlogitsloss)|[nn.BCEWithLogitsLoss](https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html#torch.nn.BCEWithLogitsLoss)|Binary classification|**Pros:**<ul><li>Combines sigmoid layer and binary cross-entropy loss in one for numerical stability</li></ul>**Cons:**<ul><li>More complex to understand due to combination but safer to use</li></ul>**Computational Efficiency:**<ul><li>Efficient as it combines two operations</li></ul>**Best Use:**<ul><li>Binary classification with logits as model output</li></ul>**Additional Notes:**<ul><li>Preferred over BCELoss when the model output is raw logits</li></ul>|
+|[Hinge Loss](#hinge-loss)|[nn.HingeEmbeddingLoss](https://pytorch.org/docs/stable/generated/torch.nn.HingeEmbeddingLoss.html#torch.nn.HingeEmbeddingLoss)|Binary classification (especially Support Vector Machine (SVM))|**Pros:**<ul><li>Useful for binary classification and works well with SVM-like objectives</li></ul>**Cons:**<ul><li>Not directly applicable to multi-class classification</li></ul>**Computational Efficiency:**<ul><li>Efficient for binary tasks</li></ul>**Best Use:**<ul><li>SVM-like binary classification tasks</li></ul>**Additional Notes:**<ul><li>Rarely used in modern deep learning compared to BCE or CrossEntropy</li></ul>|
+|[Soft Margin Loss](#soft-margin-loss)|[nn.SoftMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.SoftMarginLoss.html#torch.nn.SoftMarginLoss)|Binary classification tasks and multi-class problems|**Pros:**<ul><li>Smooth optimisation - provides a smooth gradient for optimisation, unlike the hard hinge loss</li><li>Margin maximisation - encourages the model to maximise the decision margin, which can lead to better generalisation</li></ul>**Cons:**<ul><li>Limited to binary - primarily for binary classification; not directly applicable to multi-class tasks without modifications</li><li>Sensitivity to misclassified points - like hinge loss, it can focus too much on misclassified points, which might not always be desirable</li></ul>**Computational Efficiency:**<ul><li>Generally efficient and well-suited for gradient-based optimisation</li></ul>**Best Use:**<ul><li>Best suited for binary classification tasks where the decision boundary's margin is important, such as binary support vector machines (SVMs) like hinge loss, however soft margin loss is a more general form used for multi-class problems</li></ul>**Additional Notes:**<ul><li>Binary labels - ensure that labels are in the form of ±1 for correct application of the loss</li><li>Comparison with BCE - often compared with binary cross entropy Loss (BCE), where soft margin loss can offer smoother gradients</li><li>Soft margin loss is an extension of hinge loss for multi-class classification</li></ul>|
 
 ###### Multi-class classification:  
 |Function<br>(click for formula and parameters)|Function class<br>(click for documentation)|For task|<div align="center">Notes</div>|
 |:---:|:---:|:---:|:---|
-|Negative Log Likelihood (NLL)|[nn.NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss)|Classification|**Pros:**<ul><li>Works well with probabilistic outputs (softmax or log-softmax)</li><li>Provides a direct measure of how "unlikely" the model considers the correct class given the prediction</li></ul>**Cons:**<ul><li>Requires a log-softmax to be applied beforehand</li></ul>**Computational Efficiency:**<ul><li>Slightly less efficient than cross entropy due to separate softmax</li></ul>**Best Use:**<ul><li>When using a model that already applies log-softmax or where more control over the application of softmax is needed</li></ul>**Additional Notes:**<ul><li>Class imbalance - NLLLoss allows for weighting classes differently using the weight parameter, which is useful in cases of class imbalance</li><li>Logits vs. probabilities - ensure that the inputs are log-probabilities, not raw logits. If working with raw logits, consider using cross entropy loss for convenience</li><li>Smoothing techniques - label smoothing can be applied before NLL to make the model less confident and help generalise better</li></ul>|
-|Cross Entropy (CE)|[nn.CrossEntropyLoss](https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html#torch.nn.CrossEntropyLoss)|Classification|**Pros:**<ul><li>Combines softmax and NLL in one operation, making it easier to implement</li></ul>**Cons:**<ul><li>Only works with logits (raw model outputs)</li></ul>**Computational Efficiency:**<ul><li>Efficient as it handles softmax and NLL together</li></ul>**Best Use:**<ul><li>Multi-class classification problems (e.g., image recognition)</li></ul>**Additional Notes:**<ul><li>Class weighting - use the weight parameter to address class imbalance, ensuring that minority classes are not overshadowed during training</li><li>Label encoding - target labels should be provided as class indices, not as one-hot encoded vectors, to work correctly</li><li>Softmax temperature - in certain advanced applications, modifying the temperature of the softmax (making it "sharper" or "softer") before applying CE can help control the confidence levels of the model’s predictions</li></ul>|
-|MultiMargin Loss|[nn.MultiMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.MultiMarginLoss.html#torch.nn.MultiMarginLoss)|Multi-class classification|**Pros:**<ul><li>Margin maximisation - like hinge loss, it encourages the model to maintain a margin between the correct and incorrect classes</li><li>Flexible margin - the margin can be adjusted for different classes, making it adaptable to different classification tasks</li></ul>**Cons:**<ul><li>Not commonly used - less commonly used than cross entropy loss, which is generally more effective for multi-class tasks</li><li>Sensitive to scaling - the performance can be sensitive to the scaling of input features</li></ul>**Computational Efficiency:**<ul><li>Slightly more computationally intensive than cross entropy loss due to the multiple margin calculations but still practical for most applications</li></ul>**Best Use:**<ul><li>Suitable for multi-class classification tasks, particularly when margin maximisation is desired</li></ul>**Additional Notes:**<ul><li>Comparison with cross entropy - multi-margin loss can be seen as an alternative to cross entropy loss, though cross entropy is typically preferred for its probabilistic interpretation</li><li>Input scaling - careful input scaling can improve the performance and stability of the loss function</li></ul>|
+|[Negative Log Likelihood (NLL)](#negative-log-likelihood-nllloss)|[nn.NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss)|Classification|**Pros:**<ul><li>Works well with probabilistic outputs (softmax or log-softmax)</li><li>Provides a direct measure of how "unlikely" the model considers the correct class given the prediction</li></ul>**Cons:**<ul><li>Requires a log-softmax to be applied beforehand</li></ul>**Computational Efficiency:**<ul><li>Slightly less efficient than cross entropy due to separate softmax</li></ul>**Best Use:**<ul><li>When using a model that already applies log-softmax or where more control over the application of softmax is needed</li></ul>**Additional Notes:**<ul><li>Class imbalance - NLLLoss allows for weighting classes differently using the weight parameter, which is useful in cases of class imbalance</li><li>Logits vs. probabilities - ensure that the inputs are log-probabilities, not raw logits. If working with raw logits, consider using cross entropy loss for convenience</li><li>Smoothing techniques - label smoothing can be applied before NLL to make the model less confident and help generalise better</li></ul>|
+|[Cross Entropy (CE)](#cross-entropy-ce)|[nn.CrossEntropyLoss](https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html#torch.nn.CrossEntropyLoss)|Classification|**Pros:**<ul><li>Combines softmax and NLL in one operation, making it easier to implement</li></ul>**Cons:**<ul><li>Only works with logits (raw model outputs)</li></ul>**Computational Efficiency:**<ul><li>Efficient as it handles softmax and NLL together</li></ul>**Best Use:**<ul><li>Multi-class classification problems (e.g., image recognition)</li></ul>**Additional Notes:**<ul><li>Class weighting - use the weight parameter to address class imbalance, ensuring that minority classes are not overshadowed during training</li><li>Label encoding - target labels should be provided as class indices, not as one-hot encoded vectors, to work correctly</li><li>Softmax temperature - in certain advanced applications, modifying the temperature of the softmax (making it "sharper" or "softer") before applying CE can help control the confidence levels of the model’s predictions</li></ul>|
+|[Multi-Margin Loss](#multi-margin-loss)|[nn.MultiMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.MultiMarginLoss.html#torch.nn.MultiMarginLoss)|Multi-class classification|**Pros:**<ul><li>Margin maximisation - like hinge loss, it encourages the model to maintain a margin between the correct and incorrect classes</li><li>Flexible margin - the margin can be adjusted for different classes, making it adaptable to different classification tasks</li></ul>**Cons:**<ul><li>Not commonly used - less commonly used than cross entropy loss, which is generally more effective for multi-class tasks</li><li>Sensitive to scaling - the performance can be sensitive to the scaling of input features</li></ul>**Computational Efficiency:**<ul><li>Slightly more computationally intensive than cross entropy loss due to the multiple margin calculations but still practical for most applications</li></ul>**Best Use:**<ul><li>Suitable for multi-class classification tasks, particularly when margin maximisation is desired</li></ul>**Additional Notes:**<ul><li>Comparison with cross entropy - multi-margin loss can be seen as an alternative to cross entropy loss, though cross entropy is typically preferred for its probabilistic interpretation</li><li>Input scaling - careful input scaling can improve the performance and stability of the loss function</li></ul>|
 
 ###### Multi-label classification:  
 |Function<br>(click for formula and parameters)|Function class<br>(click for documentation)|For task|<div align="center">Notes</div>|
 |:---:|:---:|:---:|:---|
-|Multi-Label Soft Margin Loss|[nn.MultiLabelSoftMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.MultiLabelSoftMarginLoss.html#torch.nn.MultiLabelSoftMarginLoss)|Multi-label classification|**Pros:**<ul><li>Suitable for multi-label classification where each class is independent</li></ul>**Cons:**<ul><li>Requires proper thresholding to determine the presence of a label</li></ul>**Computational Efficiency:**<ul><li>Efficient, similar to binary cross-entropy</li></ul>**Best Use:**<ul><li>Multi-label classification tasks (e.g., tag prediction)</li></ul>**Additional Notes:**<ul><li>Combines sigmoid activation and binary cross-entropy</li><li>Uses a log-sum-exp trick for numerical stability</li></ul>|
-|Multi-Label Margin Loss|[nn.MultiLabelMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.MultiLabelMarginLoss.html#torch.nn.MultiLabelMarginLoss)|Multi-label classification tasks|**Pros:**<ul><li>Handles multiple labels - designed for scenarios where each input can be associated with multiple labels</li><li>Margin enforcement - enforces a margin between correct and incorrect labels, encouraging better ranking</li></ul>**Cons:**<ul><li>Complexity - more complex than standard multi-label classification losses like BCE with logits loss</li><li>Sensitive to margin - like margin ranking loss, the choice of margin can affect performance</li></ul>**Computational Efficiency:**<ul><li>Relatively efficient but can be slower than simpler losses like BCE with logits loss, especially with many labels</li></ul>**Best Use:**<ul><li>Suitable for multi-label classification tasks where the correct ranking of labels is important, such as text categorisation with multiple tags</li></ul>**Additional Notes:**<ul><li>Label encoding - ensure correct label encoding, where the target is represented as indices of the positive labels</li><li>Margin tuning - as with other margin-based losses, tuning the margin parameter is crucial for optimal performance</li><li>Multi-label soft margin loss can be a more stable alternative</li></ul>|
+|[Multi-Label Soft Margin Loss](#multi-label-soft-margin-loss)|[nn.MultiLabelSoftMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.MultiLabelSoftMarginLoss.html#torch.nn.MultiLabelSoftMarginLoss)|Multi-label classification|**Pros:**<ul><li>Suitable for multi-label classification where each class is independent</li></ul>**Cons:**<ul><li>Requires proper thresholding to determine the presence of a label</li></ul>**Computational Efficiency:**<ul><li>Efficient, similar to binary cross-entropy</li></ul>**Best Use:**<ul><li>Multi-label classification tasks (e.g., tag prediction)</li></ul>**Additional Notes:**<ul><li>Combines sigmoid activation and binary cross-entropy</li><li>Uses a log-sum-exp trick for numerical stability</li></ul>|
+|[Multi-Label Margin Loss](#multi-label-margin-loss)|[nn.MultiLabelMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.MultiLabelMarginLoss.html#torch.nn.MultiLabelMarginLoss)|Multi-label classification tasks|**Pros:**<ul><li>Handles multiple labels - designed for scenarios where each input can be associated with multiple labels</li><li>Margin enforcement - enforces a margin between correct and incorrect labels, encouraging better ranking</li></ul>**Cons:**<ul><li>Complexity - more complex than standard multi-label classification losses like BCE with logits loss</li><li>Sensitive to margin - like margin ranking loss, the choice of margin can affect performance</li></ul>**Computational Efficiency:**<ul><li>Relatively efficient but can be slower than simpler losses like BCE with logits loss, especially with many labels</li></ul>**Best Use:**<ul><li>Suitable for multi-label classification tasks where the correct ranking of labels is important, such as text categorisation with multiple tags</li></ul>**Additional Notes:**<ul><li>Label encoding - ensure correct label encoding, where the target is represented as indices of the positive labels</li><li>Margin tuning - as with other margin-based losses, tuning the margin parameter is crucial for optimal performance</li><li>Multi-label soft margin loss can be a more stable alternative</li></ul>|
 
 ###### Metric learning losses:  
 |Function<br>(click for formula and parameters)|Function class<br>(click for documentation)|For task|<div align="center">Notes</div>|
 |:---:|:---:|:---:|:---|
-|Cosine Embedding Loss|[nn.CosineEmbeddingLoss](https://pytorch.org/docs/stable/generated/torch.nn.CosineEmbeddingLoss.html#torch.nn.CosineEmbeddingLoss)|Similarity learning|**Pros:**<ul><li>Measures the cosine similarity between two embeddings</li></ul>**Cons:**<ul><li>Sensitive to the magnitude of the vectors</li></ul>**Computational Efficiency:**<ul><li>Efficient for embedding tasks</li></ul>**Best Use:**<ul><li>Tasks like face verification, where similarity between vectors is crucial</li></ul>**Additional Notes:**<ul><li>Often used in metric learning scenarios</li></ul>|
-|Triplet Margin Loss|[nn.TripletMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.TripletMarginLoss.html#torch.nn.TripletMarginLoss)|Metric learning tasks, such as face verification or image retrieval|**Pros:**<ul><li>Effective for metric learning - encourages the model to learn a metric space where similar items are closer together</li><li>Simple yet powerful - the triplet loss is simple to implement but powerful in learning embeddings</li></ul>**Cons:**<ul><li>Requires careful sampling - the effectiveness of the loss is heavily dependent on the choice of triplets (anchor, positive, negative)</li><li>Sensitive to margin - the margin parameter can be tricky to tune for optimal performance</li></ul>**Computational Efficiency:**<ul><li>Moderately intensive due to the need to compute distances between multiple pairs</li><li>Careful selection of triplets can reduce computation and improve learning efficiency</li></ul>**Best Use:**<ul><li>Best suited for metric learning tasks like face verification, where learning a discriminative embedding space is crucial</li><li>Commonly used for learning embeddings with triplet samples</li></ul>**Additional Notes:**<ul><li>Cosine embedding loss can be an alternative when comparing pairs rather than triplets</li><li>Hard negative mining - often used in conjunction with hard negative mining, where the hardest (most similar) negative examples are selected during training</li><li>Margin tuning - the margin parameter is critical and often needs to be tuned based on the specific dataset and task</li></ul>|
-|Triplet Margin Loss with Distance|[nn.TripletMarginWithDistanceLoss](https://pytorch.org/docs/stable/generated/torch.nn.TripletMarginWithDistanceLoss.html#torch.nn.TripletMarginWithDistanceLoss)|Metric learning tasks similar to triplet margin loss, with added flexibility|**Pros:**<ul><li>Customisable - allows the use of custom distance metrics, which can be tailored to specific tasks or data characteristics</li><li>Flexible - extends the triplet margin loss to more complex scenarios where standard distance functions may not suffice</li></ul>**Cons:**<ul><li>Complexity - choosing and implementing a custom distance function can add complexity</li><li>Sensitive to distance function - the performance is highly dependent on the appropriateness of the chosen distance function</li></ul>**Computational Efficiency:**<ul><li>Similar to triplet margin loss, though the complexity can increase depending on the custom distance function used</li></ul>**Best Use:**<ul><li>Best for metric learning tasks where a specific notion of distance is crucial, such as in specialised retrieval systems or customised embedding spaces</li></ul>**Additional Notes:**<ul><li>This is a variant of triplet margin loss with customisable distance metrics</li><li>Distance function choice - carefully consider and test different distance functions to find the one that best suits your task</li><li>Use cases - particularly useful in tasks where traditional euclidean distance may not capture the true similarity between data points, such as in high-dimensional spaces or with non-euclidean data</li></ul>|
+|[Cosine Embedding Loss](#cosine-embedding-loss)|[nn.CosineEmbeddingLoss](https://pytorch.org/docs/stable/generated/torch.nn.CosineEmbeddingLoss.html#torch.nn.CosineEmbeddingLoss)|Similarity learning|**Pros:**<ul><li>Measures the cosine similarity between two embeddings</li></ul>**Cons:**<ul><li>Sensitive to the magnitude of the vectors</li></ul>**Computational Efficiency:**<ul><li>Efficient for embedding tasks</li></ul>**Best Use:**<ul><li>Tasks like face verification, where similarity between vectors is crucial</li></ul>**Additional Notes:**<ul><li>Often used in metric learning scenarios</li></ul>|
+|[Triplet Margin Loss](#triplet-margin-loss)|[nn.TripletMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.TripletMarginLoss.html#torch.nn.TripletMarginLoss)|Metric learning tasks, such as face verification or image retrieval|**Pros:**<ul><li>Effective for metric learning - encourages the model to learn a metric space where similar items are closer together</li><li>Simple yet powerful - the triplet loss is simple to implement but powerful in learning embeddings</li></ul>**Cons:**<ul><li>Requires careful sampling - the effectiveness of the loss is heavily dependent on the choice of triplets (anchor, positive, negative)</li><li>Sensitive to margin - the margin parameter can be tricky to tune for optimal performance</li></ul>**Computational Efficiency:**<ul><li>Moderately intensive due to the need to compute distances between multiple pairs</li><li>Careful selection of triplets can reduce computation and improve learning efficiency</li></ul>**Best Use:**<ul><li>Best suited for metric learning tasks like face verification, where learning a discriminative embedding space is crucial</li><li>Commonly used for learning embeddings with triplet samples</li></ul>**Additional Notes:**<ul><li>Cosine embedding loss can be an alternative when comparing pairs rather than triplets</li><li>Hard negative mining - often used in conjunction with hard negative mining, where the hardest (most similar) negative examples are selected during training</li><li>Margin tuning - the margin parameter is critical and often needs to be tuned based on the specific dataset and task</li></ul>|
+|[Triplet Margin Loss with Distance](#triplet-margin-loss-with-distance)|[nn.TripletMarginWithDistanceLoss](https://pytorch.org/docs/stable/generated/torch.nn.TripletMarginWithDistanceLoss.html#torch.nn.TripletMarginWithDistanceLoss)|Metric learning tasks similar to triplet margin loss, with added flexibility|**Pros:**<ul><li>Customisable - allows the use of custom distance metrics, which can be tailored to specific tasks or data characteristics</li><li>Flexible - extends the triplet margin loss to more complex scenarios where standard distance functions may not suffice</li></ul>**Cons:**<ul><li>Complexity - choosing and implementing a custom distance function can add complexity</li><li>Sensitive to distance function - the performance is highly dependent on the appropriateness of the chosen distance function</li></ul>**Computational Efficiency:**<ul><li>Similar to triplet margin loss, though the complexity can increase depending on the custom distance function used</li></ul>**Best Use:**<ul><li>Best for metric learning tasks where a specific notion of distance is crucial, such as in specialised retrieval systems or customised embedding spaces</li></ul>**Additional Notes:**<ul><li>This is a variant of triplet margin loss with customisable distance metrics</li><li>Distance function choice - carefully consider and test different distance functions to find the one that best suits your task</li><li>Use cases - particularly useful in tasks where traditional euclidean distance may not capture the true similarity between data points, such as in high-dimensional spaces or with non-euclidean data</li></ul>|
 
-###### Sequence modeling losses:  
+###### Sequence modelling losses:  
 |Function<br>(click for formula and parameters)|Function class<br>(click for documentation)|For task|<div align="center">Notes</div>|
 |:---:|:---:|:---:|:---|
-|CTC Loss (Connectionist Temporal Classification Loss)|[nn.CTCLoss](https://pytorch.org/docs/stable/generated/torch.nn.CTCLoss.html#torch.nn.CTCLoss)|Sequence-to-sequence tasks with variable-length outputs (e.g., speech recognition, handwriting recognition)|**Pros:**<ul><li>Handles variable length - suitable for tasks where the input and output sequences are of different lengths</li><li>No alignment required - works well when the alignment between input and output is unknown or difficult to establish</li></ul>**Cons:**<ul><li>Complexity - can be more difficult to implement and tune compared to simpler loss functions due to the nature of sequence modeling</li><li>Requires blank label - the model must learn to predict a "blank" label effectively, which can be challenging</li></ul>**Computational Efficiency:**<ul><li>Computationally intensive, especially for long sequences, as it requires dynamic programming techniques to compute the loss</li></ul>**Best Use:**<ul><li>Ideal for speech recognition, handwriting recognition, and other sequence-to-sequence tasks where the length of the output sequence can vary and alignment is unknown</li><li>Use in sequence-to-sequence tasks where alignment between inputs and outputs is unknown, as opposed to [CE](#multi-class-classification), which is used when the alignment is known</li></ul>**Additional Notes:**<ul><li>Beam search decoding - often used in conjunction with beam search decoding to find the most likely output sequence</li><li>Blank label prediction - ensuring the model learns to predict the "blank" label properly is crucial for good performance</li></ul>|
+|[CTC Loss (Connectionist Temporal Classification Loss)](#ctc-loss-connectionist-temporal-classification)|[nn.CTCLoss](https://pytorch.org/docs/stable/generated/torch.nn.CTCLoss.html#torch.nn.CTCLoss)|Sequence-to-sequence tasks with variable-length outputs (e.g., speech recognition, handwriting recognition)|**Pros:**<ul><li>Handles variable length - suitable for tasks where the input and output sequences are of different lengths</li><li>No alignment required - works well when the alignment between input and output is unknown or difficult to establish</li></ul>**Cons:**<ul><li>Complexity - can be more difficult to implement and tune compared to simpler loss functions due to the nature of sequence modeling</li><li>Requires blank label - the model must learn to predict a "blank" label effectively, which can be challenging</li></ul>**Computational Efficiency:**<ul><li>Computationally intensive, especially for long sequences, as it requires dynamic programming techniques to compute the loss</li></ul>**Best Use:**<ul><li>Ideal for speech recognition, handwriting recognition, and other sequence-to-sequence tasks where the length of the output sequence can vary and alignment is unknown</li><li>Use in sequence-to-sequence tasks where alignment between inputs and outputs is unknown, as opposed to [CE](#multi-class-classification), which is used when the alignment is known</li></ul>**Additional Notes:**<ul><li>Beam search decoding - often used in conjunction with beam search decoding to find the most likely output sequence</li><li>Blank label prediction - ensuring the model learns to predict the "blank" label properly is crucial for good performance</li></ul>|
 
 ###### Ranking losses:  
 |Function<br>(click for formula and parameters)|Function class<br>(click for documentation)|For task|<div align="center">Notes</div>|
 |:---:|:---:|:---:|:---|
-|Margin Ranking Loss|[nn.MarginRankingLoss](https://pytorch.org/docs/stable/generated/torch.nn.MarginRankingLoss.html#torch.nn.MarginRankingLoss)|Learning to rank tasks, such as ranking search results or recommendation systems|**Pros:**<ul><li>Simplicity - simple to implement and understand, directly encouraging correct ranking</li><li>Flexibility - can be used with various types of models and scoring functions</li></ul>**Cons:**<ul><li>Requires pairs - training data must be prepared as pairs, which can be time-consuming and complex for large datasets</li><li>Sensitive to margin - the choice of margin can significantly affect performance and needs careful tuning</li></ul>**Computational Efficiency:**<ul><li>Efficient to compute, though constructing pairs can be resource-intensive</li></ul>**Best Use:**<ul><li>Best suited for ranking tasks such as information retrieval, recommendation systems, or any application where relative ordering is more important than absolute predictions</li></ul>**Additional Notes:**<ul><li>Pair sampling - effective pair sampling strategies can significantly improve performance by focusing on the most informative pairs</li><li>Margin tuning - experiment with different margins to find the optimal balance between precision and generalisation</li></ul>|
+|[Margin Ranking Loss](#margin-ranking-loss)|[nn.MarginRankingLoss](https://pytorch.org/docs/stable/generated/torch.nn.MarginRankingLoss.html#torch.nn.MarginRankingLoss)|Learning to rank tasks, such as ranking search results or recommendation systems|**Pros:**<ul><li>Simplicity - simple to implement and understand, directly encouraging correct ranking</li><li>Flexibility - can be used with various types of models and scoring functions</li></ul>**Cons:**<ul><li>Requires pairs - training data must be prepared as pairs, which can be time-consuming and complex for large datasets</li><li>Sensitive to margin - the choice of margin can significantly affect performance and needs careful tuning</li></ul>**Computational Efficiency:**<ul><li>Efficient to compute, though constructing pairs can be resource-intensive</li></ul>**Best Use:**<ul><li>Best suited for ranking tasks such as information retrieval, recommendation systems, or any application where relative ordering is more important than absolute predictions</li></ul>**Additional Notes:**<ul><li>Pair sampling - effective pair sampling strategies can significantly improve performance by focusing on the most informative pairs</li><li>Margin tuning - experiment with different margins to find the optimal balance between precision and generalisation</li></ul>|
 
 ###### Distribution-based losses:  
 |Function<br>(click for formula and parameters)|Function class<br>(click for documentation)|For task|<div align="center">Notes</div>|
 |:---:|:---:|:---:|:---|
-|Kullback-Leibler Divergence (KL Divergence)|[nn.KLDivLoss](https://pytorch.org/docs/stable/generated/torch.nn.KLDivLoss.html#torch.nn.KLDivLoss)|Distribution-based tasks|**Pros:**<ul><li>Measures how one probability distribution diverges from a second, expected distribution</li></ul>**Cons:**<ul><li>Requires careful numerical handling; only works with log-probabilities</li></ul>**Computational Efficiency:**<ul><li>More computationally intense due to log and division operations</li></ul>**Best Use:**<ul><li>When comparing probability distributions (e.g., in variational autoencoders) - to measure the divergence between them</li></ul>**Additional Notes:**<ul><li>Usually used alongside a softmax or log-softmax output</li></ul>|
+|[Kullback-Leibler Divergence (KL Divergence)](#kullback-leibler-divergence-kl-divergence)|[nn.KLDivLoss](https://pytorch.org/docs/stable/generated/torch.nn.KLDivLoss.html#torch.nn.KLDivLoss)|Distribution-based tasks|**Pros:**<ul><li>Measures how one probability distribution diverges from a second, expected distribution</li></ul>**Cons:**<ul><li>Requires careful numerical handling; only works with log-probabilities</li></ul>**Computational Efficiency:**<ul><li>More computationally intense due to log and division operations</li></ul>**Best Use:**<ul><li>When comparing probability distributions (e.g., in variational autoencoders) - to measure the divergence between them</li></ul>**Additional Notes:**<ul><li>Usually used alongside a softmax or log-softmax output</li></ul>|
 
 
 ###### Mean square error (MSE):  
@@ -1839,6 +1880,10 @@ $$
 \delta \cdot |y_i - \hat y_i| - \frac{1}{2}\delta^2 & \text{otherwise}
 \end{cases}
 $$
+<div align="center">
+
+Where $\delta$ is the threshold at which to change between delta-scaled L1 and L2 loss.
+</div>
 
 [⬆ Table of Functions ⬆](#table-of-loss-functions)  
 
@@ -1861,6 +1906,53 @@ $$
 |y_i - \hat y_i| - \frac{1}{2} & \text{otherwise}
 \end{cases}
 $$
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Poisson negative log likelihood loss (poisson NLL loss):  
+
+> `torch.nn.PoissonNLLLoss(log_input=True, full=False, size_average=None, eps=1e-08, reduce=None, reduction='mean')`  
+> 
+> `log_input (bool, optional) – if True the loss is computed as: exp(input) − target ∗ input, if False the loss is: input − target ∗ log(input + eps).`  
+> `full (bool, optional) – whether to compute full loss, i. e. to add the Stirling approximation term: target ∗ log(target) − target + 0.5 ∗ log(2πtarget).`  
+> `size_average (bool, optional) – Deprecated (see reduction).`  
+> `eps (float, optional) – Small value to avoid evaluation of: log(0) when log_input = False. Default: 1e-8`  
+> `reduce (bool, optional) – Deprecated (see reduction).`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.PoissonNLLLoss.html#torch.nn.PoissonNLLLoss).  
+<br>
+
+* Poisson NLL loss is used for modeling count data, where the target values are assumed to follow a poisson distribution. It calculates the negative log-likelihood of the predicted values under a poisson distribution.  
+
+$$
+\text{PoissonNLLLoss}(y, \hat y) = \frac{1}{n} \sum_{i=1}^n (\hat y_i - y_i \text{log}(\hat y_i) + \text{log}(y_i!))
+$$
+<div align="center">
+
+Where $y_i!$ is the factorial of the target value $y_i$.
+</div>
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Gaussian negative log likelihood loss (gaussian NLL loss):  
+
+> `torch.nn.GaussianNLLLoss(*, full=False, eps=1e-06, reduction='mean')`  
+> 
+> `full (bool, optional) – include the constant term in the loss calculation. Default: False.`  
+> `eps (float, optional) – value used to clamp var for stability. Clamping of var is ignored with respect to autograd, and so the gradients are unaffected by it. Default: 1e-6.`  
+> `reduction (str, optional) – specifies the reduction to apply to the output:'none' | 'mean' | 'sum'. Default: 'mean'.`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.GaussianNLLLoss.html#torch.nn.GaussianNLLLoss).  
+<br>
+
+* Gaussian NLL loss is used for regression tasks where the target values are assumed to follow a gaussian distribution. It computes the negative log-likelihood of the targets under a gaussian distribution parameterised by the predicted mean and variance.  
+
+$$
+\text{GaussianNLLLoss}(y, \mu, \sigma^2) = \frac{1}{2n} \sum_{i=1}^n (\text{log}(\sigma_i^2) + \frac{(y_i - \mu_i)^2}{\sigma_i^2})
+$$
+<div align="center">
+
+Where $\mu_i$ and $\sigma_i^2$ are the predicted mean and variance, respectively.
+</div>
 
 [⬆ Table of Functions ⬆](#table-of-loss-functions)  
 
@@ -1900,6 +1992,71 @@ $$
 $$
 \text{BCEWithLogitsLoss}(y, z) = \frac{1}{n}\sum_{i=1}^n (y_i \text{ log}(\sigma(z_i)) + (1 - y_i) \text{ log}(1 - \sigma(z_i)))
 $$
+<div align="center">
+
+Where $\sigma(z_i)$ is the sigmoid function applied to the logits $z_i$.
+</div>
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Hinge loss:  
+
+> `torch.nn.HingeEmbeddingLoss(margin=1.0, size_average=None, reduce=None, reduction='mean')`  
+> 
+> `margin (float, optional) – Default: 1.`  
+> `size_average (bool, optional) – Deprecated (see reduction).`  
+> `reduce (bool, optional) – Deprecated (see reduction).`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.HingeEmbeddingLoss.html#torch.nn.HingeEmbeddingLoss).  
+<br>
+
+* Hinge loss is primarily used for training support vector machines (SVMs), penalising incorrect classifications and margin violations.  
+
+$$
+\text{Hinge Loss}(y, \hat y) = \text{max}(0, 1 - y \cdot \hat y)
+$$
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Soft margin loss:  
+
+> `torch.nn.SoftMarginLoss(size_average=None, reduce=None, reduction='mean')`  
+> 
+> `size_average (bool, optional) – Deprecated (see reduction).`  
+> `reduce (bool, optional) – Deprecated (see reduction).`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.SoftMarginLoss.html#torch.nn.SoftMarginLoss).  
+<br>
+
+* Soft margin loss generalises [hinge loss](#hinge-loss) for multi-class problems, allowing for better handling of non-linearly separable data.  
+
+$$
+\text{Soft Margin Loss}(y, \hat y) = \sum_{i=1}^n \text{ log}(1 + \text{exp}(- y_i \cdot \hat y_i))
+$$
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Negative log likelihood (NLLLoss):  
+
+> `torch.nn.NLLLoss(weight=None, size_average=None, ignore_index=-100, reduce=None, reduction='mean')`  
+> 
+> `weight (Tensor, optional) – a manual rescaling weight given to each class. If given, it has to be a Tensor of size C. Otherwise, it is treated as if having all ones.`  
+> `size_average (bool, optional) – Deprecated (see reduction).`  
+> `ignore_index (int, optional) – Specifies a target value that is ignored and does not contribute to the input gradient. When size_average is True, the loss is averaged over non-ignored targets.`  
+> `reduce (bool, optional) – Deprecated (see reduction).`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss).  
+<br>
+
+* NLLLoss is used in conjunction with a [log-softmax](#logsoftmax) output layer for classification tasks, penalising incorrect class predictions.  
+
+$$
+\text{NLLLoss}(y, \text{log}(\hat y)) = \sum_{i=1}^n \text{ log}(\hat y_{i,y_i})
+$$
+<div align="center">
+
+Where $\hat y_{i,y_i}$ is the log-probability of the true class.
+</div>
 
 [⬆ Table of Functions ⬆](#table-of-loss-functions)  
 
@@ -1921,6 +2078,225 @@ $$
 $$
 \text{CE}(y, \hat y) = \sum_{i=1}^n \sum_{j=1}^C y_{ij} \text{ log}(\hat y_{ij})
 $$
+<div align="center">
+
+Where $C$ is the number of classes.
+</div>
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Multi-margin loss:  
+
+> `torch.nn.MultiMarginLoss(p=1, margin=1.0, weight=None, size_average=None, reduce=None, reduction='mean')`  
+> 
+> `p (int, optional) – 1 and 2 are the only supported values. Default: 1`  
+> `margin (float, optional) – Default: 1`  
+> `weight (Tensor, optional) – a manual rescaling weight given to each class. If given, it has to be a Tensor of size C. Otherwise, it is treated as if having all ones.`  
+> `size_average (bool, optional) – Deprecated (see reduction).`  
+> `reduce (bool, optional) – Deprecated (see reduction).`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.MultiMarginLoss.html#torch.nn.MultiMarginLoss).  
+<br>
+
+* Multi-margin loss is used for multi-class classification tasks, where the margin between the correct class and other classes is maximised. It is a generalisation of [hinge loss](#hinge-loss) for multi-class settings.  
+
+$$
+\text{Multi-Margin Loss}(y, \hat y) = \frac{1}{n} \sum_{i=1}^n \sum_{j\neq y_i} \text{max}(0, 1 + \hat y_j - \hat y_{y_i})
+$$
+<div align="center">
+
+Where $\hat y_j$ is the predicted score for class $j$, <br>and $\hat y_{y_i}$ is the predicted score for the correct class $y_i$.
+</div>
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Multi-label soft margin loss:  
+
+> `torch.nn.MultiLabelSoftMarginLoss(weight=None, size_average=None, reduce=None, reduction='mean')`  
+> 
+> `weight (Tensor, optional) – a manual rescaling weight given to each class. If given, it has to be a Tensor of size C. Otherwise, it is treated as if having all ones.`  
+> `size_average (bool, optional) – Deprecated (see reduction).`  
+> `reduce (bool, optional) – Deprecated (see reduction).`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.MultiLabelSoftMarginLoss.html#torch.nn.MultiLabelSoftMarginLoss).  
+<br>
+
+* This loss is used for multi-label classification tasks, where each label is treated independently, applying a log-sum-exp trick for numerical stability.  
+
+$$
+\text{Multi-Label Soft Margin Loss}(y, \hat y) = -\frac{1}{n}\sum_{i=1}^n [y_i \cdot \text{ log}(\sigma (\hat y_i)) + (1 - y_i) \cdot \text{log}(1 - \sigma (\hat y_i))]
+$$
+<div align="center">
+
+Where $\sigma(\hat y_i)$ denotes the [sigmoid activation function](#sigmoid) which transforms raw logits ($\hat y_i$) into a probability value between $0$ and $1$. This enables the calculation of the [binary cross-entropy loss](#binary-cross-entropy-bce) for each label before finally being averaged.
+</div>
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Multi-label margin loss:  
+
+> `torch.nn.MultiLabelMarginLoss(size_average=None, reduce=None, reduction='mean')`  
+> 
+> `size_average (bool, optional) – Deprecated (see reduction).`  
+> `reduce (bool, optional) – Deprecated (see reduction).`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.MultiLabelMarginLoss.html#torch.nn.MultiLabelMarginLoss).  
+<br>
+
+* Multi-label margin loss is also used for multi-label classification, computing the average of margin violations across all labels.  
+
+$$
+\text{Multi-Label Margin Loss}(y, \hat y) = \frac{1}{n}\sum_{i=1}^n \sum_{j=1}^{C-1} \text{max}(0, 1 - (y_{ij} - y_{ik}) \cdot (\hat y_{ij} - \hat y_{ik}))
+$$
+<div align="center">
+
+Where $j$ and $k$ are indices over the number of classes $C$.
+</div>
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Cosine embedding loss:  
+
+> `torch.nn.CosineEmbeddingLoss(margin=0.0, size_average=None, reduce=None, reduction='mean')`  
+> 
+> `margin (float, optional) – Should be a number from −1 to 1, 0 to 0.5 is suggested. If missing, default: 0.`  
+> `size_average (bool, optional) – Deprecated (see reduction).`  
+> `reduce (bool, optional) – Deprecated (see reduction).`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.CosineEmbeddingLoss.html#torch.nn.CosineEmbeddingLoss).  
+<br>
+
+* Cosine embedding loss is used in tasks requiring similarity learning, measuring the cosine similarity between input vectors and penalising dissimilar pairs.  
+
+$$
+\text{Cosine Embedding Loss}(x_1, x_2, y) = \begin{cases}
+1 - \text{cos}(x_1, x_2) & \text{if } y = 1 \\
+\text{max}(0, \text{cos}(x_1, x_2) - m) & \text{if } y = -1
+\end{cases}
+$$
+<div align="center">
+
+Where $m$ is the margin parameter, and $y$ is a label with values $1$ or $-1$.
+</div>
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Triplet margin loss:  
+
+> `torch.nn.TripletMarginLoss(margin=1.0, p=2.0, eps=1e-06, swap=False, size_average=None, reduce=None, reduction='mean')`  
+> 
+> `margin (float, optional) – Default: 1.`  
+> `p (int, optional) – The norm degree for pairwise distance. Default: 2.`  
+> `eps (float, optional) – Small constant for numerical stability. Default: 1e−6.`  
+> `swap (bool, optional) – The distance swap. Default: False.`  
+> `size_average (bool, optional) – Deprecated (see reduction).`  
+> `reduce (bool, optional) – Deprecated (see reduction).`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.TripletMarginLoss.html#torch.nn.TripletMarginLoss).  
+<br>
+
+* Triplet margin loss is used for embedding learning, ensuring that the distance between an anchor and a positive example is smaller than the distance between the anchor and a negative example by a specified margin.  
+
+$$
+\text{Triplet Margin Loss}(a, p, n) = \text{max}(0, d(a, p) - d(a, n) + \text{margin})
+$$
+<div align="center">
+
+Where $d(a, p)$ and $d(a, n)$ are the distances between the anchor-positive and anchor-negative pairs, respectively.<br>$\text{margin}$ has a value greater than $0$.
+</div>
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Triplet margin loss with distance:  
+
+> `torch.nn.TripletMarginWithDistanceLoss(*, distance_function=None, margin=1.0, swap=False, reduction='mean')`  
+> 
+> `distance_function (Callable, optional) – A nonnegative, real-valued function that quantifies the closeness of two tensors. If not specified, nn.PairwiseDistance will be used. Default: None`  
+> `margin (float, optional) – A nonnegative margin representing the minimum difference between the positive and negative distances required for the loss to be 0. Larger margins penalise cases where the negative examples are not distant enough from the anchors, relative to the positives. Default: 1.`  
+> `swap (bool, optional) – Whether to use distance swap. If True, and if the positive example is closer to the negative example than the anchor is, swaps the positive example and the anchor in the loss computation. Default: False.`  
+> `reduction (str, optional) – Specifies the (optional) reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.TripletMarginWithDistanceLoss.html#torch.nn.TripletMarginWithDistanceLoss).  
+<br>
+
+* This is a variant of [triplet margin loss](#triplet-margin-loss) where a custom distance metric can be used to compare the anchor, positive, and negative examples.  
+
+$$
+\text{Triplet Margin Loss with Distance}(a, p, n) = \text{max}(0, D(a, p) - D(a, n) + \text{margin})
+$$
+<div align="center">
+
+Where $D$ is a custom distance function.<br>$\text{margin}$ is non-negative.
+</div>
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### CTC loss (connectionist temporal classification):  
+
+> `torch.nn.CTCLoss(blank=0, reduction='mean', zero_infinity=False)`  
+> 
+> `blank (int, optional) – blank label. Default: 0.`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+> `zero_infinity (bool, optional) – Whether to zero infinite losses and the associated gradients. Infinite losses mainly occur when the inputs are too short to be aligned to the targets. Default: False`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.CTCLoss.html#torch.nn.CTCLoss).  
+<br>
+
+* CTC loss is used in sequence-to-sequence tasks where alignment between input and output sequences is unknown, such as in speech recognition or handwriting recognition.  
+
+$$
+\text{CTC Loss}(y, \hat y) = - \text{log}(p(y | \hat y))
+$$
+<div align="center">
+
+Where $p(y | \hat y)$ is the probability of the output sequence $y$ given the input sequence $\hat y$.
+</div>
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Margin ranking loss:  
+
+> `torch.nn.MarginRankingLoss(margin=0.0, size_average=None, reduce=None, reduction='mean')`  
+> 
+> `margin (float, optional) – Default: 0.`  
+> `size_average (bool, optional) – Deprecated (see reduction).`  
+> `reduce (bool, optional) – Deprecated (see reduction).`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. Default: 'mean'`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.MarginRankingLoss.html#torch.nn.MarginRankingLoss).  
+<br>
+
+* Margin ranking loss is used to learn the relative ranking between pairs of samples. It encourages the score of a positive sample to be higher than a negative sample by at least a certain margin.  
+
+$$
+\text{Margin Ranking Loss}(x_1, x_2, y) = \text{max}(0, -y \cdot (x_1 - x_2) + \text{margin})
+$$
+<div align="center">
+
+Where $x_1$ and $x_2$ are the scores for the two samples,<br>
+$y$ is the label indicating the desired order ($1$ for $x_1 \gt x_2, -1$ for $x_1 \lt x_2$),<br>
+and $\text{margin}$ is the threshold that should be maintained between the scores.
+</div>
+
+[⬆ Table of Functions ⬆](#table-of-loss-functions)  
+
+###### Kullback-leibler divergence (KL divergence):  
+
+> `torch.nn.KLDivLoss(size_average=None, reduce=None, reduction='mean', log_target=False)`  
+> 
+> `size_average (bool, optional) – Deprecated (see reduction).`  
+> `reduce (bool, optional) – Deprecated (see reduction).`  
+> `reduction (str, optional) – Specifies the reduction to apply to the output. Default: 'mean'`  
+> `log_target (bool, optional) – Specifies whether target is the log space. Default: False`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.KLDivLoss.html#torch.nn.KLDivLoss).  
+<br>
+
+* KL divergence measures how one probability distribution diverges from a second, expected probability distribution, often used in variational autoencoders and distribution comparisons.  
+
+$$
+\text{KL Divergence}(P || Q) = \sum_{i=1}^n P(i) \text{log}(\frac{P(i)}{Q(i)})
+$$
+<div align="center">
+
+Where $P$ is the true distribution and $Q$ is the approximating distribution.
+</div>
 
 [⬆ Table of Functions ⬆](#table-of-loss-functions)  
 
