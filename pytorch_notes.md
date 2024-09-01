@@ -1714,6 +1714,7 @@ def test_loop(test_loader, model, loss_fn):
 * **Stateless Loss Functions** - [torch.nn.functional.<loss_function>](https://pytorch.org/docs/stable/nn.functional.html#loss-functions) are called directly without needing to create an instance. All necessary arguments/options need to be provided in each function call - use for a more concise and straightforward implementation where state management is not required.  
 * See [Initialise Loss Function](#initialise-loss-function) above for more information on initialising and use.  
 <br>
+
 * **Regression losses** - used in tasks where the goal is to predict **continuous** values. The loss measures the difference between the predicted values and the actual continuous targets.  
 Common losses:  
   * [Mean squared error (MSE)](#mean-square-error-mse): Measures the average squared difference between predicted and actual values.  
