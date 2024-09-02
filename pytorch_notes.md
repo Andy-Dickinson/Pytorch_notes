@@ -1817,24 +1817,24 @@ Key Concepts:
     * **[Hinge Loss](#hinge-loss)**: The loss function used in SVMs to ensure that misclassified points are penalised and correct classifications are separated by a margin.  
 <table align="center">
   <tr>
-    <td style="text-align: center;">
+    <td align="center">
       <img src="./img/hyper-plane.webp" alt="hyper-plane" height="200">
       <br>
       <div align="center">Hyper-plane is blue line (Fig.3)</div>
     </td>
-    <td style="text-align: center;">
+    <td align="center">
       <img src="./img/seperable_add_dimension.webp" alt="seperable_add_dimension" height="200">
       <br>
       <div align="center">Add dimension to make linearly separable</div>
     </td>
   </tr>
   <tr>
-    <td style="text-align: center;">
+    <td align="center">
       <img src="./img/many_hyperplanes.webp" alt="many_hyperplanes" height="200">
       <br>
       <div align="center">Many hyperplanes can separate the data points</div>
     </td>
-    <td style="text-align: center;">
+    <td align="center">
       <img src="./img/optimal_hyperplane.webp" alt="optimal_hyperplane" height="200">
       <br>
       <div align="center">Optimal hyperplane divides the data points very well</div>
