@@ -2633,14 +2633,6 @@ and $\epsilon$ is a small constant for numerical stability.
 <p align="center">
 <img src="./img/rmsprop.png" alt="rmsprop" width="350">  
 </p>
-
-$$
-E[g^2]_{t+1} = \rho E[g^2]_t + (1 - \rho) (\nabla_\theta L(\theta_t))^2
-$$
-
-$$
-\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{E[g^2]_{t+1} + \epsilon}} \nabla_\theta L(\theta_t)
-$$
 <div align="center">
 
 Where $\theta$ represents the parameters,<br>
@@ -2675,9 +2667,10 @@ and $E[g^2]_{t+1}$ is the moving average of squared gradients.
 > `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.Adadelta.html#torch.optim.Adadelta).  
 
-$$
-\Delta\theta_{t+1} = - \frac{\sqrt{E[\Delta\theta^2]_t + \epsilon}}{\sqrt{E[g^2]_t + \epsilon}} \nabla_\theta L(\theta_t)
-$$
+<p align="center">
+<img src="./img/adadelta.png" alt="adadelta" width="310">  
+</p>
+<div align="center">
 
 $$
 \theta_{t+1} = \theta_t + \Delta\theta_{t+1}
