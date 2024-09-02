@@ -2630,11 +2630,9 @@ and $\epsilon$ is a small constant for numerical stability.
 > `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html#torch.optim.RMSprop).  
 
-$$
-E[g^2]_{t+1} = \rho E[g^2]_t + (1 - \rho) \cdot (\nabla_\theta L(\theta_t))^2
-$$
-
-
+<p align="center">
+<img src="./img/rmsprop.png" alt="rmsprop" width="350">  
+</p>
 
 $$
 E[g^2]_{t+1} = \rho E[g^2]_t + (1 - \rho) (\nabla_\theta L(\theta_t))^2
