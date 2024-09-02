@@ -1841,7 +1841,7 @@ Key Concepts:
     </td>
   </tr>
   <tr>
-    <td colspan="2" style="align: center;">
+    <td colspan="2" align="center">
       <img src="./img/hard_soft_margin.webp" alt="hard_soft_margin" height="200">
       <br>
       <div align="center">Hard and soft margin classification</div>
