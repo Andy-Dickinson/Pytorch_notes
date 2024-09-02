@@ -1815,18 +1815,20 @@ Key Concepts:
     * **Linear SVM**: Finds a linear hyperplane in the feature space that separates the classes with the maximum margin.  
     * **Kernel Trick**: SVM can be extended to handle non-linear data by mapping the data into a higher-dimensional space using a kernel function.  
     * **[Hinge Loss](#hinge-loss)**: The loss function used in SVMs to ensure that misclassified points are penalised and correct classifications are separated by a margin.  
-<p align="center">
-  <span style="display: inline-block; text-align: center; margin: 0 10px;">
-    <img src="./img/hyper-plane.webp" alt="hyper-plane" height="150">
-    <br>
-    <span>Hyper-plane is blue line (Fig.3)</span>
-  </span>
-  <span style="display: inline-block; text-align: center; margin: 0 10px;">
-    <img src="./img/seperable_add_dimension.webp" alt="seperable_add_dimension" height="200">
-    <br>
-    <span>Add dimension to make linearly separable</span>
-  </span>
-</p>
+<table align="center" style="border-collapse: collapse; border: none;">
+  <tr>
+    <td style="text-align: center; border: none;">
+      <img src="./img/hyper-plane.webp" alt="hyper-plane" height="150">
+      <br>
+      <span>Hyper-plane is blue line (Fig.3)</span>
+    </td>
+    <td style="text-align: center; border: none;">
+      <img src="./img/seperable_add_dimension.webp" alt="seperable_add_dimension" height="200">
+      <br>
+      <span>Add dimension to make linearly separable</span>
+    </td>
+  </tr>
+</table>
 
 
 ###### Table of loss functions:  
