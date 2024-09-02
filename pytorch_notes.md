@@ -2670,7 +2670,6 @@ and $E[g^2]_{t+1}$ is the moving average of squared gradients.
 <p align="center">
 <img src="./img/adadelta.png" alt="adadelta" width="310">  
 </p>
-<div align="center">
 
 $$
 \theta_{t+1} = \theta_t + \Delta\theta_{t+1}
