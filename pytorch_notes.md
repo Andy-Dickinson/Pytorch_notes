@@ -15,7 +15,7 @@
 | **6.** | [Activation Functions](#activation-functions) |[Information on Function Types & Problems](#activation-functions),<br>[Table of Activation Functions](#table-of-activation-functions)|
 | **7.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
 | **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
-| **9.** | [Loss Functions](#loss-functions) |[General Loss Function Information](#loss-functions),<br>[Overview of Losses](#overview-of-losses),<br>[Overview of Distributions](#overview-of-distributions),<br>[Table of Loss Functions](#table-of-loss-functions)|
+| **9.** | [Loss Functions](#loss-functions)<br>- Includes Overview of Distributions & SVMs |[General Loss Function Information](#loss-functions),<br>[Overview of Losses](#overview-of-losses),<br>[Overview of Distributions](#overview-of-distributions),<br>[Overview of SVMs](#overview-of-support-vector-machines-svms),<br>[Table of Loss Functions](#table-of-loss-functions)|
 | **10.** | [Optimizers](#optimizers) ||
 
 </div>
@@ -1810,7 +1810,7 @@ Red curve is the standard normal distribution
 
 
 ###### Overview of support vector machines (SVMs):  
-* **Support Vector Machines** - are a set of supervised learning methods used for classification and regression. They **work by finding the hyperplane that best separates different classes in the feature space**. The key idea is to maximise the margin, which is the distance between the hyperplane and the nearest data points (support vectors) from each class.  
+* **[Support Vector Machines](https://ankitnitjsr13.medium.com/math-behind-support-vector-machine-svm-5e7376d0ee4d)** - are a set of supervised learning methods used for classification and regression. They **work by finding the hyperplane that best separates different classes in the feature space**. The key idea is to maximise the margin, which is the distance between the hyperplane and the nearest data points (support vectors) from each class.  
 Key Concepts:  
     * **Linear SVM**: Finds a linear hyperplane in the feature space that separates the classes with the maximum margin.  
     * **Kernel Trick**: SVM can be extended to handle non-linear data by mapping the data into a higher-dimensional space using a kernel function.  
