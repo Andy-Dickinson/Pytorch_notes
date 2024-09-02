@@ -2631,10 +2631,10 @@ and $\epsilon$ is a small constant for numerical stability.
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html#torch.optim.RMSprop).  
 
 $$
-E[g^2]_{t+1} = \rho E[g^2]_t + (1 - \rho)
+E[g^2]_{t+1} = \rho E[g^2]_t + (1 - \rho) \nabla_\theta
 $$
 
- \nabla_\theta L(\theta_t)^2
+ L(\theta_t)^2
 
 $$
 \theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{E[g^2]_{t+1} + \epsilon}} \nabla_\theta L(\theta_t)
