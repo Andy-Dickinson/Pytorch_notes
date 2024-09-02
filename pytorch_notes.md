@@ -15,7 +15,7 @@
 | **6.** | [Activation Functions](#activation-functions) |[Information on Function Types & Problems](#activation-functions),<br>[Table of Activation Functions](#table-of-activation-functions)|
 | **7.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
 | **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
-| **9.** | [Loss Functions](#loss-functions) |[Information on Losses, & Overview of Distributions & SVMs](#loss-functions),<br>[Table of Loss Functions](#table-of-loss-functions)|
+| **9.** | [Loss Functions](#loss-functions) |[General Loss Function Information](#loss-functions),<br>[Overview of Losses](#overview-of-losses),<br>[Overview of Distributions](#overview-of-distributions),<br>[Table of Loss Functions](#table-of-loss-functions)|
 | **10.** | [Optimizers](#optimizers) ||
 
 </div>
@@ -1717,13 +1717,18 @@ def test_loop(test_loader, model, loss_fn):
 * See [Initialise Loss Function](#initialise-loss-function) above for more information on initialising and use.  
 <br>
 
+###### Overview of losses:  
 * **Regression losses** - used in tasks where the goal is to predict **continuous** values. The loss measures the difference between the predicted values and the actual continuous targets.  
 Common losses:  
   * [Mean squared error (MSE)](#mean-square-error-mse): Measures the average squared difference between predicted and actual values.  
   * [Mean absolute error (MAE)](#l1-loss-mean-absolute-error): Measures the average absolute difference between predicted and actual values.  
   * [Huber loss](#huber-loss): Combines MSE and MAE to be less sensitive to outliers.  
 <p align="center">
-<img src="./img/regression.webp" alt="regression" height="250">  
+<img src="./img/regression.webp" alt="regression" height="220"> 
+ <img src="./img/regression2.png" alt="regression2" height="220"> 
+</p>
+<p align="center">
+<img src="./img/regression_err_vs_loss.png" alt="regression_err_vs_loss" height="220">  
 </p>
 
 * **Classification losses** - used in tasks where the goal is to **assign input data to predefined categories**. These losses measure how well the predicted probabilities or logits match the true class labels.  
@@ -1754,8 +1759,71 @@ Common losses:
 * **Ranking losses** - used when the goal is to **predict an ordering or ranking of items**, such as in search engines or recommendation systems. These losses measure how well the predicted ranking matches the desired ranking.  
 Common losses:  
   * [Margin ranking loss](#margin-ranking-loss): Encourages the correct ranking of pairs of items by enforcing a margin between the scores of the correctly and incorrectly ranked pairs.  
+<br>
+
+* **Distribution-based losses** - used in **probabilistic modeling**, where the goal is to **predict a distribution over the possible outcomes**. These losses measure the difference between the predicted and true probability distributions.  
+Common losses:  
+    * [Poisson negative log likelihood loss](#poisson-negative-log-likelihood-loss-poisson-nll-loss): Used when the target variable follows a poisson distribution, often in count-based prediction tasks.  
+    * [Gaussian negative log likelihood loss](#gaussian-negative-log-likelihood-loss-gaussian-nll-loss): Used when the target variable is assumed to follow a gaussian (normal) distribution.  
+<br>
+
+###### Overview of distributions:  
+* **Poisson distribution** - is a **discrete probability distribution that models the number of times an event occurs within a fixed interval of time or space**. It is often used in scenarios where events occur independently, and the average rate of occurrence is known.  
+<div align="center">
+
+The probability of observing $𝑘$ events in a fixed interval is given by:  
+</div>
+
+$$
+P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}
+$$
+<div align="center">
+
+Where $\lambda$ is the average rate of occurrence.
+</div>
 <p align="center">
-<img src="./img" alt="ranking" height="250">  
+<img src="./img/possion.jpg" alt="possion" height="500">  
+</p>
+
+* **Gaussian distribution** - aka the **normal distribution**, is a **continuous probability distribution characterised by its bell-shaped curve**. It is defined by two parameters: the mean ($\mu$) and the standard deviation ($\sigma$).  
+<div align="center">
+
+The probability density function is given by:
+</div>
+
+$$
+f(x) = \frac{1}{\sigma \sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma^2}} = \frac{1}{\sqrt{2\pi\sigma^2}}\text{exp}(-\frac{(x-\mu)^2}{2\sigma^2})
+$$
+<div align="center">
+
+Where $\mu$ is the mean ($\mu = \frac{1}{2} \sum_{i=1}^n x_i$),<br>
+$\sigma$ is the standard deviation ($\sigma = \sqrt{\frac{1}{n}\sum_{i=1}^n (x_i - \mu)^2} \text{ }$ ),<br>
+and $e$ is Euler's number ($\approx2.71828$)
+</div>
+<p align="center">
+<img src="./img/probability_density_function.png" alt="probability_density_function" height="250">  
+<div align="center">
+Red curve is the standard normal distribution
+</div>
+</p>
+<br>
+
+
+###### Overview of support vector machines (SVMs):  
+* **Support Vector Machines** - are a set of supervised learning methods used for classification and regression. They **work by finding the hyperplane that best separates different classes in the feature space**. The key idea is to maximise the margin, which is the distance between the hyperplane and the nearest data points (support vectors) from each class.  
+Key Concepts:  
+    * **Linear SVM**: Finds a linear hyperplane in the feature space that separates the classes with the maximum margin.  
+    * **Kernel Trick**: SVM can be extended to handle non-linear data by mapping the data into a higher-dimensional space using a kernel function.  
+    * **[Hinge Loss](#hinge-loss)**: The loss function used in SVMs to ensure that misclassified points are penalised and correct classifications are separated by a margin.  
+<p align="center">
+  <figure style="display: inline-block; text-align: center; margin: 10px;">
+    <img src="./img/hyper-plane.webp" alt="hyper-plane" height="150">
+    <figcaption>Hyper-plane is blue line (Fig.3)</figcaption>
+  </figure>
+  <figure style="display: inline-block; text-align: center; margin: 10px;">
+    <img src="./img/seperable_add_dimension.webp" alt="seperable_add_dimension" height="200">
+    <figcaption>Add dimension to make linearly seperable</figcaption>
+  </figure>
 </p>
 
 
@@ -1791,8 +1859,8 @@ Common losses:
 |:---:|:---:|:---:|:---|
 |[Binary Cross Entropy (BCE)](#binary-cross-entropy-bce)|[nn.BCELoss](https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html#torch.nn.BCELoss)|Binary classification|**Pros:**<ul><li>Directly calculates binary cross-entropy loss for binary classification</li></ul>**Cons:**<ul><li>May suffer from numerical instability when predictions are very close to 0 or 1</li></ul>**Computational Efficiency:**<ul><li>Efficient for binary tasks</li></ul>**Best Use:**<ul><li>Binary classification tasks (e.g., spam detection)</li></ul>**Additional Notes:**<ul><li>Often paired with a sigmoid activation function before calculating the loss</li></ul>|
 |[Binary Cross Entropy with Logits (BCE with Sigmoid layer)](#binary-cross-entropy-with-logits-bcewithlogitsloss)|[nn.BCEWithLogitsLoss](https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html#torch.nn.BCEWithLogitsLoss)|Binary classification|**Pros:**<ul><li>Combines sigmoid layer and binary cross-entropy loss in one for numerical stability</li></ul>**Cons:**<ul><li>More complex to understand due to combination but safer to use</li></ul>**Computational Efficiency:**<ul><li>Efficient as it combines two operations</li></ul>**Best Use:**<ul><li>Binary classification with logits as model output</li></ul>**Additional Notes:**<ul><li>Preferred over BCELoss when the model output is raw logits</li></ul>|
-|[Hinge Loss](#hinge-loss)|[nn.HingeEmbeddingLoss](https://pytorch.org/docs/stable/generated/torch.nn.HingeEmbeddingLoss.html#torch.nn.HingeEmbeddingLoss)|Binary classification (especially Support Vector Machine (SVM))|**Pros:**<ul><li>Useful for binary classification and works well with SVM-like objectives</li></ul>**Cons:**<ul><li>Not directly applicable to multi-class classification</li></ul>**Computational Efficiency:**<ul><li>Efficient for binary tasks</li></ul>**Best Use:**<ul><li>SVM-like binary classification tasks</li></ul>**Additional Notes:**<ul><li>Rarely used in modern deep learning compared to BCE or CrossEntropy</li></ul>|
-|[Soft Margin Loss](#soft-margin-loss)|[nn.SoftMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.SoftMarginLoss.html#torch.nn.SoftMarginLoss)|Binary classification tasks and multi-class problems|**Pros:**<ul><li>Smooth optimisation - provides a smooth gradient for optimisation, unlike the hard hinge loss</li><li>Margin maximisation - encourages the model to maximise the decision margin, which can lead to better generalisation</li></ul>**Cons:**<ul><li>Limited to binary - primarily for binary classification; not directly applicable to multi-class tasks without modifications</li><li>Sensitivity to misclassified points - like hinge loss, it can focus too much on misclassified points, which might not always be desirable</li></ul>**Computational Efficiency:**<ul><li>Generally efficient and well-suited for gradient-based optimisation</li></ul>**Best Use:**<ul><li>Best suited for binary classification tasks where the decision boundary's margin is important, such as binary support vector machines (SVMs) like hinge loss, however soft margin loss is a more general form used for multi-class problems</li></ul>**Additional Notes:**<ul><li>Binary labels - ensure that labels are in the form of ±1 for correct application of the loss</li><li>Comparison with BCE - often compared with binary cross entropy Loss (BCE), where soft margin loss can offer smoother gradients</li><li>Soft margin loss is an extension of hinge loss for multi-class classification</li></ul>|
+|[Hinge Loss](#hinge-loss)|[nn.HingeEmbeddingLoss](https://pytorch.org/docs/stable/generated/torch.nn.HingeEmbeddingLoss.html#torch.nn.HingeEmbeddingLoss)|Binary classification (especially [Support Vector Machine (SVM)](#overview-of-support-vector-machines-svms))|**Pros:**<ul><li>Useful for binary classification and works well with SVM-like objectives</li></ul>**Cons:**<ul><li>Not directly applicable to multi-class classification</li></ul>**Computational Efficiency:**<ul><li>Efficient for binary tasks</li></ul>**Best Use:**<ul><li>SVM-like binary classification tasks</li></ul>**Additional Notes:**<ul><li>Rarely used in modern deep learning compared to BCE or CrossEntropy</li></ul>|
+|[Soft Margin Loss](#soft-margin-loss)|[nn.SoftMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.SoftMarginLoss.html#torch.nn.SoftMarginLoss)|Binary classification tasks and multi-class problems|**Pros:**<ul><li>Smooth optimisation - provides a smooth gradient for optimisation, unlike the hard hinge loss</li><li>Margin maximisation - encourages the model to maximise the decision margin, which can lead to better generalisation</li></ul>**Cons:**<ul><li>Limited to binary - primarily for binary classification; not directly applicable to multi-class tasks without modifications</li><li>Sensitivity to misclassified points - like hinge loss, it can focus too much on misclassified points, which might not always be desirable</li></ul>**Computational Efficiency:**<ul><li>Generally efficient and well-suited for gradient-based optimisation</li></ul>**Best Use:**<ul><li>Best suited for binary classification tasks where the decision boundary's margin is important, such as binary support vector machines ([SVMs](#overview-of-support-vector-machines-svms)) like hinge loss, however soft margin loss is a more general form used for multi-class problems</li></ul>**Additional Notes:**<ul><li>Binary labels - ensure that labels are in the form of ±1 for correct application of the loss</li><li>Comparison with BCE - often compared with binary cross entropy Loss (BCE), where soft margin loss can offer smoother gradients</li><li>Soft margin loss is an extension of hinge loss for multi-class classification</li></ul>|
 
 ###### Multi-class classification:  
 |Function<br>(click for formula and parameters)|Function class<br>(click for documentation)|For task|<div align="center">Notes</div>|
@@ -2013,7 +2081,7 @@ Where $\sigma(z_i)$ is the sigmoid function applied to the logits $z_i$.
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.HingeEmbeddingLoss.html#torch.nn.HingeEmbeddingLoss).  
 <br>
 
-* Hinge loss is primarily used for training support vector machines (SVMs), penalising incorrect classifications and margin violations.  
+* Hinge loss is primarily used for training support vector machines ([SVMs](#overview-of-support-vector-machines-svms)), penalising incorrect classifications and margin violations.  
 
 $$
 \text{Hinge Loss}(y, \hat y) = \text{max}(0, 1 - y \cdot \hat y)
