@@ -1816,14 +1816,16 @@ Key Concepts:
     * **Kernel Trick**: SVM can be extended to handle non-linear data by mapping the data into a higher-dimensional space using a kernel function.  
     * **[Hinge Loss](#hinge-loss)**: The loss function used in SVMs to ensure that misclassified points are penalised and correct classifications are separated by a margin.  
 <p align="center">
-  <figure style="display: inline-block; text-align: center; margin: 10px;">
+  <span style="display: inline-block; text-align: center; margin: 0 10px;">
     <img src="./img/hyper-plane.webp" alt="hyper-plane" height="150">
-    <figcaption>Hyper-plane is blue line (Fig.3)</figcaption>
-  </figure>
-  <figure style="display: inline-block; text-align: center; margin: 10px;">
+    <br>
+    <span>Hyper-plane is blue line (Fig.3)</span>
+  </span>
+  <span style="display: inline-block; text-align: center; margin: 0 10px;">
     <img src="./img/seperable_add_dimension.webp" alt="seperable_add_dimension" height="200">
-    <figcaption>Add dimension to make linearly seperable</figcaption>
-  </figure>
+    <br>
+    <span>Add dimension to make linearly separable</span>
+  </span>
 </p>
 
 
