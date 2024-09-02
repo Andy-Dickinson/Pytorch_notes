@@ -2523,6 +2523,7 @@ and $\nabla_\theta L(\theta_t)$ is the gradient of the loss function wrt $\theta
 $$
 v_{t+1} = \beta v_t + (1 - \beta) \nabla_\theta L(\theta_t)
 $$
+
 $$
 \theta_{t+1} = \theta_t - \eta v_{t+1}
 $$
@@ -2555,6 +2556,7 @@ and $\beta$ is the momentum coefficient.
 $$
 v_{t+1} = \beta v_t + \eta \nabla_\theta L(\theta_t - \beta v_t)
 $$
+
 $$
 \theta_{t+1} = \theta_t - v_{t+1}
 $$
@@ -2631,6 +2633,7 @@ and $\epsilon$ is a small constant for numerical stability.
 $$
 E[g^2]_{t+1} = \rho E[g^2]_t + (1 - \rho) \nabla_\theta L(\theta_t)^2
 $$
+
 $$
 \theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{E[g^2]_{t+1} + \epsilon}} \nabla_\theta L(\theta_t)
 $$
@@ -2671,6 +2674,7 @@ and $E[g^2]_{t+1}$ is the moving average of squared gradients.
 $$
 \Delta\theta_{t+1} = - \frac{\sqrt{E[\Delta\theta^2]_t + \epsilon}}{\sqrt{E[g^2]_t + \epsilon}} \nabla_\theta L(\theta_t)
 $$
+
 $$
 \theta_{t+1} = \theta_t + \Delta\theta_{t+1}
 $$
@@ -2738,9 +2742,11 @@ and $\epsilon$ is a small constant added to avoid division by zero and ensure nu
 $$
 m_{t+1} = \beta_1 m_t + (1 - \beta_1)\nabla_\theta L(\theta_t)
 $$
+
 $$
 v_{t+1} = \beta_2 v_t + (1 - \beta_2)(\nabla_\theta L(\theta_t))^2
 $$
+
 $$
 \theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{v_{t+1} + \epsilon}}m_{t+1}
 $$
