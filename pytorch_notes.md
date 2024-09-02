@@ -16,7 +16,7 @@
 | **7.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
 | **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
 | **9.** | [Loss Functions](#loss-functions)<br>- Includes Overview of Distributions & SVMs |[General Loss Function Information](#loss-functions),<br>[Overview of Losses](#overview-of-losses),<br>[Overview of Distributions](#overview-of-distributions),<br>[Overview of SVMs](#overview-of-support-vector-machines-svms),<br>[Table of Loss Functions](#table-of-loss-functions)|
-| **10.** | [Optimizers](#optimizers) ||
+| **10.** | [Optimizers](#optimizers) |[Key Concepts & Universal Methods](#optimizers),<br>[Table of Optimisers](#table-of-optimisers)|
 
 </div>
 
@@ -1848,6 +1848,7 @@ Key Concepts:
     </td>
   </tr>
 </table>
+<br>
 
 
 ###### Table of loss functions:  
@@ -2400,13 +2401,458 @@ Where $P$ is the true distribution and $Q$ is the approximating distribution.
 
 ### <u>Optimizers</u>
 
+[⬇ Jump to Optimisers ⬇](#table-of-optimisers)   
+
 * [torch.optim](https://pytorch.org/docs/stable/optim.html) package is for implementing various optimisation algorithms.  
+* Use `torch.optim` to construct an `optimizer` object for updating model parameters (adjust weights based on gradients) with goal of minimising the loss function.  
+Key concepts:  
+  * **Learning Rate**: hyperparameter that controls **how much to adjust the weights** with respect to the gradient.  
+  * **Momentum**: helps **accelerate gradients vectors in the right directions**, thus leading to faster converging.  
+  * **Adaptive Learning Rates**: methods like Adam, RMSprop, and Adagrad **adjust learning rates based on parameter updates**, which can help in dealing with sparse gradients or varying parameter scales.  
+* **Parameters** refer to the values that the model learns from the data during training. These are typically the weights and biases in neural networks, which are adjusted iteratively during training to minimise the loss function.
 * See [Initialise Optimizer](#initialise-optimizer) above for more information on initialising and use.  
 * Note **American spelling** is required.  
 
+Most optimizers have the following methods available to them:  
+|<div align="center">Method</div>|<div align="center">Description</div>|
+|:---|:---|
+|[optimizer.zero_grad()](https://pytorch.org/docs/stable/generated/torch.optim.Optimizer.zero_grad.html#torch.optim.Optimizer.zero_grad)|Reset gradients of all optimised models parameters|
+|loss.backward()|Computes gradients of the loss wrt each parameter|
+|[optimizer.step()](https://pytorch.org/docs/stable/generated/torch.optim.Optimizer.step.html#torch.optim.Optimizer.step)|Performs a single optimisation step (parameter update)|
+|[Optimizer.add_param_group(param_group)](https://pytorch.org/docs/stable/generated/torch.optim.Optimizer.add_param_group.html#torch.optim.Optimizer.add_param_group)|Add a param group to the Optimizers `param_groups`|
+|[Optimizer.state_dict()](https://pytorch.org/docs/stable/generated/torch.optim.Optimizer.state_dict.html#torch.optim.Optimizer.state_dict)|Returns the state of the optimizer as a `dict`|
+|[Optimizer.load_state_dict(state_dict)](https://pytorch.org/docs/stable/generated/torch.optim.Optimizer.load_state_dict.html#torch.optim.Optimizer.load_state_dict)|Loads the optimizer state|
+
 <br>
 
-[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+###### Table of optimisers:  
+|<div align="center">Grouped by type</div>|<div align="center">Description</div>|
+|:---|:---|
+|[Basic gradient descent-based optimisers](#basic-gradient-descent-based-optimisers)|Fundamental methods - simple and widely applicable but may require careful tuning and can be slower to converge|
+|[Adaptive learning rate optimisers](#adaptive-learning-rate-optimisers)|Methods that adjust learning rates dynamically based on past gradients, often improving performance on sparse data but may be complex to tune|
+|[Adaptive moment estimation optimisers](#adaptive-moment-estimation-optimisers)|Methods that use moving averages of gradients and squared gradients - they combine advantages of different optimisation techniques for better performance in deep learning but can be computationally intensive|
+|[Quasi-newton methods](#quasi-newton-methods)|Methods that approximate second-order optimisation techniques to improve convergence but are computationally expensive|
+|[Regularisation-based optimisers](#regularisation-based-optimisers)|Methods incorporating regularisation techniques to handle issues like noisy gradients, with varying effectiveness depending on the problem|
+|[Sparse and specialised optimisers](#sparse-and-specialised-optimisers)|Tailored for specific scenarios such as sparse gradients, providing efficiency improvements for those cases|
+
+###### Basic gradient descent-based optimisers:  
+|Optimiser|<div align="center">Description</div>|<div align="center">Use Cases</div>|
+|:---:|:---|:---|
+|[Stochastic gradient descent (SGD)](#stochastic-gradient-descent-sgd)|Updates parameters based on the gradient of the loss function with respect to each mini-batch of data|Suitable for a wide range of problems, particularly where training data is too large to fit into memory at once|
+|[SGD with momentum](#sgd-with-momentum)|Enhances [SGD](#stochastic-gradient-descent-sgd) by adding a momentum term to accumulate past gradients|Commonly used in training deep neural networks to speed up convergence|
+|[Nesterov accelerated gradient (NAG)](#nesterov-accelerated-gradient-nag)|A variant of [SGD](#stochastic-gradient-descent-sgd) with momentum that incorporates nesterov’s accelerated gradient to anticipate the future gradient|Used in scenarios where faster convergence is needed, especially in deep learning|
+
+###### Adaptive learning rate optimisers:  
+|Optimiser|<div align="center">Description</div>|<div align="center">Use Cases</div>|
+|:---:|:---|:---|
+|[Adagrad](#adagrad)|Adjusts the learning rate for each parameter based on the past squared gradients|Useful for models with sparse features, such as text classification|
+|[RMSprop](#rmsprop)|Adjusts the learning rate based on a moving average of squared gradients to avoid diminishing learning rates|Commonly used in training recurrent neural networks and other deep architectures|
+|[Adadelta](#adadelta)|An extension of [adagrad](#adagrad) that maintains a moving average of squared gradients and updates parameters based on that|Useful in scenarios where learning rates need to be controlled dynamically|
+|[RAdam](#radam)|Rectified adam, a variant of [adam](#adam) that corrects the variance of adaptive learning rates|Effective for various neural network architectures, especially in cases where adam may struggle|
+
+###### Adaptive moment estimation optimisers:  
+|Optimiser|<div align="center">Description</div>|<div align="center">Use Cases</div>|
+|:---:|:---|:---|
+|[Adam](#adam)|Combines the benefits of [adagrad](#adagrad) and [RMSprop](#rmsprop) using moving averages of gradients and squared gradients|Suitable for most deep learning problems|
+|[AdamW](#adamw)|A variant of [adam](#adam) with decoupled weight decay for better regularisation|Effective for training deep neural networks with better generalisation|
+|[Adamax](#adamax)|A variant of [adam](#adam) that uses the infinity norm for the adaptive learning rate|Useful when dealing with very noisy gradients|
+|[Nadam](#nadam)|[Adam](#adam) with [nesterov accelerated gradient](#nesterov-accelerated-gradient-nag) incorporated|Often used in deep learning where both adaptive learning rates and momentum are beneficial|
+
+###### Quasi-newton methods:  
+|Optimiser|<div align="center">Description</div>|<div align="center">Use Cases</div>|
+|:---:|:---|:---|
+|[LBFGS](#lbfgs)|Approximates the [BFGS](https://towardsdatascience.com/bfgs-in-a-nutshell-an-introduction-to-quasi-newton-methods-21b0e13ee504) algorithm (not implemented in PyTorch), which uses an estimate of the inverse [hessian matrix](https://machinelearningmastery.com/a-gentle-introduction-to-hessian-matrices/) to guide optimisation|Often used for smaller, high-dimensional problems where second-order information can be beneficial|
+
+###### Regularisation-based optimisers:  
+|Optimiser|<div align="center">Description</div>|<div align="center">Use Cases</div>|
+|:---:|:---|:---|
+|[Rprop](#rprop)|Relies on the sign of the gradient to update parameters, which helps in avoiding the problem of [vanishing or exploding gradients](#activation-functions)|Effective for training neural networks where gradient magnitudes can vary significantly|
+
+###### Sparse and specialised optimisers:  
+|Optimiser|<div align="center">Description</div>|<div align="center">Use Cases</div>|
+|:---:|:---|:---|
+|[SparseAdam](#sparseadam)|An [adam](#adam) variant designed for sparse gradients, such as those in embeddings|Commonly used for models with sparse input data, such as embedding layers|
+
+
+###### Stochastic gradient descent (SGD):  
+
+> `To use basic SGD, generally only require params and lr:`  
+> `torch.optim.SGD(params, lr=0.01) - example arguments`  
+> 
+> `torch.optim.SGD(params, lr=0.001, momentum=0, dampening=0, weight_decay=0, nesterov=False, *, maximize=False, foreach=None, differentiable=False, fused=None)`  
+> 
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, optional) – learning rate. Default: 1e-3`  
+> `momentum (float, optional) – momentum factor. Default: 0`  
+> `dampening (float, optional) – dampening for momentum. Default: 0`  
+> `weight_decay (float, optional) – weight decay (L2 penalty). Default: 0`  
+> `nesterov (bool, optional) – enables Nesterov momentum. Default: False`  
+> `maximize (bool, optional) – maximise the objective with respect to the params, instead of minimising. Default: False`  
+> `foreach (bool, optional) – whether foreach implementation of optimiser is used. Default: None`  
+> `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
+> `fused (bool, optional) – whether the fused implementation is used. Default: None`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.SGD.html#torch.optim.SGD).  
+
+$$
+\theta_{t+1} = \theta_t - \eta \nabla_\theta L(\theta_t)
+$$
+<div align="center">
+
+Where $\theta$ represents the parameters,<br>
+$\eta$ is the learning rate,<br>
+and $\nabla_\theta L(\theta_t)$ is the gradient of the loss function wrt $\theta$ at time step $t$.
+</div>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+|Simple to implement, widely used, and easy to understand|Convergence can be slow and may get stuck in local minima|Generally efficient for large-scale problems as it updates parameters with each mini-batch|
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### SGD with momentum:  
+
+> `torch.optim.SGD(params, lr=0.01, momentum=0.9) - example arguments`  
+>
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, optional) – learning rate. Default: 1e-3`  
+> `momentum (float, optional) – momentum factor. Default: 0`  
+* See [SGD](#stochastic-gradient-descent-sgd) for full parameter list.  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.SGD.html#torch.optim.SGD).  
+
+$$
+v_{t+1} = \beta v_t + (1 - \beta) \nabla_\theta L(\theta_t)
+$$
+$$
+\theta_{t+1} = \theta_t - \eta v_{t+1}
+$$
+<div align="center">
+
+Where $\theta$ represents the parameters,<br>
+$\eta$ is the learning rate,<br>
+$\nabla_\theta L(\theta_t)$ is the gradient of the loss function wrt $\theta$ at time step $t$,<br>
+$v_t$ is the velocity term,<br>
+and $\beta$ is the momentum coefficient.
+</div>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+|Helps accelerate convergence and reduces oscillations|Requires tuning of the momentum term; might still get stuck in local minima|Slightly more complex than plain [SGD](#stochastic-gradient-descent-sgd) due to additional computation of the momentum term|
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### Nesterov accelerated gradient (NAG):  
+
+> `torch.optim.SGD(params, lr=0.01, momentum=0.9, nesterov=True) - example arguments`  
+>
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, optional) – learning rate. Default: 1e-3`  
+> `momentum (float, optional) – momentum factor. Default: 0`  
+> `nesterov (bool, optional) – enables Nesterov momentum. Default: False`  
+* See [SGD](#stochastic-gradient-descent-sgd) for full parameter list.  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.SGD.html#torch.optim.SGD).  
+
+$$
+v_{t+1} = \beta v_t + \eta \nabla_\theta L(\theta_t - \beta v_t)
+$$
+$$
+\theta_{t+1} = \theta_t - v_{t+1}
+$$
+<div align="center">
+
+Where $\theta$ represents the parameters,<br>
+$\eta$ is the learning rate,<br>
+$\nabla_\theta L(\theta_t - \beta v_t)$ is the gradient of the loss function wrt $\theta$ at time step $t$ evaluated at the lookahead point $\theta_t - \beta v_t$,<br>
+$v_t$ is the velocity term,<br>
+and $\beta$ is the momentum coefficient.
+</div>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+|More responsive to the curvature of the cost function, often leading to faster convergence|More computationally intensive due to additional gradient computation|Efficient but involves an additional step for computing the anticipated gradient|
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### Adagrad:  
+
+> `torch.optim.Adagrad(params, lr=0.01) - example arguments`
+> 
+> `torch.optim.Adagrad(params, lr=0.01, lr_decay=0, weight_decay=0, initial_accumulator_value=0, eps=1e-10, foreach=None, *, maximize=False, differentiable=False, fused=None)`  
+>
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, optional) – learning rate. Default: 1e-2`  
+> `lr_decay (float, optional) – learning rate decay. Default: 0`  
+> `weight_decay (float, optional) – weight decay (L2 penalty). Default: 0`  
+> `initial_accumulator_value (float, optional) – initial value of the sum of squares of gradients. Default: 0`  
+> `eps (float, optional) – term added to the denominator to improve numerical stability. Default: 1e-10`  
+> `foreach (bool, optional) – whether foreach implementation of optimiser is used. Default: None`  
+> `maximize (bool, optional) – maximise the objective with respect to the params, instead of minimising. Default: False`  
+> `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
+> `fused (bool, optional) – whether the fused implementation (CPU only) is used. Default: None`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.Adagrad.html#torch.optim.Adagrad).  
+
+$$
+\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{G_t + \epsilon}} \nabla_\theta L(\theta_t)
+$$
+<div align="center">
+
+Where $\theta$ represents the parameters,<br>
+$\eta$ is the learning rate,<br>
+$\nabla_\theta L(\theta_t)$ is the gradient of the loss function wrt $\theta$ at time step $t$,<br>
+$G_t$ is the sum of squared gradients,<br>
+and $\epsilon$ is a small constant for numerical stability.
+</div>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+|Adaptively scales learning rates, which helps with sparse data|Learning rate can become very small and slow down the training process|Efficient for sparse datasets but can be slow in practice due to the accumulation of squared gradients|
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### RMSprop:  
+
+> `torch.optim.RMSprop(params, lr=0.01, alpha=0.99) - example arguments`  
+> 
+> `torch.optim.RMSprop(params, lr=0.01, alpha=0.99, eps=1e-08, weight_decay=0, momentum=0, centered=False, capturable=False, foreach=None, maximize=False, differentiable=False)`  
+>
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, optional) – learning rate. Default: 1e-2`  
+> `alpha (float, optional) – smoothing constant. Default: 0.99`  
+> `eps (float, optional) – term added to the denominator to improve numerical stability. Default: 1e-8`  
+> `weight_decay (float, optional) – weight decay (L2 penalty). Default: 0`  
+> `momentum (float, optional) – momentum factor. Default: 0`  
+> `centered (bool, optional) – if True, compute the centered RMSProp, the gradient is normalised by an estimation of its variance`  
+> `capturable (bool, optional) – whether this instance is safe to capture in a CUDA graph. Default: False`  
+> `foreach (bool, optional) – whether foreach implementation of optimiser is used. Default: None`  
+> `maximize (bool, optional) – maximise the objective with respect to the params, instead of minimising. Default: False`  
+> `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.RMSprop.html#torch.optim.RMSprop).  
+
+$$
+E[g^2]_{t+1} = \rho E[g^2]_t + (1 - \rho) \nabla_\theta L(\theta_t)^2
+$$
+$$
+\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{E[g^2]_{t+1} + \epsilon}} \nabla_\theta L(\theta_t)
+$$
+<div align="center">
+
+Where $\theta$ represents the parameters,<br>
+$\eta$ is the learning rate,<br>
+$\nabla_\theta L(\theta_t)$ is the gradient of the loss function wrt $\theta$ at time step $t$,<br>
+the squared gradient of the loss function helps to normalise the updates to each parameter,<br>
+$\rho$ is the decay rate (or smoothing constant) that controls how much the past squared gradients influence the current moving average,<br>
+$\epsilon$ is a small constant added to the denominator to prevent division by zero or extremely small numbers $\approx 1e^{-8}$,<br>
+and $E[g^2]_{t+1}$ is the moving average of squared gradients.
+</div>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+|Addresses the issue of diminishing learning rates|May require tuning of the hyperparameters|More computationally intensive than [adagrad](#adagrad) but effective for many problems|
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### Adadelta:  
+
+> `torch.optim.Adadelta(params, lr=1.0) - example arguments`  
+> 
+> `torch.optim.Adadelta(params, lr=1.0, rho=0.9, eps=1e-06, weight_decay=0, foreach=None, *, capturable=False, maximize=False, differentiable=False)`  
+>
+> `params (iterable) – iterable of parameters to optimize or dicts defining parameter groups`  
+> `lr (float, optional) – coefficient that scale delta before it is applied to the parameters. Default: 1.0`  
+> `rho (float, optional) – coefficient used for computing a running average of squared gradients. Default: 0.9`  
+> `eps (float, optional) – term added to the denominator to improve numerical stability. Default: 1e-6`  
+> `weight_decay (float, optional) – weight decay (L2 penalty). Default: 0`  
+> `foreach (bool, optional) – whether foreach implementation of optimiser is used. Default: None`  
+> `capturable (bool, optional) – whether this instance is safe to capture in a CUDA graph. Default: False`  
+> `maximize (bool, optional) – maximise the objective with respect to the params, instead of minimising. Default: False`  
+> `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.Adadelta.html#torch.optim.Adadelta).  
+
+$$
+\Delta\theta_{t+1} = - \frac{\sqrt{E[\Delta\theta^2]_t + \epsilon}}{\sqrt{E[g^2]_t + \epsilon}} \nabla_\theta L(\theta_t)
+$$
+$$
+\theta_{t+1} = \theta_t + \Delta\theta_{t+1}
+$$
+<div align="center">
+
+Where $\theta$ represents the parameters,<br>
+$\nabla_\theta L(\theta_t)$ is the gradient of the loss function wrt $\theta$ at time step $t$,<br>
+$E[g^2]_{t}$ is the running average of squared gradients (measure of how much the gradients have varied over time, with more weight given to recent gradients),<br>
+$\Delta\theta_t$ is the parameter update (the amount by which the model parameters will be updated at each step),<br>
+$E[\Delta\theta^2]_t$ is the running average of squared updates (helps normalise the gradient updates),<br>
+and $\epsilon$ is a small constant added to avoid division by zero and ensure numerical stability, $\approx 10^{-8}$
+</div>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+|Overcomes the aggressive, monotonically decreasing learning rates of [Adagrad](#adagrad)|Requires tuning of the decay parameters|Comparable to [RMSprop](#rmsprop), often more stable|
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### RAdam:  
+
+> `torch.optim.RAdam(params, lr=0.001) - example arguments`  
+> 
+> `torch.optim.RAdam(params, lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, decoupled_weight_decay=False, *, foreach=None, maximize=False, capturable=False, differentiable=False)`  
+>
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, optional) – learning rate. Default: 1e-3`  
+> `betas (Tuple[float, float], optional) – coefficients used for computing running averages of gradient and its square. Default: (0.9, 0.999)`  
+> `eps (float, optional) – term added to the denominator to improve numerical stability. Default: 1e-8`  
+> `weight_decay (float, optional) – weight decay (L2 penalty). Default: 0`  
+> `decoupled_weight_decay (bool, optional) – whether to use decoupled weight decay as in AdamW to obtain RAdamW. Default: False`  
+> `foreach (bool, optional) – whether foreach implementation of optimizer is used. Default: None`  
+> `maximize (bool, optional) – maximise the objective with respect to the params, instead of minimising. Default: False`  
+> `capturable (bool, optional) – whether this instance is safe to capture in a CUDA graph. Default: False`  
+> `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.RAdam.html#torch.optim.RAdam).  
+
+* Rectified Adam, a variant of [Adam](#adam) that corrects the variance of adaptive learning rates.  
+* RAdam uses a correction term to adjust the variance estimate, but the exact formula involves more complex steps including bias correction terms.  
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+| Improves stability and convergence of [Adam](#adam) by correcting the variance of adaptive learning rates|More complex implementation compared to basic [Adam](#adam)|More computationally intensive due to the additional correction term|
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### Adam:  
+
+> `torch.optim.Adam(params, lr=0.001, betas=(0.9, 0.999)) - example arguments`  
+>
+> `torch.optim.Adam(params, lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False, *, foreach=None, maximize=False, capturable=False, differentiable=False, fused=None)`  
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, Tensor(if fused=True && capturable=True), optional) – learning rate. Default: 1e-3`  
+> `betas (Tuple[float, float], optional) – coefficients used for computing running averages of gradient and its square. Default: (0.9, 0.999)`  
+> `eps (float, optional) – term added to the denominator to improve numerical stability. Default: 1e-8`  
+> `weight_decay (float, optional) – weight decay (L2 penalty). Default: 0`  
+> `amsgrad (bool, optional) – whether to use the AMSGrad variant of this algorithm. Default: False`  
+> `foreach (bool, optional) – whether foreach implementation of optimizer is used. Default: None`  
+> `maximize (bool, optional) – maximise the objective with respect to the params, instead of minimising. Default: False`  
+> `capturable (bool, optional) – whether this instance is safe to capture in a CUDA graph. Default: False`  
+> `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Default: False`  
+> `fused (bool, optional) – whether the fused implementation is used. Default: None`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.Adam.html#torch.optim.Adam).  
+
+$$
+m_{t+1} = \beta_1 m_t + (1 - \beta_1)\nabla_\theta L(\theta_t)
+$$
+$$
+v_{t+1} = \beta_2 v_t + (1 - \beta_2)(\nabla_\theta L(\theta_t))^2
+$$
+$$
+\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{v_{t+1} + \epsilon}}m_{t+1}
+$$
+<div align="center">
+
+Where $\theta$ represents the parameters,<br>
+$\eta$ is the learning rate,<br>
+$\nabla_\theta L(\theta_t)$ is the gradient of the loss function wrt $\theta$ at time step $t$,<br>
+$m_t$ (first moment estimate or mean of gradients) is a running average of the gradients, which helps to smooth out the gradient updates and capture the average direction of the gradient over time,<br>
+$\beta_1$ (first moment decay rate) controls the influence of previous gradients on the current estimate of the gradient, $\approx 0.9$,<br>
+$v_t$ (second moment estimate or uncentered variance of gradients) helps to normalise the gradient by scaling it with the variance of past gradients, providing stability in the updates,<br>
+$\beta_2$ (second moment decay rate) determines how much of the past squared gradients are retained in the current estimate of the gradient variance, $\approx 0.999$,<br>
+and $\epsilon$ is a small constant for numerical stability, $\approx 10^{-8}$
+</div>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+|Adaptive learning rates for each parameter and often leads to faster convergence|Requires careful tuning of hyperparameters like $\beta_1$, $\beta_2$, and $\eta$|Efficient for a wide range of problems|
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### AdamW:  
+
+> 
+* See [documentation]().  
+
+$$
+
+$$
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+||||
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### Adamax:  
+
+> 
+* See [documentation]().  
+
+$$
+
+$$
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+||||
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### Nadam:  
+
+> 
+* See [documentation]().  
+
+$$
+
+$$
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+||||
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### LBFGS:  
+
+> 
+* See [documentation]().  
+
+$$
+
+$$
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+||||
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### Rprop:  
+
+> 
+* See [documentation]().  
+
+$$
+
+$$
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+||||
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+###### SparseAdam:  
+
+> 
+* See [documentation]().  
+
+$$
+
+$$
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|
+||||
+
+[⬆ Table of Optimisers ⬆](#table-of-optimisers)  
+
+[⬆ Table of Contents ⬆](#pytorch-notes)  
 
 ---  
 
