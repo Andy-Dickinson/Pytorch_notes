@@ -1820,12 +1820,12 @@ Key Concepts:
     <td style="text-align: center;">
       <img src="./img/hyper-plane.webp" alt="hyper-plane" height="150">
       <br>
-      <span align="center">Hyper-plane is blue line (Fig.3)</span>
+      <div align="center">Hyper-plane is blue line (Fig.3)</div>
     </td>
     <td style="text-align: center;">
       <img src="./img/seperable_add_dimension.webp" alt="seperable_add_dimension" height="200">
       <br>
-      <span align="center">Add dimension to make linearly separable</span>
+      <div align="center">Add dimension to make linearly separable</div>
     </td>
   </tr>
 </table>
