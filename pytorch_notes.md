@@ -2632,12 +2632,12 @@ and $\epsilon$ is a small constant for numerical stability.
 
 <div align="center">
 
-$E[g^2]_{t+1} = \rho E[g^2]_t + (1 - \rho) (\nabla_\theta L(\theta_t))^2$
+$(\nabla_\theta L(\theta_t))^2$
 </div>
 
 
 $$
-E[g^2]_{t+1} = \rho E[g^2]_t + (1 - \rho) \nabla_\theta L(\theta_t)^2
+E[g^2]_{t+1} = \rho E[g^2]_t + (1 - \rho) (\nabla_\theta L(\theta_t))^2
 $$
 
 $$
