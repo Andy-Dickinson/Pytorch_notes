@@ -1841,10 +1841,10 @@ Key Concepts:
     </td>
   </tr>
   <tr>
-    <td colspan="2" style="text-align: center;">
+    <td colspan="2" style="align: center;">
       <img src="./img/hard_soft_margin.webp" alt="hard_soft_margin" height="200">
       <br>
-      <div style="text-align: center;">Hard and soft margin classification</div>
+      <div align="center">Hard and soft margin classification</div>
     </td>
   </tr>
 </table>
