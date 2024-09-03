@@ -2467,7 +2467,7 @@ Most optimizers have the following methods available to them:
 ###### Regularisation-based optimisers:  
 |Optimiser|<div align="center">Description</div>|<div align="center">Use Cases</div>|
 |:---:|:---|:---|
-|[Rprop](#rprop)|Relies on the sign of the gradient to update parameters, which helps in avoiding the problem of [vanishing or exploding gradients](#activation-functions)|Effective for training neural networks where gradient magnitudes can vary significantly|
+|[Rprop (Resilient Propagation)](#rprop-resilient-propagation)|Relies on the sign of the gradient to update parameters, which helps in avoiding the problem of [vanishing or exploding gradients](#activation-functions)|Effective for training neural networks where gradient magnitudes can vary significantly|
 
 ###### Sparse and specialised optimisers:  
 |Optimiser|<div align="center">Description</div>|<div align="center">Use Cases</div>|
@@ -2707,7 +2707,7 @@ and $\epsilon$ is a small constant added to avoid division by zero and ensure nu
 > `capturable (bool, optional) – whether this instance is safe to capture in a CUDA graph. Default: False`  
 > `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.RAdam.html#torch.optim.RAdam).  
-
+<br>
 * Rectified Adam, a variant of [Adam](#adam) that corrects the variance of adaptive learning rates.  
 * RAdam uses a correction term to adjust the variance estimate, but the exact formula involves more complex steps including bias correction terms.  
 
@@ -2860,46 +2860,92 @@ and $\beta_2$ (second moment decay rate) determines how much of the past maximum
 
 ###### Nadam:  
 
+> `torch.optim.NAdam(params, lr=0.001) - example arguments`  
 > 
-* See [documentation]().  
-
-$$
-
-$$
+> `torch.optim.NAdam(params, lr=0.002, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, momentum_decay=0.004, decoupled_weight_decay=False, *, foreach=None, maximize=False, capturable=False, differentiable=False)`  
+>
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, optional) – learning rate. Default: 2e-3`  
+> `betas (Tuple[float, float], optional) – coefficients used for computing running averages of gradient and its square. Default: (0.9, 0.999)`  
+> `eps (float, optional) – term added to the denominator to improve numerical stability. Default: 1e-8`  
+> `weight_decay (float, optional) – weight decay (L2 penalty). Default: 0`  
+> `momentum_decay (float, optional) – momentum momentum_decay. Default: 4e-3`  
+> `decoupled_weight_decay (bool, optional) – whether to use decoupled weight decay as in AdamW to obtain NAdamW. Default: False`  
+> `foreach (bool, optional) – whether foreach implementation of optimizer is used. Default: None`  
+> `maximize (bool, optional) – maximise the objective with respect to the params, instead of minimising. Default: False`  
+> `capturable (bool, optional) – whether this instance is safe to capture in a CUDA graph. Default: False`  
+> `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.NAdam.html#torch.optim.NAdam).  
+<br>
+* Combines [adam's](#adam) formula with [NAG's](#nesterov-accelerated-gradient-nag) momentum term. The exact formula is more complex and involves additional gradient updates.  
 
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
 |:---|:---|:---|
-||||
+|Combines advantages of both [adam](#adam) and [NAG](#nesterov-accelerated-gradient-nag), often leading to improved performance|Requires tuning of additional hyperparameters|More complex than [adam](#adam), with additional computations for [NAG](#nesterov-accelerated-gradient-nag)|
 
 [⬆ Table of Optimisers ⬆](#table-of-optimisers)  
 
 ###### LBFGS:  
 
+> `torch.optim.LBFGS(params, lr=1.0) - example arguments`  
 > 
-* See [documentation]().  
-
-$$
-
-$$
+> `torch.optim.LBFGS(params, lr=1, max_iter=20, max_eval=None, tolerance_grad=1e-07, tolerance_change=1e-09, history_size=100, line_search_fn=None)`  
+>
+> `params (iterable) – iterable of parameters to optimise. Parameters must be real.`  
+> `lr (float) – learning rate. Default: 1`  
+> `max_iter (int) – maximal number of iterations per optimisation step. Default: 20`  
+> `max_eval (int) – maximal number of function evaluations per optimisation step. Default: max_iter * 1.25`  
+> `tolerance_grad (float) – termination tolerance on first order optimality. Default: 1e-7`  
+> `tolerance_change (float) – termination tolerance on function value/parameter changes. Default: 1e-9`  
+> `history_size (int) – update history size. Default: 100`  
+> `line_search_fn (str) – either ‘strong_wolfe’ or None. Default: None`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.LBFGS.html#torch.optim.LBFGS).  
+<br>
+* Uses [quasi-newton updates](https://towardsdatascience.com/bfgs-in-a-nutshell-an-introduction-to-quasi-newton-methods-21b0e13ee504), which are complex but involve approximations to the second-order derivatives.  
 
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
 |:---|:---|:---|
-||||
+|Provides faster convergence compared to first-order methods in some cases|More computationally intensive and less suitable for very large datasets|Computationally heavier due to the need for approximating the [hessian matrix](https://machinelearningmastery.com/a-gentle-introduction-to-hessian-matrices/)|
 
 [⬆ Table of Optimisers ⬆](#table-of-optimisers)  
 
-###### Rprop:  
+###### Rprop (resilient propagation):  
 
+> `torch.optim.Rprop(params, lr=0.01, etas=(0.5, 1.2), step_sizes=(1e-06, 50)) - example arguments`  
 > 
-* See [documentation]().  
+> `torch.optim.Rprop(params, lr=0.01, etas=(0.5, 1.2), step_sizes=(1e-06, 50), *, capturable=False, foreach=None, maximize=False, differentiable=False)`  
+>
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, optional) – learning rate. Default: 1e-2`  
+> `etas (Tuple[float, float], optional) – pair of (etaminus, etaplus), that are multiplicative increase and decrease factors. Default: (0.5, 1.2)`  
+> `step_sizes (Tuple[float, float], optional) – a pair of minimal and maximal allowed step sizes. Default: (1e-6, 50)`  
+> `foreach (bool, optional) – whether foreach implementation of optimizer is used. Default: None`  
+> `capturable (bool, optional) – whether this instance is safe to capture in a CUDA graph. Default: False`  
+> `maximize (bool, optional) – maximise the objective with respect to the params, instead of minimising. Default: False`  
+> `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.Rprop.html#torch.optim.Rprop).  
+<br>
+* Adjusts the weights of a neural network based only on the sign of the gradient, rather than the magnitude.  
+* Key idea is to focus on the direction of the gradient (whether it is positive or negative) and to make consistent progress in that direction, while ignoring the gradient’s size. This helps to avoid problems associated with vanishing or exploding gradients.  
 
+$$
+\Delta \theta_{t+1} = - \eta \text{sign} (\nabla_\theta L(\theta_t))
 $$
 
 $$
+\theta_{t+1} = \theta_t + \Delta \theta_{t+1}
+$$
+<div align="center">
+
+Where $\theta$ represents the parameters,<br>
+$\eta$ is the learning rate,<br>
+$\nabla_\theta L(\theta_t)$ is the gradient of the loss function wrt $\theta$ at time step $t$ - rprop only considers the sign of this gradient (whether it's positive or negative),<br>
+and $\Delta_t$ is the step size for updating the parameters at time step $t$. This is adjusted adaptively based on the gradient sign.
+</div>
 
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
 |:---|:---|:---|
-||||
+|Simple and effective for problems with noisy gradients|Does not use gradient magnitudes; thus, can be less effective in some scenarios|Efficient due to the simplicity of updates|
 
 [⬆ Table of Optimisers ⬆](#table-of-optimisers)  
 
