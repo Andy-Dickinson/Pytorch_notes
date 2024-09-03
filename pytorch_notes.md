@@ -56,10 +56,11 @@ import numpy as np
 | **3.** | [From another tensor](#from-another-tensor) |
 | **4.** | [With random or constant values](#with-random-or-constant-values) |
 
+* By **default**, PyTorch creates all tensors as **32-bit floating point**, but can override with parameter `dtype=torch.<type>`.  
 
 ###### Directly from data:  
 ```py
-# Data type is automatically inferred
+# data type is automatically inferred
 data = [[1, 2],[3, 4]]
 x_data = torch.tensor(data)
 ```
@@ -77,7 +78,7 @@ np_array2 = t2.numpy()
 
 ###### From another tensor:  
 ```py
-# The new tensor retains the properties (shape, datatype) of the argument tensor, unless explicitly overridden
+# the new tensor retains the properties (shape, datatype) of the argument tensor, unless explicitly overridden
 x_ones = torch.ones_like(x_data) # retains the properties of x_data
 x_rand = torch.rand_like(x_data, dtype=torch.float) # overrides the datatype of x_data
 # rand_like by default expects input to be floating-point tensor, but can override as shown here if input does not match
@@ -85,8 +86,11 @@ x_rand = torch.rand_like(x_data, dtype=torch.float) # overrides the datatype of 
 
 ###### With random or constant values:  
 ```py
-# Shape is a tuple of tensor dimensions
+# shape is a tuple of tensor dimensions
 shape = (2,3,)
+
+# can set manual seed
+torch.manual_seed(<value>)
 
 rand_tensor = torch.rand(shape) # random floats 0-1 (inclusive 0, exclusive 1)
 ones_tensor = torch.ones(shape) # tensor of floats 1.
