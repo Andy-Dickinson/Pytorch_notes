@@ -2723,7 +2723,7 @@ and $\epsilon$ is a small constant added to avoid division by zero and ensure nu
 >
 > `torch.optim.Adam(params, lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False, *, foreach=None, maximize=False, capturable=False, differentiable=False, fused=None)`  
 > `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
-> `lr (float, Tensor(if fused=True && capturable=True), optional) – learning rate. Default: 1e-3`  
+> `lr (float, Tensor(if fused=True or capturable=True), optional) – learning rate. Default: 1e-3`  
 > `betas (Tuple[float, float], optional) – coefficients used for computing running averages of gradient and its square. Default: (0.9, 0.999)`  
 > `eps (float, optional) – term added to the denominator to improve numerical stability. Default: 1e-8`  
 > `weight_decay (float, optional) – weight decay (L2 penalty). Default: 0`  
@@ -2766,16 +2766,50 @@ and $\epsilon$ is a small constant for numerical stability, $\approx 10^{-8}$
 
 ###### AdamW:  
 
+> `torch.optim.AdamW(params, lr=0.001, betas=(0.9, 0.999), weight_decay=0.01) - example arguments`  
 > 
-* See [documentation]().  
+> `torch.optim.AdamW(params, lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.01, amsgrad=False, *, maximize=False, foreach=None, capturable=False, differentiable=False, fused=None)`  
+>
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, Tensor(if fused=True or capturable=True), optional) – learning rate. Default: 1e-3`  
+> `betas (Tuple[float, float], optional) – coefficients used for computing running averages of gradient and its square. Default: (0.9, 0.999)`  
+> `eps (float, optional) – term added to the denominator to improve numerical stability. Default: 1e-8`  
+> `weight_decay (float, optional) – weight decay coefficient. Default: 1e-2`  
+> `amsgrad (bool, optional) – whether to use the AMSGrad variant of this algorithm. Default: False`  
+> `maximize (bool, optional) – maximise the objective with respect to the params, instead of minimising. Default: False`  
+> foreach (bool, optional) – whether foreach implementation of optimizer is used. Default: None`  
+> `capturable (bool, optional) – whether this instance is safe to capture in a CUDA graph. Default: False`  
+> `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
+> `fused (bool, optional) – whether the fused implementation is used. Default: None`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.AdamW.html#torch.optim.AdamW).  
 
+$$
+m_{t+1} = \beta_1 m_t + (1 - \beta_1) \nabla_\theta L(\theta_t)
 $$
 
 $$
+v_{t+1} = \beta_2 v_t + (1 - \beta_2) (\nabla_\theta L(\theta_t))^2
+$$
+
+$$
+\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{v_{t+1} + \epsilon}} m_{t+1} - \eta \lambda \theta_t
+$$
+<div align="center">
+
+Where $\theta$ represents the parameters,<br>
+$\eta$ is the learning rate,<br>
+$\nabla_\theta L(\theta_t)$ is the gradient of the loss function wrt $\theta$ at time step $t$,<br>
+$m_t$ (first moment estimate or mean of gradients) is a running average of the gradients, which helps to smooth out the gradient updates and capture the average direction of the gradient over time,<br>
+$\beta_1$ (first moment decay rate) controls the influence of previous gradients on the current estimate of the gradient, $\approx 0.9$,<br>
+$v_t$ (second moment estimate or uncentered variance of gradients) helps to normalise the gradient by scaling it with the variance of past gradients, providing stability in the updates,<br>
+$\beta_2$ (second moment decay rate) determines how much of the past squared gradients are retained in the current estimate of the gradient variance, $\approx 0.999$,<br>
+$\epsilon$ is a small constant for numerical stability, $\approx 10^{-8}$,<br>
+and $\lambda$ is the weight decay coefficient, $\approx 1e^{-2}$
+</div>
 
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
 |:---|:---|:---|
-||||
+|Better regularisation due to decoupled weight decay|More parameters to tune compared to basic [adam](#adam)|Similar to [adam](#adam) with the additional weight decay term|
 
 [⬆ Table of Optimisers ⬆](#table-of-optimisers)  
 
