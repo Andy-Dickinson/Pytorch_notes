@@ -2854,7 +2854,7 @@ and $\beta_2$ (second moment decay rate) determines how much of the past maximum
 
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
 |:---|:---|:---|
-|Provides stability when gradients are very noisy|Less commonly used; might not be as effective as [adam](#adam) or [adamW](#adamw) in some scenarios|Similar to [adam](#adam) but uses the infinity norm, which can be less efficient in some cases|
+|Provides stability when gradients are very noisy|Less commonly used; might not be as effective as [adam](#adam) or [adamw](#adamw) in some scenarios|Similar to [adam](#adam) but uses the infinity norm, which can be less efficient in some cases|
 
 [⬆ Table of Optimisers ⬆](#table-of-optimisers)  
 
