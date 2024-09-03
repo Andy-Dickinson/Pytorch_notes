@@ -10,7 +10,7 @@
 | **1.** | [Reference Links](#reference-links) ||
 | **2.** | [Tensors](#tensors) | [Initialising](#initialising-a-tensor),<br>[Attributes](#attributes-of-a-tensor),<br>[Operations](#operations-on-a-tensor) - indexing, joining, arithmetic etc., |
 | **3.** | [Datasets & DataLoaders](#datasets--dataloaders) | [Loading datasets](#loading-datasets),<br>[Transforms](#transforms),<br>[Creating a Custom Dataset](#creating-a-custom-dataset),<br>[Iterating & Visualising the Dataset](#iterating--visualising-the-dataset),<br>[Preparing Data for Training with DataLoaders](#preparing-data-for-training-with-dataloaders) |
-| **4.** | [Building a Neural Network](#building-a-neural-network) | [Get Device for Training](#get-device-for-training),<br>[Define the Class](#define-the-class),<br>[Using a Model](#using-a-model) |
+| **4.** | [Building a Neural Network<br>& Using Models](#building-a-neural-network--using-models) | [Get Device for Training](#get-device-for-training),<br>[Define the Class](#define-the-class),<br>[Using a Model](#using-a-model),<br>[Saving & Loading Models](#saving--loading-models) |
 | **5.** | [`torch.nn` Module](#torchnn-module) | Basic building blocks for graphs including neural net:<br>**layers, activation functions & loss functions** |
 | **6.** | [Activation Functions](#activation-functions) |[Information on Function Types & Problems](#activation-functions),<br>[Table of Activation Functions](#table-of-activation-functions)|
 | **7.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
@@ -461,7 +461,7 @@ plt.show()
 
 ---  
 
-### <u>Building a Neural Network</u>
+### <u>Building a Neural Network & Using Models</u>
 
 * Comprise of layers/modules that perform operations on data.  
 * The [torch.nn](https://pytorch.org/docs/stable/nn.html) namespace contains everything required to build a neural network (building blocks, e.g. layers and utilities).  
@@ -545,9 +545,12 @@ for name, param in model.named_parameters():
 # create input data, typically will load in the data > see Datasets & DataLoaders above
 X = torch.rand(1, 28, 28, device=device)  # [batch size, height, width], [1 image, 28 x 28]
 
-# pass model input data. 
+# forward pass through the model
 # Example input shape: [1,28,28] -> output shape: [batch_size, output_classes_defined_in_NeuralNetwork], [1,10]
-logits = model(X)  # internally calls forward() and returns the networks logits (raw output values) as tensor
+# ensure the input dimensions match the expected input size for the pre-trained model (e.g., ResNet expects images of size [224, 224] with 3 color channels)
+model.eval()  # set the model to evaluation mode (unless training, see train/test loops) so layers like Dropout and BatchNorm behave consistently to provide stable outputs
+with torch.no_grad():  # disable gradient calculation for inference
+    logits = model(X)  # calls model.forward() internally
 
 """ 
 Softmax normalises the logits to a probability distribution over the classes, 
@@ -561,6 +564,162 @@ pred_probab = nn.Softmax(dim=1)(logits)
 
 # get index of the highest probability in pred_probab dim=1
 y_pred = pred_probab.argmax(1)  
+```
+
+##### <u>Saving & Loading Models</u>  
+* PyTorch's flexibility allows you to save and load almost any object that can be serialised using Python's [pickle module](https://docs.python.org/3/library/pickle.html).  
+
+|Item|<div align="center">Subheading</div>|
+|:---:|:---|
+| **1.** | [Saving models state](#saving-models-state) |
+| **2.** | [Loading models state](#loading-models-state) |
+| **3.** | [Storing optimizers state](#storing-optimizers-state) |
+| **4.** | [Storing schedulers state](#storing-schedulers-state) |
+| **5.** | [Using a checkpoint](#using-a-checkpoint) |
+| **6.** | [Using pre-trained models](#using-pre-trained-models) |
+  
+###### Saving models state:  
+* After creating a model and training its parameters, the models state can be saved (learned parameters such as weights and biases).  
+* Note this **does NOT** save model architecture, hyperparameters, loss function, optimizer state or train/test loops.  
+```py
+import torch
+
+# saving a models state (learned parameters)
+torch.save(model.state_dict(), 'model_weights.pth')
+```
+
+###### Loading models state:  
+* To load a models state, we must **first create an instance** (untrained) of the model because the class defines the structure of a network - this **MUST match the architecture** used when saving the state. Otherwise, `load_state_dict` will fail if there is a mismatch.  
+* Loading a models state overwrites any previously learned values.  
+* Models can be stored to include the structure by passing `model` instead of `model.state_dict()` when saving along with using `weights_only=False` when loading. However this is considered legacy and can make it harder to maintain or reproduce models across different environments, as the exact class definition is serialised. **Best practice** is to use `state_dict()` and `weights_only=True`.  
+* It is **important** to **set the models mode** to `eval()` before inferencing to set the dropout and batch normalisation layers to evaluation mode. Failing to do this will yield inconsistent inference results.  
+```py
+# create instance of model (untrained)
+model = NeuralNetwork().to(device)
+
+# load models state (learned parameters - weights and biases)
+model.load_state_dict(torch.load('model_weights.pth', weights_only=True))
+
+# set model mode to evaluation mode so layers like Dropout and BatchNorm behave consistently to provide stable outputs
+model.eval()
+
+# can check models mode
+print(model.training)  # True if in train() mode, False if eval() mode
+```
+
+###### Storing optimizers state:  
+* It is **common practice to store both the models state and the optimizers state**, which includes things like learning rates, momentum, and any other optimizer-specific state.  
+```py
+# save optimizer state
+torch.save(optimizer.state_dict(), 'optimizer.pth')
+
+# load optimizer state
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)  # optimizer must be redefined with same configuration as it was saved with
+optimizer.load_state_dict(torch.load('optimizer.pth'))
+```
+
+###### Storing schedulers state:  
+* If you're using a learning rate scheduler, it also has a state that can be saved. This is especially useful if you're planning to resume training and want to continue with the same learning rate schedule.  
+```py
+# save schedulers state
+torch.save(scheduler.state_dict(), 'scheduler.pth')
+
+# load schedulers state
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)  # redefine scheduler with same configuration as it was saved with
+scheduler.load_state_dict(torch.load('scheduler.pth'))
+```
+
+###### Using a checkpoint:  
+* Checkpoints can be useful to save multiple states easily.  
+* Below is example functions that can be used to save and load multiple states.  
+```py
+def save_checkpoint(model, epoch, loss, best_accuracy, filename='checkpoint.pth', optimizer=None, scheduler=None):
+    # using a dictionary to store states prior to writting to file
+    checkpoint = {
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'loss': loss,
+        'best_accuracy': best_accuracy,
+    }
+    
+    if optimizer is not None:
+        checkpoint['optimizer_state_dict'] = optimizer.state_dict()
+    
+    if scheduler is not None:
+        checkpoint['scheduler_state_dict'] = scheduler.state_dict()
+    
+    # using torch.save to write dictionary object to file
+    torch.save(checkpoint, filename)
+    print(f"Checkpoint saved to {filename}")
+
+
+def load_checkpoint(model, filename='checkpoint.pth', optimizer=None, scheduler=None):
+    """
+    Model, (and if using) optimizer and scheduler should be initialised first prior to calling function
+    """
+    # loading file to dictionary object
+    checkpoint = torch.load(filename)
+    
+    model.load_state_dict(checkpoint['model_state_dict'])
+    
+    if optimizer is not None and 'optimizer_state_dict' in checkpoint:
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    
+    if scheduler is not None and 'scheduler_state_dict' in checkpoint:
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+    
+    epoch = checkpoint.get('epoch', None)
+    loss = checkpoint.get('loss', None)
+    best_accuracy = checkpoint.get('best_accuracy', None)
+    
+    print(f"Checkpoint loaded from {filename}")
+    print(f"Loaded Model at Epoch: {epoch}, Loss: {loss}, Best Accuracy: {best_accuracy}")
+    
+    return epoch, loss, best_accuracy
+```
+
+###### Using pre-trained models:  
+* The [torchvision](https://pytorch.org/vision/stable/index.html) package consists of popular datasets, model architectures, and common image transformations for computer vision.  
+* The [torchvision.models](https://pytorch.org/vision/stable/models.html) subpackage contains definitions of models for addressing different tasks.  
+* Each model typically has a few predefined weight options, including:<br>specify: `weights=models.<model>_Weights.<option_from_below>`   
+  * **Default weights**: `DEFAULT` uses best available weights - these may change across versions.  
+  * **No weights**: `weights=None` initialises the model randomly without any pre-trained weights.  
+  * **Weights for specific variants or tasks**: `<version>` Some models have multiple weight configurations depending on the version or the dataset they were trained on. See the various [classification models](https://pytorch.org/vision/stable/models.html#table-of-all-available-classification-weights) listing their weights and accuracies:  
+    * Acc@1 (Top-1 Accuracy) - percentage of times the model's top prediction matches the true label.  
+    * Acc@5 (Top-5 Accuracy) - percentage of times the true label is among the model's top 5 predictions.  
+    * Params - the number of parameters in the model, typically measured in millions (M). Parameters are the weights and biases in the model that are learned during training.  
+    * GFLOPS (Giga Floating Point Operations Per Second) - the computational complexity of the model, measured in GFLOPS. It represents the number of billion floating-point operations the model performs during inference for a single forward pass.  
+    * Recipe - usually contains a link or reference to additional details, documentation, or the "recipe" for how the model was trained or evaluated. It might include details about the training setup, data augmentation techniques, hyperparameters, and other specifics relevant to reproducing or understanding the model's performance.  
+
+Public functions to retrieve models and their corresponding weights:  
+|<div align="center">Function</div>|<div align="center">Description</div>|
+|:---|:---|
+|[models.get_model(name, **config)](https://pytorch.org/vision/stable/generated/torchvision.models.get_model.html#torchvision.models.get_model)|Gets the model name and configuration and returns an instantiated model|
+|[models.get_model_weights(name)](https://pytorch.org/vision/stable/generated/torchvision.models.get_model_weights.html#torchvision.models.get_model_weights)|Returns the weights enum class associated to the given model|
+|[models.get_weight(name)<br>OR<br>model.<model_name>_Weights](https://pytorch.org/vision/stable/generated/torchvision.models.get_weight.html#torchvision.models.get_weight)|Gets the weights enum value by its full name|
+|[models.list_models([module, include, exclude])](https://pytorch.org/vision/stable/generated/torchvision.models.list_models.html#torchvision.models.list_models)|Returns a list with the names of registered models|
+
+```py
+import torch
+import torchvision.models as models
+
+# load an untrained model ('vgg16' in this case) which weights can later be loaded into (as above, see Loading models state)
+model = models.vgg16().to(device)
+
+# load a pre-trained model ('resnet18' in this case)
+model = models.get_model('resnet18', weights=models.ResNet18_Weights.DEFAULT).to(device)
+# OR
+model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT).to(device)
+
+# fine-tune a model by replacing the final layer(s) to match the number of classes in your specific task
+num_features = model.fc.in_features
+model.fc = torch.nn.Linear(num_features, num_classes) # replace final layer
+
+# use the pre-trained model as a fixed feature extractor (i.e., freezing all layers except the final one)
+# this freezes all layer parameters from being updated
+for param in model.parameters():
+    param.requires_grad = False
+# following, the last layer can be replaced (as above) which can then be trained - updating just this last layer(s) parameters
 ```
 
 <br>
@@ -1383,13 +1542,15 @@ print(f"z leaf tensor: {z.is_leaf} \n")  # False
   * The **validation/test loop** - iterate over the test dataset to check if model performance is improving.  
 * If `shuffle=True` specified when creating DataLoader objects, after each epoch, the data is shuffled which helps reduce overfitting.  
 * First load the [datasets and DataLoader](#datasets--dataloaders) objects - you may wish to set `batch_size` hyperparameter prior to this (to pass to the DataLoaders).  
-* [Build the model](#building-a-neural-network).  
+* [Build the model](#building-a-neural-network), alternatively [load pretrained models and/or learned parameters](#saving--loading-models).  
 * Set the [hyperparameters](#hyperparameters).  
 * Initialise a [loss function](#initialise-loss-function).  
 * Define and initialise an [optimizer](#initialise-optimizer).  
 * Define [train/test](#define-traintest-loops) loops.  
-* Iterate train/test loops in [Epochs](#iterate-traintest-loops-in-epochs)
-* Decide if you want to add other [metrics](#metrics) to test loop - typically `average loss` and `accuracy` will suffice
+* Iterate train/test loops in [Epochs](#iterate-traintest-loops-in-epochs).  
+* [Save models learned parameters](#saving--loading-models).  
+* Decide if you want to add other [metrics](#metrics) to test loop - typically `average loss` and `accuracy` will suffice.  
+* [Use the model](#using-a-model) ensuring `eval()` mode is set so layers like Dropout and BatchNorm behave consistently to provide stable outputs. To get the current mode of a model: `model.training` will return a boolean (train mode: `True`, eval mode: `False`).  
 
 ##### <u>Hyperparameters</u>  
 * Adjustable parameters that let you control the model optimisation process. Different hyperparameter values can impact model training and convergence rates.  
