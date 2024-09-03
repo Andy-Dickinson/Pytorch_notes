@@ -2877,6 +2877,7 @@ and $\beta_2$ (second moment decay rate) determines how much of the past maximum
 > `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.NAdam.html#torch.optim.NAdam).  
 <br>
+
 * Combines [adam's](#adam) formula with [NAG's](#nesterov-accelerated-gradient-nag) momentum term. The exact formula is more complex and involves additional gradient updates.  
 
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
@@ -2901,6 +2902,7 @@ and $\beta_2$ (second moment decay rate) determines how much of the past maximum
 > `line_search_fn (str) – either ‘strong_wolfe’ or None. Default: None`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.LBFGS.html#torch.optim.LBFGS).  
 <br>
+
 * Uses [quasi-newton updates](https://towardsdatascience.com/bfgs-in-a-nutshell-an-introduction-to-quasi-newton-methods-21b0e13ee504), which are complex but involve approximations to the second-order derivatives.  
 
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
@@ -2925,6 +2927,7 @@ and $\beta_2$ (second moment decay rate) determines how much of the past maximum
 > `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.Rprop.html#torch.optim.Rprop).  
 <br>
+
 * Adjusts the weights of a neural network based only on the sign of the gradient, rather than the magnitude.  
 * Key idea is to focus on the direction of the gradient (whether it is positive or negative) and to make consistent progress in that direction, while ignoring the gradient’s size. This helps to avoid problems associated with vanishing or exploding gradients.  
 
