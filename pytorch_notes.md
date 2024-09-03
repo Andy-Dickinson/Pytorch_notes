@@ -2815,16 +2815,46 @@ and $\lambda$ is the weight decay coefficient, $\approx 1e^{-2}$
 
 ###### Adamax:  
 
+> `torch.optim.Adamax(params, lr=0.002, betas=(0.9, 0.999)) - example arguments`  
 > 
-* See [documentation]().  
+> `torch.optim.Adamax(params, lr=0.002, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, foreach=None, *, maximize=False, differentiable=False, capturable=False)`  
+>
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, optional) – learning rate. Default: 2e-3`  
+> `betas (Tuple[float, float], optional) – coefficients used for computing running averages of gradient and its square`  
+> `eps (float, optional) – term added to the denominator to improve numerical stability. Default: 1e-8`  
+> `weight_decay (float, optional) – weight decay (L2 penalty). Default: 0`  
+> `foreach (bool, optional) – whether foreach implementation of optimizer is used. Default: None`  
+> `maximize (bool, optional) – maximise the objective with respect to the params, instead of minimising. Default: False`  
+> `differentiable (bool, optional) – whether autograd should occur through the optimizer step in training. Otherwise, the step() function runs in a torch.no_grad() context. Default: False`  
+> `capturable (bool, optional) – whether this instance is safe to capture in a CUDA graph. Default: False`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.Adamax.html#torch.optim.Adamax).  
 
+$$
+m_{t+1} = \beta_1 m_t + (1 - \beta_1) \nabla_\theta L(\theta_t)
 $$
 
 $$
+u_{t+1} = \text{max}(\beta_2 u_t, | \nabla_\theta L(\theta_t) |)
+$$
+
+$$
+\theta_{t+1} = \theta_t - \frac{\eta}{u_{t+1}} m_{t+1}
+$$
+<div align="center">
+
+Where $\theta$ represents the parameters,<br>
+$\eta$ is the learning rate,<br>
+$\nabla_\theta L(\theta_t)$ is the gradient of the loss function wrt $\theta$ at time step $t$,<br>
+$m_t$ (first moment estimate or mean of gradients) is a running average of the gradients, which helps to smooth out the gradient updates and capture the average direction of the gradient over time,<br>
+$\beta_1$ (first moment decay rate) controls the influence of previous gradients on the current estimate of the gradient, $\approx 0.9$,<br>
+$u_t$ is the infinity norm (maximum absolute value) of the past and current gradients (scaled by $\beta_2$), and makes adamax more robust to large gradient values and less sensitive to the choice of the $\beta_2$ parameter,<br>
+and $\beta_2$ (second moment decay rate) determines how much of the past maximum gradients are retained in the current estimate of $u_t$, $\approx 0.999$
+</div>
 
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
 |:---|:---|:---|
-||||
+|Provides stability when gradients are very noisy|Less commonly used; might not be as effective as [adam](#adam) or [adamW](#adamw) in some scenarios|Similar to [adam](#adam) but uses the infinity norm, which can be less efficient in some cases|
 
 [⬆ Table of Optimisers ⬆](#table-of-optimisers)  
 
