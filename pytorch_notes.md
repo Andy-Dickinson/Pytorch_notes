@@ -2970,7 +2970,7 @@ and $\Delta_t$ is the step size for updating the parameters at time step $t$. Th
 
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
 |:---|:---|:---|
-|Optimised for scenarios with sparse gradients|Less effective for dense data compared to standard [Adam](#adam)|More efficient for sparse data due to tailored updates|
+|Optimised for scenarios with sparse gradients|Less effective for dense data compared to standard [adam](#adam)|More efficient for sparse data due to tailored updates|
 
 [⬆ Table of Optimisers ⬆](#table-of-optimisers)  
 
