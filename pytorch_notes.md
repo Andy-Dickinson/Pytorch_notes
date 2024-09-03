@@ -2954,16 +2954,23 @@ and $\Delta_t$ is the step size for updating the parameters at time step $t$. Th
 
 ###### SparseAdam:  
 
-> 
-* See [documentation]().  
+> `torch.optim.SparseAdam(params, lr=0.01) - example arguments`  
+>
+> `torch.optim.SparseAdam(params, lr=0.001, betas=(0.9, 0.999), eps=1e-08, maximize=False)`  
+>
+> `params (iterable) – iterable of parameters to optimise or dicts defining parameter groups`  
+> `lr (float, optional) – learning rate. Default: 1e-3`  
+> `betas (Tuple[float, float], optional) – coefficients used for computing running averages of gradient and its square. Default: (0.9, 0.999)`  
+> `eps (float, optional) – term added to the denominator to improve numerical stability. Default: 1e-8`  
+> `maximize (bool, optional) – maximise the objective with respect to the params, instead of minimising. Default: False`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.optim.SparseAdam.html#torch.optim.SparseAdam).  
+<br>
 
-$$
-
-$$
+* Similar to [adam](#adam), but adapted for sparse updates.
 
 |<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Computational Efficiency</div>|
 |:---|:---|:---|
-||||
+|Optimised for scenarios with sparse gradients|Less effective for dense data compared to standard [Adam](#adam)|More efficient for sparse data due to tailored updates|
 
 [⬆ Table of Optimisers ⬆](#table-of-optimisers)  
 
