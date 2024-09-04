@@ -3412,13 +3412,3 @@ and $\Delta_t$ is the step size for updating the parameters at time step $t$. Th
 [⬆ Table of Contents ⬆](#pytorch-notes)  
 
 ---  
-
-### <u>Tensors3</u>
-
-* 
-
-<br>
-
-[⬆ Table of Contents ⬆](#pytorch-notes)    
-
----  
