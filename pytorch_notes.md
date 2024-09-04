@@ -191,18 +191,30 @@ import numpy as np
 
 |Item|<div align="center">Subheading</div>|
 |:---:|:---|
-| **1.** | [Directly from data](#directly-from-data) |
-| **2.** | [From a NumPy array](#from-a-numpy-array) |
-| **3.** | [From another tensor](#from-another-tensor) |
-| **4.** | [With random or constant values](#with-random-or-constant-values) |
+| **1.** | [Empty tensor](#empty-tensor) |
+| **2.** | [Directly from data](#directly-from-data) |
+| **3.** | [From a NumPy array](#from-a-numpy-array) |
+| **4.** | [From another tensor](#from-another-tensor) |
+| **5.** | [With random or constant values](#with-random-or-constant-values) |
 
-* By **default**, PyTorch creates all tensors as **32-bit floating point**, but can override with parameter `dtype=torch.<type>`.  
+* By **default**, PyTorch creates all tensors as **32-bit floating point**, but can override with parameter `dtype=torch.<type>`. Also note that NumPys default for arrays is **64-bit floating point**.  
+
+###### Empty tensor:  
+```py
+# creates an tensor 3 rows by 4 columns but has not initialised the values
+# values will be whatever was in memory when allocated
+x = torch.empty(3, 4)
+```
 
 ###### Directly from data:  
 ```py
 # data type is automatically inferred
 data = [[1, 2],[3, 4]]
-x_data = torch.tensor(data)
+x = torch.tensor(data)
+
+# other ways to create a tensor from data - note mix of collections
+x = torch.tensor((2, 3, 5, 7, 11, 13, 17, 19))
+x = torch.tensor(((2, 4, 6), [3, 6, 9]))
 ```
 
 ###### From a NumPy array:  
@@ -219,9 +231,15 @@ np_array2 = t2.numpy()
 ###### From another tensor:  
 ```py
 # the new tensor retains the properties (shape, datatype) of the argument tensor, unless explicitly overridden
-x_ones = torch.ones_like(x_data) # retains the properties of x_data
-x_rand = torch.rand_like(x_data, dtype=torch.float) # overrides the datatype of x_data
+x_ones = torch.ones_like(x) # retains the properties of x
+x_rand = torch.rand_like(x, dtype=torch.float) # overrides the datatype of x
 # rand_like by default expects input to be floating-point tensor, but can override as shown here if input does not match
+
+
+# creates a deep copy of a tensor, y will be independent of x
+# cloned tensor retains the computation graph, which means it will still track operations for automatic differentiation if the original tensor does
+y = x.clone()
+y = x.detach().clone()  # clones with autograd turned off - autograd will remain on for x
 ```
 
 ###### With random or constant values:  
@@ -235,6 +253,10 @@ torch.manual_seed(<value>)
 rand_tensor = torch.rand(shape) # random floats 0-1 (inclusive 0, exclusive 1)
 ones_tensor = torch.ones(shape) # tensor of floats 1.
 zeros_tensor = torch.zeros(shape) # tensor of floats 0.
+
+# sequence
+torch.arange(start=0, end, step=1, dtype=None, device=None)
+torch.arange(10)  # tensor with values from 0 to 9
 ```  
 
 <br>  
@@ -242,7 +264,7 @@ zeros_tensor = torch.zeros(shape) # tensor of floats 0.
 ##### <u>Attributes of a Tensor</u>  
 
 ```py
-tensor = torch.rand(3,4)
+tensor = torch.rand(3,4)  # 3 rows by 4 columns
 
 shape = tensor.shape
 datatype = tensor.dtype
@@ -263,11 +285,13 @@ See documentation:
 | **1.** | [CPU / GPU device](#cpu--gpu-device) |
 | **2.** | [Indexing and slicing](#indexing-and-slicing) |
 | **3.** | [Joining tensors](#joining-tensors) |
-| **4.** | [Matrix multiplication](#matrix-multiplication) |
-| **5.** | [Element-wise product](#element-wise-product) |
-| **6.** | [Convert single-element tensors to Python numerical value](#convert-single-element-tensors-to-python-numerical-value) |
-| **7.** | [In-place operations](#in-place-operations) |
-| **8.** | [Other common operations](#other-common-operations) |
+| **4.** | [Scalars](#scalars) |
+| **5.** | [Matrix multiplication, cross product, & singular value decomposition](#matrix-multiplication-cross-product--singular-value-decomposition) |
+| **6.** | [Element-wise product](#element-wise-product) |
+| **7.** | [Major categories of maths with tensors](#major-categories-of-maths-with-tensors) |
+| **8.** | [Convert single-element tensors to Python numerical value](#convert-single-element-tensors-to-python-numerical-value) |
+| **9.** | [In-place operations](#in-place-operations) |
+| **10.** | [Other common operations](#other-common-operations) |
 
 ###### CPU / GPU device:
 * By default, operations are run on CPU. Can be run on GPU (typically faster) but need to **explicitly move tensors to the GPU** using `.to` method (after checking for GPU availability).  
@@ -348,18 +372,47 @@ stacked_1 = torch.stack([tensor, tensor, tensor], dim=1)
              [4, 5, 6]]])  shape: [2, 3, 3] """
 ```
 
-###### Matrix multiplication:  
+###### Scalars:  
+```py
+addition = tensor + 1  # adds 1 to every element
+subtraction = tensor - 1  # subtracts 1 from every element
+multiplication = tensor * 2  # multiplies every element by 2
+division = tensor / 2  # divides every element by 2
+```
+
+###### Matrix multiplication, cross product, & singular value decomposition:  
 ```py
 # @ is matrix multiplication operator
 y1 = tensor @ tensor.T  # matrix multiplication between tensor and its transpose
 y2 = tensor.matmul(tensor.T)  # equivalent to previous operation
+y3 = torch.linalg.matmul(tensor, tensor.T)  # also equivalent
 
 # another way to perform matrix multiplication
-y3 = torch.rand_like(y1)  # initialises y3 to same shape and data type as y1, but with random values
-torch.matmul(tensor, tensor.T, out=y3)  # performs matrix multiplication (same as above), then stores result in y3
+y4 = torch.rand_like(y1)  # initialises y3 to same shape and data type as y1, but with random values
+torch.matmul(tensor, tensor.T, out=y4)  # performs matrix multiplication (same as above), then stores result in y3
+
+
+# cross product 
+# - a vector operation that is defined only for three-dimensional vectors 
+# When you take the cross product of two vectors, the result is a third vector that is perpendicular to both of the original vectors
+# Important to note that cross product is defined for 3D vectors. If your tensor has more than three elements in any dimension, PyTorch will throw an error
+v1 = torch.tensor([1., 0., 0.])  # x unit vector
+v2 = torch.tensor([0., 1., 0.])  # y unit vector
+torch.linalg.cross(v2, v1)  # computes the cross product of v2 and v1, results in the negative z unit vector (v1 x v2 == -v2 x v1)
+
+
+# singular value decomposition
+U, S, vh = torch.linalg.svd(y1)  # returning U, S, and V^T matrices - can also store all 3 in a single variable
 ```
 
 ###### Element-wise product:  
+* Tensors must be identical shape.  
+* The excption is broadcasting where:  
+  * Each tensor must have at least one dimension - no empty tensors.  
+  * Comparing the dimension sizes of the two tensors, going from last to first:  
+    * Each dimension must be equal, or  
+    * One of the dimensions must be of size 1, or  
+    * The dimension does not exist in one of the tensors  
 ```py
 z1 = tensor * tensor  # element-wise multiplication
 z2 = tensor.mul(tensor)  # equivalent to previous operation
@@ -367,6 +420,61 @@ z2 = tensor.mul(tensor)  # equivalent to previous operation
 # another way to perform element-wise multiplication
 z3 = torch.rand_like(tensor)  # initialises z3 to same shape and data type as 'tensor' but with random values
 torch.mul(tensor, tensor, out=z3)  # performs element-wise multiplication (same as above), then stores result in z3
+
+# broadcasting:
+rand = torch.rand(2, 4)
+doubled = rand * (torch.ones(1, 4) * 2)  # same as scaling rand by 2 - ones tensor is 1 row x 4 cols (matches dim 1 of rand) and then scaled by 2
+
+# create tensor 4 layers, 3 rows, 2 columns
+a = torch.ones(4, 3, 2)
+
+# broadcast over every “layer” of a
+b = a * torch.rand(   3, 2)  # 2nd & 3rd dims identical to a, dim 1 absent
+
+# broadcast over every layer and row of a - every 3-element column is identical across the layers
+c = a * torch.rand(   3, 1)  # 2nd dim identical to a, 3rd dim = 1
+
+# switched it around - now every row is identical, across layers and columns across the layers
+d = a * torch.rand(   1, 2)  # 2nd dim = 1, 3rd dim identical to a
+```
+
+###### Major categories of maths with tensors:  
+```py
+import torch
+import math
+
+# create randomly populated tensor 2 rows by 4 columns and scales to include values larger than 1 and negatives
+a = torch.rand(2, 4) * 2 - 1
+
+# common functions:
+absolute = torch.abs(a)  # transforms all elements to positive values
+ceil = torch.ceil(a)  # rounds up all elements to the nearest whole integer (though will still be original dtype)
+floor = torch.floor(a)  # rounds down all elements to the nearest whole integer (though will still be original dtype)
+clamped = torch.clamp(a, -0.5, 0.5)  # sets minimum and maximum values - changes to these if elements are outside them
+
+# trigonometric functions and their inverses
+angles = torch.tensor([0, math.pi / 4, math.pi / 2, 3 * math.pi / 4])  # angles for each quarter circle in radians
+sines = torch.sin(angles)  # computes the sine of each element in the tensor
+inverses = torch.asin(sines)  # computes the arcsine (inverse sine) of each element, returning values in radians
+
+# bitwise operations
+# If the corresponding bits of two numbers are different, the resulting bit is 1.
+# If the corresponding bits of two numbers are the same, the resulting bit is 0.
+b = torch.tensor([1, 5, 11])
+c = torch.tensor([2, 7, 10])
+xor = torch.bitwise_xor(b, c)  # computes the bitwise XOR of each pair of corresponding elements
+
+# comparisons:
+d = torch.tensor([[1., 2.], [3., 4.]])
+e = torch.ones(1, 2)  # many comparison ops support broadcasting!
+equal = torch.eq(d, e)  # compares each element of 'd' and 'e' for equality, returns a tensor of type bool
+
+# reductions:
+max = torch.max(d)  # returns a single-element tensor containing the maximum value in tensor d
+mean = torch.mean(d)  # average of all elements
+stand_dev = torch.std(d)  # standard deviation of all elements
+product = torch.prod(d)  # multiplies all elements together
+torch.unique(d)  # returns unique elements in the tensor
 ```
 
 ###### Convert single-element tensors to Python numerical value:  
@@ -377,6 +485,7 @@ agg_item = agg.item()  # converts to float using .item()
 
 ###### In-place operations:  
 > In-place operations save some memory, but can be problematic when computing derivatives because of an immediate loss of history. Hence, their use is discouraged.
+* In-place operations are **suffixed with an underscore**.  
 ```py
 # operations that store result in operand are denoted by a _ suffix
 x.copy_(y)  # copies tensor y to tensor x - shapes must match
@@ -385,6 +494,16 @@ tensor.add_(5)  # adds 5 to every element in tensor and stores back to tensor
 ```
 
 ###### Other common operations:  
+
+|<div align="center">Function</div>|<div align="center">Description</div>|
+|:---|:---|
+|[Flatten](#flatten)| Merge dimensions from a start to end dimension |
+|[Numel](#numel)| Return total number of elements in tensor |
+|[Reshape](#reshape)| Reshape tensor to custom shape (total elements must be of same number)<br>- tensor does not need to be contiguous |
+|[View](#view)| Reshape tensor to custom shape (total elements must be of same number)<br>- tensor must be contiguous, and modifying returned affects original  |
+|[Unsqueeze](#unsqueeze)| Add a dimension of extent 1 at dimension specified |
+|[Squeeze](#squeeze)| Remove all or specified dimensions of size 1 |
+
 Define tensor:  
 ```py
 import torch
@@ -392,8 +511,10 @@ import torch
 # tensor with shape (2, 3, 4, 4)
 x = torch.rand(2, 3, 4, 4)
 ```
-**Flatten** (note there is also a layer that defines flatten in [torch.nn](#torchnn-module), also see [building a neural network](#building-a-neural-network--using-models) section.):  
-  * Allows you to merge dimensions from a start dimension to end dimension.  
+
+##### Flatten:  
+* (note there is also a layer that defines flatten in [torch.nn](#torchnn-module), also see [building a neural network](#building-a-neural-network--using-models) section.):  
+* Allows you to merge dimensions from a start dimension to end dimension.  
 ```py
 # flatten the tensor starting from dimension 1 to the end, passed as argument (part of torch API)
 flattened = torch.flatten(x, start_dim=1)  # shape = (2, 3*4*4) = (2, 48)
@@ -402,16 +523,46 @@ print(flattened)
 # flatten the tensor starting from dimension 1 to dimension 2, using the tensor's flatten method called on object (part of torch.Tensor API)
 flattened = x.flatten(start_dim=1, end_dim=2)  # shape = (2, 3*4, 4) = (2, 12, 4)
 ```
-**Numel**:  
-  * Returns the total number of elements in a tensor.  
+##### Numel:  
+* Returns the total number of elements in a tensor.  
 ```py
 x.numel()  # returns 96 for the above tensor
 ```
 
-**View**:  
-  * Returns a new tensor with the same data as the self tensor but of a different shape.  
-  * **Total number of elements** must match.  
-  * `-1` allows one dimension to be automatically inferred by PyTorch. Note an error will be raised if the total number of elements do not divide evenly.  
+##### Reshape:  
+* return a view on the tensor - meaning **any change made to the source tensor will be reflected in the view on that tensor**, unless you `clone()` it.
+* Returns a new tensor with the same data as the original tensor but of a different shape.  
+* Total number of elements must match between the original and new shapes.  
+* `-1` allows one dimension to be automatically inferred by PyTorch. The value of `-1` will be replaced by the appropriate size to ensure the total number of elements remains constant.  
+* Does not require the tensor to be contiguous in memory (like [view](#view)). If the tensor is not contiguous, PyTorch will handle it internally, potentially by creating a copy (instead of a view).  
+```py
+# Create a tensor with 96 elements
+x = torch.arange(96)  # Shape: (96,)
+
+# Reshape the tensor to a 2D tensor with shape (4, 24)
+reshaped = x.reshape(4, 24)  # Shape = (4, 24)
+print(reshaped)
+
+# Allow PyTorch to infer one dimension using -1
+reshaped = x.reshape(6, -1, 2)  # Shape = (6, 8, 2)
+print(reshaped)
+
+# Reshape where -1 is used to infer dimension, and total elements divide evenly
+reshaped = x.reshape(-1, 12)  # Shape = (8, 12) because 96 / 12 = 8
+print(reshaped)
+
+# Raises an error if the total number of elements do not match
+# The following will raise an error because 96 does not divide evenly into 18 (6*3)
+# reshaped = x.reshape(6, -1, 3)
+
+```
+
+##### View:  
+* Returns a new tensor with the same data as the original tensor but of a different shape.  
+* **Total number of elements** must match.  
+* `-1` allows one dimension to be automatically inferred by PyTorch. Note an error will be raised if the total number of elements do not divide evenly.  
+* **Requires the tensor to be contiguous in memory**. If the tensor is not contiguous, you must first use .contiguous() to make it contiguous.  
+* Because torch.view() creates a view, **modifying the returned tensor will affect the original tensor**.  
 ```py
 # original tensor above contains 96 elements - so new tensor must also
 # reshape the tensor to a 2D tensor with shape (4, 24) (part of torch.Tensor API)
@@ -422,6 +573,37 @@ reshaped = x.view(6, -1, 2)  # shape = (6, 8, 2)
 
 # raises error as 96 does not divide evenly by 18 (6*3)
 reshaped = x.view(6, -1, 3)
+```
+
+##### Unsqueeze:
+* Adds a dimension of extent 1 at dimension specified.  
+* Must specify dimension.  
+```py
+# shape = (2,3)
+x = torch.rand(2,3)
+
+# shape = (1,2,3)
+x.unsqueeze(0)
+
+# shape = (2,3,1)
+x.unsqueeze(2)
+```
+
+##### Squeeze:  
+* Removes all dimensions of size 1 unless specific dimension is specified.
+* If dimension specified is not of size 1, will return same as orginal tensor.  
+```py
+# shape = (1,3,1)
+a = torch.rand(1, 3, 1)
+
+# removes all 1 dimensions of size 1
+# shape = (3)
+b = a.squeeze()
+
+# remove specific dimension of size 1
+b = a.squeeze(0)  # shape = (3,1)
+b = a.squeeze(2)  # shape = (1,3)
+b = a.squeeze(1)  # no change, shape = (1,3,1)
 ```
 
 <br>
