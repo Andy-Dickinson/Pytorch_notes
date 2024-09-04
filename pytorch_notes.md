@@ -8,15 +8,16 @@
 |Item|<div align="center">Heading</div>|<div align="center">Subcontents</div>|
 |:---:|:---|:---|
 | **1.** | [Reference Links](#reference-links) ||
-| **2.** | [Tensors](#tensors) | [Initialising](#initialising-a-tensor),<br>[Attributes](#attributes-of-a-tensor),<br>[Operations](#operations-on-a-tensor) - indexing, joining, arithmetic etc., |
-| **3.** | [Datasets & DataLoaders](#datasets--dataloaders) | [Loading datasets](#loading-datasets),<br>[Transforms](#transforms),<br>[Creating a Custom Dataset](#creating-a-custom-dataset),<br>[Iterating & Visualising the Dataset](#iterating--visualising-the-dataset),<br>[Preparing Data for Training with DataLoaders](#preparing-data-for-training-with-dataloaders) |
-| **4.** | [Building a Neural Network<br>& Using Models](#building-a-neural-network--using-models) | [Get Device for Training](#get-device-for-training),<br>[Define the Class](#define-the-class),<br>[Using a Model](#using-a-model),<br>[Saving & Loading Models](#saving--loading-models) |
-| **5.** | [`torch.nn` Module](#torchnn-module) | Basic building blocks for graphs including neural net:<br>**layers, activation functions & loss functions** |
-| **6.** | [Activation Functions](#activation-functions) |[Information on Function Types & Problems](#activation-functions),<br>[Table of Activation Functions](#table-of-activation-functions)|
-| **7.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
-| **8.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
-| **9.** | [Loss Functions](#loss-functions)<br>- Includes Overview of Distributions & SVMs |[General Loss Function Information](#loss-functions),<br>[Overview of Losses](#overview-of-losses),<br>[Overview of Distributions](#overview-of-distributions),<br>[Overview of SVMs](#overview-of-support-vector-machines-svms),<br>[Table of Loss Functions](#table-of-loss-functions)|
-| **10.** | [Optimizers](#optimizers) |[Key Concepts & Universal Methods](#optimizers),<br>[Table of Optimisers](#table-of-optimisers)|
+| **2.** | [Designing, Building & Problem Finding - Thought Process](#designing-building--problem-finding---thought-process) | Helpful information regarding initial thought processes & considerations for building a model, debugging and more |
+| **3.** | [Tensors](#tensors) | [Initialising](#initialising-a-tensor),<br>[Attributes](#attributes-of-a-tensor),<br>[Operations](#operations-on-a-tensor) - indexing, joining, arithmetic etc., |
+| **4.** | [Datasets & DataLoaders](#datasets--dataloaders) | [Loading datasets](#loading-datasets),<br>[Transforms](#transforms),<br>[Creating a Custom Dataset](#creating-a-custom-dataset),<br>[Iterating & Visualising the Dataset](#iterating--visualising-the-dataset),<br>[Preparing Data for Training with DataLoaders](#preparing-data-for-training-with-dataloaders) |
+| **5.** | [Building a Neural Network<br>& Using Models](#building-a-neural-network--using-models) | [Get Device for Training](#get-device-for-training),<br>[Define the Class](#define-the-class),<br>[Using a Model](#using-a-model),<br>[Saving & Loading Models](#saving--loading-models) |
+| **6.** | [`torch.nn` Module](#torchnn-module) | Basic building blocks for graphs including neural net:<br>**layers, activation functions & loss functions** |
+| **7.** | [Activation Functions](#activation-functions) |[Information on Function Types & Problems](#activation-functions),<br>[Table of Activation Functions](#table-of-activation-functions)|
+| **8.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
+| **9.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
+| **10.** | [Loss Functions](#loss-functions)<br>- Includes Overview of Distributions & SVMs |[General Loss Function Information](#loss-functions),<br>[Overview of Losses](#overview-of-losses),<br>[Overview of Distributions](#overview-of-distributions),<br>[Overview of SVMs](#overview-of-support-vector-machines-svms),<br>[Table of Loss Functions](#table-of-loss-functions)|
+| **11.** | [Optimizers](#optimizers) |[Key Concepts & Universal Methods](#optimizers),<br>[Table of Optimisers](#table-of-optimisers)|
 
 </div>
 
@@ -30,6 +31,145 @@
 
 [Pytorch Documentation](https://pytorch.org/docs/stable/index.html)  
 [Tutorials](https://pytorch.org/tutorials/beginner/basics/intro.html)  
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+---  
+
+### <u>Designing, Building & Problem Finding - Thought Process</u>  
+
+|Item|<div align="center">Subheading</div>|<div align="center">Content</div>|
+|:---:|:---|:---|
+| **1.** | [Design & Build](#design--build) | [Understand the problem](#understand-the-problem),<br>[Gather & preprocess](#gather-and-preprocess-data),<br>[Model architecture](#model-architecture-design),<br>[Selecting loss](#selecting-loss-function),<br>[Selecting optimiser](#selecting-an-optimiser),<br>[Train & validate](#training-and-validation),<br>[Hyperparameter tuning](#hyperparameter-tuning),<br>[Regularisation techniques](#regularisation-techniques),<br>[Evaluate & iterate](#evaluate-and-iterate),<br>[Deploy & monitor](#deployment-and-monitoring) |
+| **2.** | [Further Tips](#further-tips) | [Start with small batches & fewer epochs](#start-with-small-batches-and-fewer-epochs),<br>[Experiment with learning rate](#experiment-with-learning-rate),<br>[Understand overfitting and regularisation](#understand-overfitting-and-regularisation),<br>[Visualise with TensorBoard](#visualise-with-tensorboard),<br>[Always save the model](#always-save-the-model),<br>[Play with pretrained models](#play-with-pretrained-models),<br>[Join the community](#join-the-community) |
+| **3.** | [Problem Finding (Common Issues)](#problem-finding-common-issues) | [Debugging tips](#debugging-tips),<br>[Understanding common pitfalls](#understanding-common-pitfalls) |
+
+##### Design & build:  
+Designing, building, and tuning a machine learning model is a complex process that involves both art and science. While there's no one-size-fits-all approach, below is a general thought process that many practitioners follow. The key is to iterate and experiment based on your understanding of the problem, your data, and the performance of your model. Here's how you might approach it:
+
+###### Understand the problem:  
+- *Type of Problem*: Is this a classification problem (e.g., image classification), regression (e.g., predicting house prices), or something else like segmentation or object detection? The nature of the problem will heavily influence your choices.  
+- *Domain Knowledge*: Understanding the domain can guide your decisions. For example, in image processing, convolutional layers are often a good choice because they are effective at capturing spatial hierarchies.  
+- *Performance Metric*: Decide on the evaluation metric that is most important (e.g., accuracy, F1 score, mean squared error). This will guide your choice of loss function and how you evaluate your model.  
+
+###### Gather and preprocess data:  
+- *Data Quality*: Ensure that your data is clean, balanced (or use techniques like oversampling/undersampling), and appropriately split into training, validation, and test sets.  
+- *Data Augmentation*: If you have limited data, consider augmenting it, especially in tasks like image classification.  
+- *Feature Engineering*: For structured data, think about creating new features or transforming existing ones to better capture the underlying patterns.  
+
+###### Model architecture design:  
+- *Baseline Model*:  
+    - Start simple. Implement a baseline model with a basic architecture that can serve as a reference point. This could be a small feedforward neural network for structured data or a simple CNN for image data.  
+- *Layer Selection*:  
+    - *Convolutional Layers (CNNs)*: Use for image data or spatial data. Convolutions capture local patterns and are followed by pooling layers to reduce dimensionality.  
+    - *Recurrent Layers (RNNs, LSTMs, GRUs)*: Use for sequential data like time series or text. They are good at capturing temporal dependencies.  
+    - *Fully Connected Layers* (typically linear layers): Typically used at the end of a network to output a prediction. Start with a small number of fully connected layers and increase complexity as needed.  
+    - *Transformer Layers*: Use for tasks involving sequences or text, where attention mechanisms can capture long-range dependencies.  
+- *Activation Functions*:  
+    - *ReLU (Rectified Linear Unit)*: Most common choice. It's computationally efficient and helps mitigate vanishing gradient problems.  
+    - *Leaky ReLU, ELU*: Variants of ReLU that address the issue of neurons "dying" (i.e., outputting zero for all inputs).  
+    - *Sigmoid/Tanh*: Use sparingly, typically in the output layer of binary classification problems (sigmoid) or in cases where outputs are between -1 and 1 (tanh). They can cause vanishing gradient problems in deep networks.  
+- *Quantity of Layers*:  
+    - Start with a few layers and increase complexity as needed. Too many layers can lead to overfitting, especially if you don't have enough data.  
+    - Use deeper networks for more complex problems, but make sure to have sufficient data or use techniques like regularisation or dropout to avoid overfitting.  
+
+###### Selecting loss function:  
+- *Regression*:  
+    - *Mean Squared Error (MSE)*: Standard loss function for regression problems.  
+    - *Mean Absolute Error (MAE)*: Less sensitive to outliers compared to MSE.  
+- *Classification*:  
+    - *Cross-Entropy Loss*: Standard for multi-class classification.  
+    - *Binary Cross-Entropy*: Use for binary classification problems.  
+- *Custom Losses*:  
+    - For more complex problems, consider custom loss functions that better capture the performance metric you care about (e.g., dice loss for segmentation tasks).  
+
+###### Selecting an optimiser:  
+- *SGD (Stochastic Gradient Descent)*:  
+    - Simple and widely used, often with momentum.  
+    - Can be slow to converge; adding a learning rate scheduler can help.  
+- *Adam*:  
+    - Popular choice due to its adaptive learning rate.  
+    - Often works well out-of-the-box, especially for deep networks.  
+- *AdamW*:  
+    - Similar to Adam but with decoupled weight decay, often preferred for regularisation purposes.  
+- *Learning Rate*:  
+    - Start with a default (e.g., 1e-3 for Adam) and adjust based on validation performance. Consider using learning rate schedules or techniques like cyclic learning rates.  
+
+###### Training and validation:  
+- *Training Setup*:  
+  - Start with a reasonable number of epochs (e.g., 10-50). Monitor the training and validation loss/metrics.  
+  - Implement early stopping to prevent overfitting—stop training when validation performance stops improving.  
+- *Validation*:  
+  - Use a validation set to tune hyperparameters and monitor for overfitting.  
+  - If possible, use k-fold cross-validation to get a more reliable estimate of model performance.  
+   
+###### Hyperparameter tuning:  
+- *Manual Tuning*:  
+  - Change one hyperparameter at a time (e.g., learning rate, number of layers) and observe the effect on performance.  
+- *Grid Search/Random Search*:  
+  - Explore combinations of hyperparameters by systematically (grid search) or randomly (random search) sampling them.  
+- *Bayesian Optimisation*:  
+  - More advanced technique that models the hyperparameter space and efficiently searches for optimal configurations.  
+- *Learning Rate Scheduling*:  
+  - Adjust the learning rate dynamically during training. Common techniques include step decay, exponential decay, and cosine annealing.  
+
+###### Regularisation techniques:  
+- *Dropout*: Randomly drops neurons during training to prevent overfitting. Typically used in fully connected layers.  
+- *Weight Decay (L2 Regularisation)*: Adds a penalty to large weights, which can help prevent overfitting.  
+- *Batch Normalisation*: Normalises the inputs to each layer, which can accelerate training and improve stability.  
+
+###### Evaluate and iterate:  
+- *Evaluate on Test Data*: After tuning, evaluate your final model on the test set to get an unbiased estimate of its performance.  
+- *Model Interpretability*: Consider methods to understand your model’s decisions (e.g., SHAP values, Grad-CAM for images).  
+- *Iterate*: Based on the results, you might go back and refine the model architecture, try different optimisers, or adjust the preprocessing steps.  
+
+###### Deployment and monitoring:  
+- *Deployment*: Once satisfied with your model, deploy it in your target environment (e.g., web service, mobile app).  
+- *Monitoring*: Keep track of the model’s performance in production. Models can degrade over time as data distributions change (concept drift), so retraining might be necessary.  
+
+###### Summary:
+The key to designing, building, and tuning a model is to start simple, build up complexity incrementally, and rely on empirical evidence (i.e., experiments and validation performance) to guide your choices. Always keep the problem and data at the forefront of your decisions, and remember that no single architecture or hyperparameter setting is best for all problems. The process is iterative, with frequent revisiting of earlier steps based on the performance and insights gained.
+
+##### Further tips:  
+###### Start with small batches and fewer epochs:  
+* Start with smaller batch sizes and fewer epochs to quickly iterate and see if your model is learning. Once you confirm that the model is working, you can scale up the batch size and number of epochs.  
+* Remember that small batch sizes might lead to noisier gradient updates, while large batch sizes could require learning rate adjustments.  
+
+###### Experiment with learning rate:  
+* The learning rate is one of the most critical hyperparameters. If your model isn’t converging, or if it’s oscillating wildly, try adjusting the learning rate first. It’s common to start with a learning rate around 1e-3 for optimisers like Adam.  
+* Consider using learning rate schedulers in PyTorch (e.g., torch.optim.lr_scheduler) to adjust the learning rate during training, which can help with convergence.  
+
+###### Understand overfitting and regularisation:  
+* Keep an eye on your model’s performance on both the training and validation datasets. If your model performs well on training but poorly on validation, it’s overfitting.  
+* Use techniques like dropout, weight decay (L2 regularisation), and data augmentation to combat overfitting. Start with a simple model and gradually add these techniques as needed.  
+
+###### Visualise with TensorBoard:  
+* PyTorch has built-in support for TensorBoard. Use it to visualise metrics like loss and accuracy over time, inspect model graphs, and monitor other training statistics.  
+* Seeing your model’s training progress visually can help identify problems like overfitting early on.  
+
+###### Always save the model:  
+* Always save the model after training, especially if you’re doing long training runs. It’s also a good practice to save the best-performing model on the validation set.  
+
+###### Play with pretrained models:  
+* Start by fine-tuning pre-trained models like ResNet or BERT on your dataset. This is often easier than training from scratch and can yield good results with less data.  
+* Pretrained models in torchvision or huggingface libraries come with weights trained on large datasets. Fine-tuning these models on your dataset can help you achieve better performance with limited resources.  
+
+###### Join the community:  
+* The PyTorch community is large and active. If you encounter problems, it’s likely that others have faced the same issues. Participate in forums like the PyTorch Discuss or Stack Overflow.  
+* GitHub repositories, especially for popular models and papers, are a great place to learn best practices and see how others structure their code.  
+
+##### Problem finding (common issues):
+###### Debugging tips:  
+* *Print Shapes*: When you’re debugging, often the quickest way to identify an issue is by printing the shapes of tensors as they pass through your model. This will help catch mismatches between layers or mistakes in reshaping operations.  
+* *Use `.to(device)` Wisely*: When moving tensors to a GPU, make sure to move both the model and data to the same device (cuda or cpu). A common error is having tensors on different devices, leading to runtime errors.  
+* *Use the `torch.no_grad()` Context*: When you’re validating or testing your model, wrap the code in with `torch.no_grad()`: to disable gradient computation. This saves memory and computation time.  
+
+###### Understanding common pitfalls:  
+* *Gradient Issues*: Watch out for vanishing or exploding gradients, especially in deep networks. Use techniques like batch normalisation, appropriate weight initialisation, and gradient clipping if necessary.  
+* *Batch Size Impact*: Too small a batch size can cause noisy updates, while too large can require reducing the learning rate. There’s often a sweet spot depending on the problem.  
+* *Data Leakage*: Ensure that no information from the test set leaks into the training or validation processes. This could significantly overestimate your model’s performance.  
 
 <br>
 
@@ -113,7 +253,10 @@ device = tensor.device  # device tensor is stored on (CPU, GPU)
 
 ##### <u>Operations on a Tensor</u>  
 
-[Available operations](https://pytorch.org/docs/stable/torch.html) includes **arithmetic, linear algebra, matrix manipulation (transposing, indexing, slicing), sampling** (generating random values, seeding, sample from various distributions, random selection, noise addition, shuffling etc.) and more.  
+Available operations includes **arithmetic, linear algebra, matrix manipulation (transposing, indexing, slicing), sampling** (generating random values, seeding, sample from various distributions, random selection, noise addition, shuffling etc.) and more.  
+See documentation:  
+  * [torch (functional API)](https://pytorch.org/docs/stable/torch.html) (i.e. tensors are passed as arguments),  
+  * [torch.Tensor (object-oriented API)](https://pytorch.org/docs/stable/tensors.html) (i.e. methods are called on tensor objects themselves).  
 
 |Item|<div align="center">Subheading</div>|
 |:---:|:---|
@@ -124,6 +267,7 @@ device = tensor.device  # device tensor is stored on (CPU, GPU)
 | **5.** | [Element-wise product](#element-wise-product) |
 | **6.** | [Convert single-element tensors to Python numerical value](#convert-single-element-tensors-to-python-numerical-value) |
 | **7.** | [In-place operations](#in-place-operations) |
+| **8.** | [Other common operations](#other-common-operations) |
 
 ###### CPU / GPU device:
 * By default, operations are run on CPU. Can be run on GPU (typically faster) but need to **explicitly move tensors to the GPU** using `.to` method (after checking for GPU availability).  
@@ -238,6 +382,46 @@ agg_item = agg.item()  # converts to float using .item()
 x.copy_(y)  # copies tensor y to tensor x - shapes must match
 x.t_()  # transposes x and stores back to x
 tensor.add_(5)  # adds 5 to every element in tensor and stores back to tensor
+```
+
+###### Other common operations:  
+Define tensor:  
+```py
+import torch
+
+# tensor with shape (2, 3, 4, 4)
+x = torch.rand(2, 3, 4, 4)
+```
+**Flatten** (note there is also a layer that defines flatten in [torch.nn](#torchnn-module), also see [building a neural network](#building-a-neural-network--using-models) section.):  
+  * Allows you to merge dimensions from a start dimension to end dimension.  
+```py
+# flatten the tensor starting from dimension 1 to the end, passed as argument (part of torch API)
+flattened = torch.flatten(x, start_dim=1)  # shape = (2, 3*4*4) = (2, 48)
+print(flattened)
+
+# flatten the tensor starting from dimension 1 to dimension 2, using the tensor's flatten method called on object (part of torch.Tensor API)
+flattened = x.flatten(start_dim=1, end_dim=2)  # shape = (2, 3*4, 4) = (2, 12, 4)
+```
+**Numel**:  
+  * Returns the total number of elements in a tensor.  
+```py
+x.numel()  # returns 96 for the above tensor
+```
+
+**View**:  
+  * Returns a new tensor with the same data as the self tensor but of a different shape.  
+  * **Total number of elements** must match.  
+  * `-1` allows one dimension to be automatically inferred by PyTorch. Note an error will be raised if the total number of elements do not divide evenly.  
+```py
+# original tensor above contains 96 elements - so new tensor must also
+# reshape the tensor to a 2D tensor with shape (4, 24) (part of torch.Tensor API)
+reshaped = x.view(4, 24)  # shape = (4, 24)
+
+# allowing pytorch to infer one dimension using -1
+reshaped = x.view(6, -1, 2)  # shape = (6, 8, 2)
+
+# raises error as 96 does not divide evenly by 18 (6*3)
+reshaped = x.view(6, -1, 3)
 ```
 
 <br>
@@ -501,24 +685,34 @@ tensor = tensor.to(device)
 ```
 
 ##### <u>Define the Class</u>  
+
+|Item|<div align="center">Subheading</div>|
+|:---:|:---|
+| **1.** | [Define layers in a container](#define-layers-in-a-container) |
+| **2.** | [Conditional activation functions and logical flow](#conditional-activation-functions-and-logical-flow) |
+| **3.** | [Branching](#branching) |
+| **4.** | [Multiple outputs](#multiple-outputs) |
+| **5.** | [Tracking & model parameters](#tracking--model-parameters) |
+
 * Subclass [nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html).  
-* Initialise layers in `__init__`.  
+* Initialise [layers](#torchnn-module) in `__init__`.  
 * Operations on input data are done in the `forward` method (same for all `nn.module` subclasses). **Do NOT** directly call `model.forward()`, it is automatically called (via `nn.Module`) when we pass the model input data.  
 * Move instance of NeuralNetwork to available device ([see above](#get-device-for-training)).  
 * [Non-linear activations](https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity) (e.g. ReLU) are what create the complex mappings between the model’s inputs and outputs. They are applied after linear transformations to introduce nonlinearity, helping neural networks learn a wide variety of phenomena.  
 * See [`torch.nn` module](#torchnn-module) and [activation functions](#activation-functions) below for information on neural network **layers** and **activation functions**.  
+###### Define layers in a container:  
 ```py
 class NeuralNetwork(nn.Module):
         def __init__(self):
-        super().__init__()
-        self.flatten = nn.Flatten()  # converts each image to a 1D vector e.g. [1,28,28] -> [1, 784]
-        self.linear_relu_stack = nn.Sequential(  # container module to stack layers in sequence. Each output becomes input to next
-            nn.Linear(28 * 28, 512),  # each of the 784 (28*28) input features is connected to each of the 512 output features
-            nn.ReLU(),  # element-wise activation function, introducing non-linearity into the model. Shape of tensor remains the same, but values are transformed
-            nn.Linear(512, 512),  # transforms 512-dimensional input to another 512-dimensional output to learn new representation of the features
-            nn.ReLU(),
-            nn.Linear(512, 10),  # maps 512-dimensional input to 10-dimensional output corresponding to logits (in forward()) for each of the 10 classes in the classification task
-        )
+            super().__init__()
+            self.flatten = nn.Flatten()  # converts each image to a 1D vector e.g. [1,28,28] -> [1, 784]
+            self.linear_relu_stack = nn.Sequential(  # container module to stack layers in sequence. Each output becomes input to next
+                nn.Linear(28 * 28, 512),  # each of the 784 (28*28) input features is connected to each of the 512 output features
+                nn.ReLU(),  # element-wise activation function, introducing non-linearity into the model. Shape of tensor remains the same, but values are transformed
+                nn.Linear(512, 512),  # transforms 512-dimensional input to another 512-dimensional output to learn new representation of the features
+                nn.ReLU(),
+                nn.Linear(512, 10),  # maps 512-dimensional input to 10-dimensional output corresponding to logits (in forward()) for each of the 10 classes in the classification task
+            )
 
     # do not directly call model.forward()
     # it is automatically called (via nn.Module) when we pass the model input data
@@ -531,6 +725,82 @@ class NeuralNetwork(nn.Module):
 # do this before training or using the model
 model = NeuralNetwork().to(device)
 ```
+###### Conditional activation functions and logical flow:  
+* It may be more convenient to define layers individually in `__init__` so the logical flow and application of activation functions can be applied conditionally.  
+```py
+class FlexibleModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 16, 3, 1, 1)
+        self.conv2 = nn.Conv2d(16, 32, 3, 1, 1)
+        self.fc1 = nn.Linear(32 * 28 * 28, 128)
+        self.fc2 = nn.Linear(128, 10)
+    
+    # define forward pass
+    def forward(self, x):
+        x = self.conv1(x)
+        if torch.rand(1).item() > 0.5:  # randomly apply ReLU based on a condition
+            x = torch.relu(x)
+        else:
+            x = torch.sigmoid(x)  # or use sigmoid instead
+        
+        x = self.conv2(x)
+        x = x.view(-1, 32 * 28 * 28)  # reshapes tensor, pytorch infers dim=0
+        x = self.fc1(x)
+        x = torch.relu(x)
+        x = self.fc2(x)
+        return x
+```
+###### Branching:  
+* It is also possible to define branches so network can split into multiple paths, each processing the data differently before merging back together or continuing to separate outputs.  
+```py
+class BranchingModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 16, 3, 1, 1)
+        self.branch1 = nn.Conv2d(16, 32, 3, 1, 1)
+        self.branch2 = nn.Conv2d(16, 32, 5, 1, 2)
+        self.fc = nn.Linear(64 * 28 * 28, 10)
+    
+    def forward(self, x):
+        x = self.conv1(x)
+        
+        # branching
+        branch1_out = torch.relu(self.branch1(x))
+        branch2_out = torch.relu(self.branch2(x))
+        
+        # concatenating the results from two branches
+        x = torch.cat((branch1_out, branch2_out), dim=1)  # horizontal joining (dim=1 i.e. columns will increase with each tensor concatenated)
+        
+        x = x.view(-1, 64 * 28 * 28)  # reshapes tensor, pytorch infers dim=0
+        x = self.fc(x)
+        return x
+```
+###### Multiple outputs:  
+* In some models, you might want to produce multiple outputs from different layers (e.g. in multi-task learning - one part responsible for classification, while another handles regression).  
+```py
+class MultiOutputModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 16, 3, 1, 1)
+        self.fc_common = nn.Linear(16 * 28 * 28, 128)
+        
+        # two separate heads for different tasks
+        self.fc_class = nn.Linear(128, 10)  # for classification
+        self.fc_regress = nn.Linear(128, 1)  # for regression
+    
+    def forward(self, x):
+        x = self.conv1(x)
+        x = x.view(-1, 16 * 28 * 28)  # reshapes tensor, pytorch infers dim=0
+        x = torch.relu(self.fc_common(x))
+        
+        # branching for different outputs
+        class_output = self.fc_class(x)  # classification output
+        regress_output = self.fc_regress(x)  # regression output
+        
+        return class_output, regress_output
+```
+###### Tracking & model parameters:  
 * All fields inside your model object are automatically tracked by `nn.Module`, and makes all parameters accessible using your model’s `parameters()` or `named_parameters()` methods:
 ```py
 # prints models structure
