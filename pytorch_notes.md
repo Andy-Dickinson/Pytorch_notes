@@ -92,8 +92,11 @@ $$
 \text{Output width} = \frac{\text{Input width} - \text{Kernal size} + 2 \times \text{Padding}}{\text{Stride}} + 1
 $$
 
-  - Fully Connected (Linear) Layers.  
-    - t
+-  - Fully Connected (Linear) Layers.  
+      - t
+
+
+
 
 
 Input Features: The number of input features is determined by the output from the previous layer. For example, if you have an image going through convolutional layers, you need to flatten the feature map before passing it to a fully connected layer. This means multiplying the dimensions of the feature map (height × width × number of channels).
