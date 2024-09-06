@@ -78,21 +78,8 @@ Designing, building, and tuning a machine learning model is a complex process th
     - **Output Features (Filters)**: This is a hyperparameter you choose. It determines the number of filters (kernels) that the layer applies. The output shape will depend on:  
       - *Number of filters (output channels)* you choose.  
       - *Filter size (kernel size)*.  
-      - *Stride, padding, and dilation parameters*.  
-<div align="center">
-
-The output feature map size (height × width) is calculated as:
-</div>
-
-$$
-\text{Output height} = \frac{\text{Input height} - \text{Kernal size} + 2 \times \text{Padding}}{\text{Stride}} + 1
-$$
-
-$$
-\text{Output width} = \frac{\text{Input width} - \text{Kernal size} + 2 \times \text{Padding}}{\text{Stride}} + 1
-$$
-
--  - Fully Connected (Linear) Layers.  
+      - *Stride, padding, and dilation parameters*.<br>The output feature map size (height × width) is calculated as:<br>![](./img/convolutional_output.png)  
+  - Fully Connected (Linear) Layers.  
       - t
 
 
