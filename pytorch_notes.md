@@ -743,6 +743,9 @@ test_data = datasets.FashionMNIST(
   - `target_transform` to modify the **labels**.  
 * [torchvision.transforms](https://pytorch.org/vision/stable/transforms.html) module offers several commonly-used transforms. Below are examples of `ToTensor()` and one-hot encoding using `torchvision.transforms.Lambda` module.  
 ```py
+"""
+Demonstrating inline transforms
+"""
 import torch
 from torchvision import datasets
 from torchvision.transforms import ToTensor, Lambda
@@ -761,6 +764,29 @@ ds = datasets.FashionMNIST(
 ```
 * `ToTensor()` converts a PIL image or NumPy ndarray into a FloatTensor and scales the image pixel intensity values in range [0.,1.].  
 * One-hot encoding is specified in the above example to the labels via `target_transform` by first createing a tensor of size 10 (number of labels in dataset), then calling `scatter_` which assigns a `value=1` on the index as given by the label `y`  
+<br>
+
+* Using `transforms.Compose()` to chain multiple transformations together offers better readability and is more suited for complex transformation pipelines.  
+* Transformation pipeline is passed when instantiating the dataset.  
+```py
+"""
+Using transforms.Compose
+"""
+from torchvision import transforms
+
+# Define a transformation pipeline using Compose
+transform = transforms.Compose([
+    transforms.Resize((32, 32)),  # Resize images to 32x32
+    transforms.RandomHorizontalFlip(),  # Randomly flip the image horizontally
+    transforms.ToTensor(),  # Convert to tensor
+    transforms.Normalize((0.5,), (0.5,))  # Normalize with mean 0.5 and std 0.5
+])
+
+# Apply the transformation pipeline to the dataset
+train_dataset = MNIST(path, transform=transform, download=True)
+test_dataset = MNIST(path, transform=transform, download=True)
+
+```
 
 ##### <u>Creating a Custom Dataset</u>  
 * A custom dataset class **MUST** implement three functions: `__init__`, `__len__`, and `__getitem__`.  
