@@ -208,7 +208,7 @@ The key to designing, building, and tuning a model is to start simple, build up 
 ##### Problem finding (common issues):
 ###### Debugging tips:  
 * *Print Shapes*: When you’re debugging, often the quickest way to identify an issue is by printing the shapes of tensors as they pass through your model. This will help catch mismatches between layers or mistakes in reshaping operations.  
-* *Use `.to(device)` Wisely*: When moving tensors to a GPU, make sure to move both the model and data to the same device (cuda or cpu). A common error is having tensors on different devices, leading to runtime errors.  
+* *Use `.to(device)` Wisely*: When moving tensors to a GPU, make sure to move both the model and data to the same device (cuda or cpu). A common error is having tensors on different devices, leading to runtime errors. `device` should be a `torch.device` object.  
 * *Use the `torch.no_grad()` Context*: When you’re validating or testing your model, wrap the code in with `torch.no_grad()`: to disable gradient computation. This saves memory and computation time.  
 * If model is **not learning, or training is giving strange results**, first thing to check is that `optimizer.zero_grad()` is being called. Also double check model parameters are on the correct device (`.to(device)`).  
 
@@ -965,7 +965,8 @@ from torchvision import (
 
 ##### <u>Get Device for Training</u>  
 ```py
-device = (
+# creates a torch.device object
+device = torch.device(
             # cuda is available on systems with NIVIDIA GPUs
             "cuda" if torch.cuda.is_available()  
             # mps is available on macOS systems that support Metal (Apple silicon e.g. M1/M2 chips)

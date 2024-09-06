@@ -45,7 +45,7 @@ class NeuralNetwork(nn.Module):
         return logits
 
 
-device = (
+device = torch.device(
     # cuda is available on systems with NVIDIA GPUs
     "cuda" if torch.cuda.is_available()
     # mps is available on macOS systems that support Metal (Apple silicon e.g. M1/M2 chips)
