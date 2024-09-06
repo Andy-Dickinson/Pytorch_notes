@@ -67,6 +67,49 @@ Designing, building, and tuning a machine learning model is a complex process th
     - *Recurrent Layers (RNNs, LSTMs, GRUs)*: Use for sequential data like time series or text. They are good at capturing temporal dependencies.  
     - *Fully Connected Layers* (typically linear layers): Typically used at the end of a network to output a prediction. Start with a small number of fully connected layers and increase complexity as needed.  
     - *Transformer Layers*: Use for tasks involving sequences or text, where attention mechanisms can capture long-range dependencies.  
+- *Determine Number of Input & Output Features*: This will depend on the architecture and the problem you’re solving (e.g., image classification, regression, etc.). For each type of layer:  
+  - *Input Layer*:  
+    - **Input Features**: This depends on the format of your data.  
+      - *Image Data*: Size corresponds to the `height × width × number of channels` (e.g., for a 28×28 grayscale image, it would be 28×28=784 input features, or 28×28×1; for RGB images, it would be 28×28×3=2352).  
+      - *Tabular Data*: The input size will be the `number of features (columns)` in your dataset.  
+      - *Sequence Data (Text)*: The input size will be determined by the `sequence length and the embedding size`, depending on how you represent the input.  
+  - *Convolutional Layers (CNN)*: Convolutional layers take an image-like input (typically in the shape `batchsize, channels, height, width`) and perform a series of filters.  
+    - **Input Features**: The `number of channels from the previous layer` (depth of the input image or feature map).  
+    - **Output Features (Filters)**: This is a hyperparameter you choose. It determines the number of filters (kernels) that the layer applies. The output shape will depend on:  
+      - *Number of filters (output channels)* you choose.  
+      - *Filter size (kernel size)*.  
+      - *Stride, padding, and dilation parameters*.  
+<div align="center">
+
+The output feature map size (height × width) is calculated as:
+</div>
+
+$$
+\text{Output height} = \frac{\text{Input height} - \text{Kernal size} + 2 \times \text{Padding}}{\text{Stride}} + 1
+$$
+
+$$
+\text{Output width} = \frac{\text{Input width} - \text{Kernal size} + 2 \times \text{Padding}}{\text{Stride}} + 1
+$$
+
+  - Fully Connected (Linear) Layers.  
+    - t
+
+
+Input Features: The number of input features is determined by the output from the previous layer. For example, if you have an image going through convolutional layers, you need to flatten the feature map before passing it to a fully connected layer. This means multiplying the dimensions of the feature map (height × width × number of channels).
+E.g., If the output of the final convolutional layer is of shape [batch_size, 32, 7, 7] (32 filters and a 7x7 feature map), the input size to the fully connected layer will be 32 * 7 * 7 = 1568.
+Output Features: This is a hyperparameter you choose. It depends on how many features you want to pass to the next layer (commonly larger in earlier layers and smaller as you go deeper).
+1. Recurrent Layers (RNN, LSTM, GRU)
+For sequence-based models (e.g., LSTMs or GRUs), the calculation is based on:
+
+Input Features: The size of the feature vector at each time step, which could be the embedding dimension (e.g., if you use word embeddings for text).
+Output Features: This is the number of hidden units (also a hyperparameter you choose), which determines the dimensionality of the output hidden state.
+5. Pooling Layers
+Pooling layers (like MaxPooling or AveragePooling) reduce the spatial dimensions of the input.
+
+Input Features: Same as the number of features (channels) coming from the previous convolutional layer.
+Output Features: Pooling layers do not change the number of channels but reduce the height and width based on the pooling size and stride.
+If you're using 2x2 pooling with stride 2, it will reduce the height and width by half.
 - *Activation Functions*:  
     - *ReLU (Rectified Linear Unit)*: Most common choice. It's computationally efficient and helps mitigate vanishing gradient problems.  
     - *Leaky ReLU, ELU*: Variants of ReLU that address the issue of neurons "dying" (i.e., outputting zero for all inputs).  
