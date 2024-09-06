@@ -76,30 +76,25 @@ Designing, building, and tuning a machine learning model is a complex process th
   - *Convolutional Layers (CNN)*: Convolutional layers take an image-like input (typically in the shape `batchsize, channels, height, width`) and perform a series of filters.  
     - **Input Features**: The `number of channels from the previous layer` (depth of the input image or feature map).  
     - **Output Features (Filters)**: This is a hyperparameter you choose. It determines the number of filters (kernels) that the layer applies. The output shape will depend on:  
-      - *Number of filters (output channels)* you choose.  
+      - *Number of filters (output channels (depth))* you choose.  
       - *Filter size (kernel size)*.  
-      - *Stride, padding, and dilation parameters*.<br><br>The output feature map size (height × width) is calculated as:<br><br>![](./img/convolutional_output.png)  
-  - Fully Connected (Linear) Layers.  
-      - t
-
-
-
-
-
-Input Features: The number of input features is determined by the output from the previous layer. For example, if you have an image going through convolutional layers, you need to flatten the feature map before passing it to a fully connected layer. This means multiplying the dimensions of the feature map (height × width × number of channels).
-E.g., If the output of the final convolutional layer is of shape [batch_size, 32, 7, 7] (32 filters and a 7x7 feature map), the input size to the fully connected layer will be 32 * 7 * 7 = 1568.
-Output Features: This is a hyperparameter you choose. It depends on how many features you want to pass to the next layer (commonly larger in earlier layers and smaller as you go deeper).
-1. Recurrent Layers (RNN, LSTM, GRU)
-For sequence-based models (e.g., LSTMs or GRUs), the calculation is based on:
-
-Input Features: The size of the feature vector at each time step, which could be the embedding dimension (e.g., if you use word embeddings for text).
-Output Features: This is the number of hidden units (also a hyperparameter you choose), which determines the dimensionality of the output hidden state.
-5. Pooling Layers
-Pooling layers (like MaxPooling or AveragePooling) reduce the spatial dimensions of the input.
-
-Input Features: Same as the number of features (channels) coming from the previous convolutional layer.
-Output Features: Pooling layers do not change the number of channels but reduce the height and width based on the pooling size and stride.
-If you're using 2x2 pooling with stride 2, it will reduce the height and width by half.
+      - *Stride, padding, and dilation parameters*.<br><br>The output feature map size ($\text{Output}_\text{height} \times \text{Output}_\text{width}$) is calculated as:<br><br>![convolutional_pooling_output](./img/convolution_pooling_output.png)<br>Where $\text{Input}_\text{dim}$ is size of the dimension in the input (height, width, or depth),<br>$\text{Kernal}_\text{dim}$ is the size of the pooling kernel (filter) in the dimension,<br>$\text{Padding}_\text{dim}$ is the amount of padding added to the input in the dimension,<br>and $\text{Stride}_\text{dim}$ is the step size or stride of the pooling operation in the dimension.  
+  - *Fully Connected (Linear) Layers*.  
+      - **Input Features**: The `output from the previous layer` (i.e., for an image going through convolutional layers, the feature map requires flattening before passing it to a fully connected layer. This means multiplying the dimensions of the feature map (number of channels x height × width)). E.g., If output of the convolutional layer is of shape [batch_size, 32, 7, 7] (32 filters and a 7x7 feature map), the input size to the fully connected layer will be 32 * 7 * 7 = 1568.  
+      - **Output Features**: This is a hyperparameter you choose. It depends on `how many features you want to pass to the next layer` (commonly larger in earlier layers and smaller as you go deeper).  
+  - *Recurrent Layers (RNN, LSTM, GRU)*: For sequence-based models (e.g., LSTMs or GRUs).  
+    - **Input Features**: The `size of the feature vector at each time step`, which could be the embedding dimension (e.g., if you use word embeddings for text).  
+    - **Output Features**: This is the `number of hidden units` (also a hyperparameter you choose), which determines the dimensionality of the output hidden state.  
+  - *Pooling Layers*: (like MaxPooling or AveragePooling) reduce the spatial dimensions of the input.  
+    - **Input Features**: The pooling layer `does not require a specific number of channels (planes) but needs at least one channel`. It will independently apply the pooling operation across all channels. No need to specify the number of input features explicitly. Instead, only require the kernel size, stride, and padding. If input tensor has shape (batch_size, channels, height, width), pooling will be applied across the height and width dimensions for each channel.  
+    - **Output Features**: `Does not change the number of channels but reduces the height and width based on the pooling size and stride`.<br><br>The output feature map size (height × width) is calculated as:<br><br>![convolution_pooling_output](./img/convolution_pooling_output.png)<br>Where $\text{Input}_\text{dim}$ is size of the dimension in the input (height, width, or depth),<br>$\text{Kernal}_\text{dim}$ is the size of the pooling kernel (filter) in the dimension,<br>$\text{Padding}_\text{dim}$ is the amount of padding added to the input in the dimension,<br>and $\text{Stride}_\text{dim}$ is the step size or stride of the pooling operation in the dimension.  
+  - *Output Layer*:  
+    - **Output Features**: The number of output features `depends on the task`.  
+      - *Classification*: 
+        - *Binary classification*, the output size is 1 (with a sigmoid activation).  
+        - *Multi-class classification*, it is the number of classes (with softmax).  
+      - *Regression*: For a regression task, it might be 1 (or more if predicting multiple values).  
+      - *Sequence Output*: If working with a sequence prediction task, it will depend on the length of the sequence and the number of possible outputs at each time step.  
 - *Activation Functions*:  
     - *ReLU (Rectified Linear Unit)*: Most common choice. It's computationally efficient and helps mitigate vanishing gradient problems.  
     - *Leaky ReLU, ELU*: Variants of ReLU that address the issue of neurons "dying" (i.e., outputting zero for all inputs).  
