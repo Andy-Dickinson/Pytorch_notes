@@ -18,6 +18,7 @@
 | **9.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
 | **10.** | [Loss Functions](#loss-functions)<br>- Includes Overview of Distributions & SVMs |[General Loss Function Information](#loss-functions),<br>[Overview of Losses](#overview-of-losses),<br>[Overview of Distributions](#overview-of-distributions),<br>[Overview of SVMs](#overview-of-support-vector-machines-svms),<br>[Table of Loss Functions](#table-of-loss-functions)|
 | **11.** | [Optimizers](#optimizers) |[Key Concepts & Universal Methods](#optimizers),<br>[Table of Optimisers](#table-of-optimisers)|
+| **12.** | [TensorBoard - Visualising Metrics](#tensorboard---visualising-metrics) ||
 
 </div>
 
@@ -127,7 +128,7 @@ Designing, building, and tuning a machine learning model is a complex process th
 
 ###### Training and validation:  
 - *Training Setup*:  
-  - Start with a reasonable number of epochs (e.g., 10-50). Monitor the training and validation loss/metrics (Use [TensorBoard](https://www.tensorflow.org/tensorboard)). These usually include:  
+  - Start with a reasonable number of epochs (e.g., 10-50). Monitor the training and validation loss/metrics (Use [TensorBoard](#tensorboard---visualising-metrics)). These usually include:  
     - *Loss value* - which normally consists of several components like base loss and regularisation losses. You should monitor both the total loss and the individual components over time.  
     - *Results* of validation on training and test datasets.  
     - *Statistics* about gradients and weights.  
@@ -179,9 +180,8 @@ The key to designing, building, and tuning a model is to start simple, build up 
 * Keep an eye on your model’s performance on both the training and validation datasets. If your model performs well on training but poorly on validation, it’s overfitting.  
 * Use techniques like dropout, weight decay (L2 regularisation), and data augmentation to combat overfitting. Start with a simple model and gradually add these techniques as needed.  
 
-###### Visualise with TensorBoard:  
-* See [documentation](https://www.tensorflow.org/tensorboard).  
-* PyTorch has built-in support for TensorBoard. Use it to visualise metrics like loss and accuracy over time, inspect model graphs, and monitor other training statistics.  
+###### Visualise with TensorBoard:   
+* PyTorch has built-in support for [TensorBoard](#tensorboard---visualising-metrics). Use it to visualise metrics like loss and accuracy over time, inspect model graphs, and monitor other training statistics.  
 * Seeing your model’s training progress visually can help identify problems like overfitting early on.  
 
 ###### Use Captum to help interpret & understand the predictions of a PyTorch model:  
@@ -3703,5 +3703,85 @@ and $\Delta_t$ is the step size for updating the parameters at time step $t$. Th
 [⬆ Table of Optimisers ⬆](#table-of-optimisers)  
 
 [⬆ Table of Contents ⬆](#pytorch-notes)  
+
+---  
+
+### <u>TensorBoard - Visualising Metrics</u>  
+
+* See [documentation](https://www.tensorflow.org/tensorboard).  
+* [PyTorch TensorBoard documentation](https://pytorch.org/docs/stable/tensorboard.html).  
+<br>
+
+* Ensure both tensorboard and tensorflow are installed with pip:  
+
+```py
+pip install tensorflow tensorboard
+```
+* Lots of information can be logged for one experiment. To avoid cluttering the UI and have better result clustering, we can **group plots by naming them hierarchically**. For example, `Loss/train` and `Loss/test` will be grouped together, while `Accuracy/train` and `Accuracy/test` will be grouped separately in the TensorBoard interface.  
+```py
+from torch.utils.tensorboard import SummaryWriter  # TensorBoard
+
+# initialize TensorBoard SummaryWriter
+# writer will output to ./runs/ directory by default - no arguments required
+writer = SummaryWriter('runs/experiment_name')
+
+# add_scalar
+# to track scalar values over time, such as loss, accuracy, learning rate, etc
+writer.add_scalar('Loss/test', total_test_loss, epoch)
+writer.add_scalar('Accuracy/test', accuracy, epoch)
+
+# add_histogram
+# to visualise the distribution of values, such as weights, biases, and gradients
+writer.add_histogram('weights/layer1', model.layer1.weight, epoch)
+
+# add_distribution
+# to track and visualise the distribution of tensor values over time, similar to histograms but more detailed
+writer.add_distribution('layer1/activation', model.layer1.activation, epoch)
+
+# add_text
+# to log and visualise text data, such as summaries, generated text, etc
+writer.add_text('description', 'This is a description of the current training run.', global_step)
+
+# add_pr_curve
+# to log and visualise Precision-Recall curves
+writer.add_pr_curve('PR Curve', labels, predictions, global_step)
+
+# add_graph
+# to visualise the computational graph of your model
+writer.add_graph(model, input_to_model)
+
+# add_image
+# to visualise images, such as inputs, outputs, and intermediate feature maps
+writer.add_image('input_image', image_tensor, global_step)
+
+# add_images
+# to include additional information with images, such as labels or annotations
+writer.add_images('batch_images', image_tensor, global_step, dataformats='NCHW')
+
+# add_embedding
+# to visualise embeddings (e.g., word embeddings, feature embeddings) in 2D or 3D space
+writer.add_embedding(embedding_tensor, metadata=labels, tag='word_embeddings')
+
+# add_audio
+# to log and visualise audio data
+writer.add_audio('audio_example', audio_tensor, global_step)
+```
+* **Always close the writer**.  
+```py
+# close TensorBoard writer
+writer.close()
+```
+* After running your script, open a terminal  
+* Activate relevant virtual environment (if required):  
+    * On Windows: `path\to\your\venv\Scripts\activate`  
+    * On macOS/Linux: `source path/to/your/venv/bin/activate`  
+* Run TensorBoard and point it to the directory where your logs are saved (e.g., runs):  
+  * `tensorboard --logdir=<path/to/runs/directory>`  
+  * By default, TensorBoard runs on port 6006. If you need to specify a different port, use: `tensorboard --logdir=<path/to/runs/directory> --port=XXXX`  
+* Open your web browser and navigate to: [http://localhost:6006](http://localhost:6006)  
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
 
 ---  
