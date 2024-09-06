@@ -872,6 +872,7 @@ dataset = CustomImageDataset(
 ##### <u>Iterating & Visualising the Dataset</u>  
 * Can index Datasets manually like a list.  
 * Use matplotlib to visualise some samples.  
+* **Set backend**  
 ```py
 import matplotlib
 
