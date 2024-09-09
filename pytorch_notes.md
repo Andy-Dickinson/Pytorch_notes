@@ -1213,7 +1213,7 @@ scheduler.load_state_dict(torch.load('scheduler.pth'))
 * Below is example functions that can be used to save and load multiple states.  
 ```py
 def save_checkpoint(model, epoch, loss, best_accuracy, filename='checkpoint.pth', optimizer=None, scheduler=None):
-    # using a dictionary to store states prior to writting to file
+    # using a dictionary to store states prior to writing to file
     checkpoint = {
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
@@ -1237,7 +1237,7 @@ def load_checkpoint(model, filename='checkpoint.pth', optimizer=None, scheduler=
     Model, (and if using) optimizer and scheduler should be initialised first prior to calling function
     """
     # loading file to dictionary object
-    checkpoint = torch.load(filename)
+    checkpoint = torch.load(filename, weights_only=True)
     
     model.load_state_dict(checkpoint['model_state_dict'])
     
