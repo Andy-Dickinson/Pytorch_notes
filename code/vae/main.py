@@ -45,7 +45,7 @@ def main():
     # HYPERPARAMETERS
     LEARNING_RATE = 1e-3  # 3e-4  # Karpathy constant
     BATCH_SIZE = 100
-    EPOCHS = 3  # 50
+    EPOCHS = 70  # 50
 
     # GENERATED IMAGES
     DIGIT_MEAN = 0
@@ -87,8 +87,8 @@ def main():
 
     if TRAIN:
         for t in range(EPOCHS):
-            average_loss_train, avg_recon_loss_train, avg_kl_loss_train = train(train_loader, model, optimizer, device)
             print(f"Epoch {checkpoint_epoch + t + 1} ----------------------------------------")
+            average_loss_train, avg_recon_loss_train, avg_kl_loss_train = train(train_loader, model, optimizer, device)
             print(f"Average train loss: {average_loss_train:>8f}")
 
             # log train metrics to tensorboard
@@ -121,6 +121,7 @@ def main():
             if best_loss is None or average_loss_test < best_loss:
                 best_loss = average_loss_test
                 save_checkpoint(model, checkpoint_epoch + t + 1, best_loss, directory=MODEL_DIR, filename=MODEL_FILENAME, optimizer=optimizer)
+
         print("Done!")
     else:
         explore_latent(model, device=device)
@@ -538,31 +539,35 @@ def train(train_loader: DataLoader, model: torch.nn.Module, optimizer: torch.opt
     total_kl_loss = 0
     processed = 0
 
-    for batch_idx, (inputs, _) in enumerate(tqdm(train_loader, desc="Batches", unit="bat")):
-        # flatten the inputs based on their shape (from 28x28 to a vector of size 784 (MNIST))
-        batch_size = inputs.size(0)
-        num_features = torch.prod(torch.tensor(inputs.shape[1:])).item()
-        inputs_flattened = inputs.view(batch_size, num_features).to(device)
+    with tqdm(total=len(train_loader), desc="Train batches", unit="bat", leave=True) as pbar:
+        for batch_idx, (inputs, _) in enumerate(train_loader):
+            # flatten the inputs based on their shape (from 28x28 to a vector of size 784 (MNIST))
+            batch_size = inputs.size(0)
+            num_features = torch.prod(torch.tensor(inputs.shape[1:])).item()
+            inputs_flattened = inputs.view(batch_size, num_features).to(device)
 
-        optimizer.zero_grad()
+            optimizer.zero_grad()
 
-        recon_x, mean, logvar = model(inputs_flattened)
+            recon_x, mean, logvar = model(inputs_flattened)
 
-        recon_loss, kl_loss = loss_function(inputs_flattened, recon_x, mean, logvar)
-        loss = recon_loss + kl_loss
+            recon_loss, kl_loss = loss_function(inputs_flattened, recon_x, mean, logvar)
+            loss = recon_loss + kl_loss
 
-        total_loss += loss.item()
-        total_recon_loss += recon_loss.item()
-        total_kl_loss += kl_loss.item()
-        processed += batch_size
+            total_loss += loss.item()
+            total_recon_loss += recon_loss.item()
+            total_kl_loss += kl_loss.item()
+            processed += batch_size
 
-        loss.backward()
-        optimizer.step()
+            loss.backward()
+            optimizer.step()
+
+            pbar.update(1)  # update progress bar at each iteration
 
     average_loss = total_loss / processed
     avg_recon_loss = total_recon_loss / processed
     avg_kl_loss = total_kl_loss / processed
 
+    pbar.close()
     return average_loss, avg_recon_loss, avg_kl_loss
 
 
@@ -584,25 +589,29 @@ def test(test_loader: DataLoader, model: torch.nn.Module, device: torch.device =
     processed = 0
 
     with torch.no_grad():  # No need for gradients during testing
-        for inputs, _ in tqdm(test_loader, desc="Batches", unit="bat"):
-            batch_size = inputs.size(0)
-            num_features = torch.prod(torch.tensor(inputs.shape[1:])).item()
-            inputs_flattened = inputs.view(batch_size, num_features).to(device)
+        with tqdm(total=len(test_loader), desc="Test batches", unit="bat", leave=True) as pbar:
+            for inputs, _ in test_loader:
+                batch_size = inputs.size(0)
+                num_features = torch.prod(torch.tensor(inputs.shape[1:])).item()
+                inputs_flattened = inputs.view(batch_size, num_features).to(device)
 
-            recon_x, mean, logvar = model(inputs_flattened)
+                recon_x, mean, logvar = model(inputs_flattened)
 
-            recon_loss, kl_loss = loss_function(inputs_flattened, recon_x, mean, logvar)
-            loss = recon_loss + kl_loss
+                recon_loss, kl_loss = loss_function(inputs_flattened, recon_x, mean, logvar)
+                loss = recon_loss + kl_loss
 
-            total_loss += loss.item()
-            total_recon_loss += recon_loss.item()
-            total_kl_loss += kl_loss.item()
-            processed += batch_size
+                total_loss += loss.item()
+                total_recon_loss += recon_loss.item()
+                total_kl_loss += kl_loss.item()
+                processed += batch_size
 
-        average_loss = total_loss / processed
-        avg_recon_loss = total_recon_loss / processed
-        avg_kl_loss = total_kl_loss / processed
+                pbar.update(1)  # update progress bar at each iteration
 
+    average_loss = total_loss / processed
+    avg_recon_loss = total_recon_loss / processed
+    avg_kl_loss = total_kl_loss / processed
+
+    pbar.close()
     return average_loss, avg_recon_loss, avg_kl_loss
 
 
