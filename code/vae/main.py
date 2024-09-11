@@ -22,7 +22,8 @@ matplotlib.use('TkAgg')  # or 'Agg' if you're in a headless environment
 
 def main():
     """
-    review model layers, output should be to 10 dim. May want more layers, different types?? normalisation??
+    Modify explore_latent for logging to tensorboard and optionally displaying (show)
+    Different types of layers?? normalisation??
 
     work out how to run on HPC - check libraries using are installed
 
@@ -32,13 +33,14 @@ def main():
     try changing to Beta-VAE
     """
     # CONFIG
+    TRAIN = True
     USE_SEED = True
     SEED = 42
     TENSOR_BOARD_DIR = 'runs/VAE_experiment'
 
     # INPUT
     SINGLE_INPUT_ROWS = 28  # height in the case of an image
-    INPUT_FEATURES = 28  # width
+    SINGLE_INPUT_COLS = 28  # width
 
     # HYPERPARAMETERS
     LEARNING_RATE = 1e-3  # 3e-4  # Karpathy constant
@@ -83,45 +85,126 @@ def main():
     for param_group in optimizer.param_groups:
         param_group['lr'] = LEARNING_RATE
 
-    for t in range(EPOCHS):
-        average_loss_train, avg_recon_loss_train, avg_kl_loss_train = train(train_loader, model, optimizer, device)
-        print(f"Epoch {checkpoint_epoch + t + 1} ----------------------------------------")
-        print(f"Average train loss: {average_loss_train:>8f}")
+    if TRAIN:
+        for t in range(EPOCHS):
+            average_loss_train, avg_recon_loss_train, avg_kl_loss_train = train(train_loader, model, optimizer, device)
+            print(f"Epoch {checkpoint_epoch + t + 1} ----------------------------------------")
+            print(f"Average train loss: {average_loss_train:>8f}")
 
-        # log train metrics to tensorboard
-        writer.add_scalar('Average Total Loss/Train', average_loss_train, checkpoint_epoch+t+1)
-        writer.add_scalar('Average Reconstruction_Loss/Train', avg_recon_loss_train, checkpoint_epoch+t+1)
-        writer.add_scalar('Average KL_Divergence/Train', avg_kl_loss_train, checkpoint_epoch+t+1)
+            # log train metrics to tensorboard
+            writer.add_scalar('Average Total Loss/Train', average_loss_train, checkpoint_epoch+t+1)
+            writer.add_scalar('Average Reconstruction_Loss/Train', avg_recon_loss_train, checkpoint_epoch+t+1)
+            writer.add_scalar('Average KL_Divergence/Train', avg_kl_loss_train, checkpoint_epoch+t+1)
 
-        average_loss_test, avg_recon_loss_test, avg_kl_loss_test = test(test_loader, model, device)
-        print(f"Average test loss: {average_loss_test:>8f}\n")
+            average_loss_test, avg_recon_loss_test, avg_kl_loss_test = test(test_loader, model, device)
+            print(f"Average test loss: {average_loss_test:>8f}\n")
 
-        # log test metrics to tensorboard
-        writer.add_scalar('Average Total Loss/Test', average_loss_test, checkpoint_epoch+t+1)
-        writer.add_scalar('Average Reconstruction_Loss/Test', avg_recon_loss_test, checkpoint_epoch+t+1)
-        writer.add_scalar('Average KL_Divergence/Test', avg_kl_loss_test, checkpoint_epoch+t+1)
+            # log test metrics to tensorboard
+            writer.add_scalar('Average Total Loss/Test', average_loss_test, checkpoint_epoch+t+1)
+            writer.add_scalar('Average Reconstruction_Loss/Test', avg_recon_loss_test, checkpoint_epoch+t+1)
+            writer.add_scalar('Average KL_Divergence/Test', avg_kl_loss_test, checkpoint_epoch+t+1)
 
-        # generate digit
-        digit = generate_digit(model, DIGIT_MEAN, DIGIT_VAR, height=SINGLE_INPUT_ROWS, width=INPUT_FEATURES, show=SHOW_DIGIT)
+            # generate digit
+            digit = generate_digit(model, DIGIT_MEAN, DIGIT_VAR, height=SINGLE_INPUT_ROWS, width=SINGLE_INPUT_COLS, show=SHOW_DIGIT)
 
-        # log reconstructed image to tensorboard to monitor the quality of the decoder over time
-        writer.add_image(f'Generated_digit/epoch_{checkpoint_epoch+t+1}/mean_{DIGIT_MEAN}/var_{DIGIT_VAR}', digit.unsqueeze(0), checkpoint_epoch+t+1)
+            # log reconstructed image to tensorboard to monitor the quality of the decoder over time
+            writer.add_image(f'Generated_digit/epoch_{checkpoint_epoch+t+1}/mean_{DIGIT_MEAN}/var_{DIGIT_VAR}', digit.unsqueeze(0), checkpoint_epoch+t+1)
 
-        # log latent space image to tensorboard to monitor over time
-        # The mean values typically represent the center of the learned latent distribution for each latent variable. A good range for visualising the latent space is between -3 and 3. This is based on the standard normal distribution from which the VAE samples latent variables.
-        # The variance indicates the spread of the latent distribution. In most cases, the variance is positive and centered around 1 for a standard normal distribution, so visualising between 0.5 and 2 can be useful. Higher variance means more uncertainty in that area of the latent space, while lower variance indicates more certainty.
-        # early epochs - use variance 1.5-2 to capture uncertainty, mid epochs - latent space starts clustering, use variance around 1, later epochs - latent space should be more organised, use variance 0.5-1 to better visualise structure
-        latent_space_fig_arr = plot_latent_space(model, LATENT_MEAN_R, LATENT_VAR_R, img_height=SINGLE_INPUT_ROWS, img_width=INPUT_FEATURES, show=SHOW_LATENT)
-        writer.add_image(f'Latent_space/epoch_{checkpoint_epoch+t+1}', latent_space_fig_arr, checkpoint_epoch+t+1)
+            # log latent space image to tensorboard to monitor over time
+            # The mean values typically represent the center of the learned latent distribution for each latent variable. A good range for visualising the latent space is between -3 and 3. This is based on the standard normal distribution from which the VAE samples latent variables.
+            # The variance indicates the spread of the latent distribution. In most cases, the variance is positive and centered around 1 for a standard normal distribution, so visualising between 0.5 and 2 can be useful. Higher variance means more uncertainty in that area of the latent space, while lower variance indicates more certainty.
+            # early epochs - use variance 1.5-2 to capture uncertainty, mid epochs - latent space starts clustering, use variance around 1, later epochs - latent space should be more organised, use variance 0.5-1 to better visualise structure
+            latent_space_fig_arr = plot_latent_space(model, LATENT_MEAN_R, LATENT_VAR_R, img_height=SINGLE_INPUT_ROWS, img_width=SINGLE_INPUT_COLS, show=SHOW_LATENT)
+            writer.add_image(f'Latent_space/epoch_{checkpoint_epoch+t+1}', latent_space_fig_arr, checkpoint_epoch+t+1)
 
-        # saves model each time loss is bettered
-        if best_loss is None or average_loss_test < best_loss:
-            best_loss = average_loss_test
-            save_checkpoint(model, checkpoint_epoch + t + 1, best_loss, directory=MODEL_DIR, filename=MODEL_FILENAME, optimizer=optimizer)
-    print("Done!")
+            # saves model each time loss is bettered
+            if best_loss is None or average_loss_test < best_loss:
+                best_loss = average_loss_test
+                save_checkpoint(model, checkpoint_epoch + t + 1, best_loss, directory=MODEL_DIR, filename=MODEL_FILENAME, optimizer=optimizer)
+        print("Done!")
+    else:
+        explore_latent(model, device=device)
+
+        # # generate digit
+        generate_digit(model, DIGIT_MEAN, DIGIT_VAR, height=SINGLE_INPUT_ROWS, width=SINGLE_INPUT_COLS, show=SHOW_DIGIT)
+        # # generate latent space
+        plot_latent_space(model, LATENT_MEAN_R, LATENT_VAR_R, img_height=SINGLE_INPUT_ROWS, img_width=SINGLE_INPUT_COLS, show=SHOW_LATENT)
 
     # close tensorboard writer
     writer.close()
+
+
+def set_device() -> torch.device:
+    """
+    Sets device based on availability.
+
+    :return: torch.device object set to ("cuda", "mps", or "cpu")
+    """
+    return torch.device(
+        "cuda" if torch.cuda.is_available()
+        else "mps" if torch.backends.mps.is_available()
+        else "cpu"
+    )
+
+
+def explore_latent(model: torch.nn.Module, latent_dim: int = 10, n: int = 25, img_height: int = 28, img_width: int = 28, figsize: int = 15, device: torch.device = set_device()) -> None:
+    """
+    Plots latent space by varying each dimension between -3 and 3.
+    Latent vector is sampled from standard normal distribution (mean 0, variance 1).
+    This vector is cloned before each change, so vector is fixed and it is only that dimension which is varied.
+
+    :param model: Model to use to reconstruct image. Must contain reconstruct method which takes a 1D vector of size latent_dim
+    :param latent_dim: Number of elements in latent dimension vector
+    :param n: Number of images to plot along y-axis
+    :param img_height: Height of each image
+    :param img_width: Width of each image
+    :param figsize: Overall size of canvas
+    :param device: Device to use for tensor operations. If no argument passed, set_device() is called
+    :return: None
+    """
+    model.eval()
+
+    # random latent vector sampled from standard normal distribution (mean 0, variance 1)
+    z = torch.randn(latent_dim).to(device)
+
+    # create a blank canvas to hold the entire grid of images
+    figure = np.zeros((n * img_height, latent_dim * img_width), dtype=np.float32)
+
+    # create a grid for varying the latent dimensions
+    grid_x = np.arange(latent_dim)  # latent dimension indices for x-axis (0 to latent_dim-1)
+    grid_y = np.linspace(-3, 3, n)[::-1]  # values for modifying the latent vector in y-axis
+
+    # round the grid values to 2 decimal places
+    grid_y = np.round(grid_y, 2)
+
+    for i, yi in enumerate(grid_y):
+        for j in range(latent_dim):  # iterate over latent dimensions
+            z_mod = z.clone()
+            z_mod[j] = yi  # modify one dimension of cloned latent vector
+            recon_x = model.reconstruct_from_vector(z_mod)
+            digit = recon_x.detach().cpu().reshape(img_height, img_width)  # reshape vector to 2d array
+            figure[i * img_height: (i + 1) * img_height, j * img_width: (j + 1) * img_width] = digit  # place on canvas
+
+            # record mean and variance
+            mean_new = z_mod.mean()
+            var_new = z_mod.var()
+
+    # set overall figsize and title
+    plt.figure(figsize=(figsize, figsize))
+    plt.title('VAE Latent Space Exploration\nVarying dimension values between -3 and 3')
+    plt.imshow(figure, cmap="Greys_r")
+
+    # set tick positions and labels
+    pixel_range_x = set_pixel_range(latent_dim, img_width)  # define where the ticks should appear in relation to images
+    plt.xticks(pixel_range_x, grid_x)
+    plt.xlabel("Dimension")
+
+    pixel_range_y = set_pixel_range(n, img_height)
+    plt.yticks(pixel_range_y, grid_y)
+    plt.ylabel("Value")
+
+    plt.show()
+    plt.close()
 
 
 def save_checkpoint(model: torch.nn.Module, epoch: int, loss: float, directory: str = 'model_checkpoints', filename: str = 'checkpoint.pth', optimizer: Optional[torch.optim.Optimizer] = None) -> None:
@@ -212,25 +295,12 @@ def load_checkpoint(model: torch.nn.Module, directory: str = 'model_checkpoints'
     return epoch, loss
 
 
-def set_device() -> torch.device:
-    """
-    Sets device based on availability.
-
-    :return: torch.device object set to ("cuda", "mps", or "cpu")
-    """
-    return torch.device(
-        "cuda" if torch.cuda.is_available()
-        else "mps" if torch.backends.mps.is_available()
-        else "cpu"
-    )
-
-
 class Encoder(nn.Module):
     """
     Encodes input to a latent space representation with latent dim dimensions.
     Encoding is in the form mean and log variance tensors with shapes (batch size, latent dim)
     """
-    def __init__(self, input_dim: int = 784, latent_dim: int = 200) -> None:
+    def __init__(self, input_dim: int = 784, latent_dim: int = 10) -> None:
         """
         Constructor defining Encoder model architecture.
 
@@ -239,15 +309,17 @@ class Encoder(nn.Module):
         """
         super(Encoder, self).__init__()
 
-        self.input_layer = nn.Linear(input_dim, round((input_dim+latent_dim)/2))  # default vals would be 784 > 492
-        self.hidden_layer = nn.Linear(round((input_dim+latent_dim)/2), round((input_dim+latent_dim)/4))  # default vals would be 492 > 246
+        self.input_layer = nn.Linear(input_dim, 400)
+        self.hidden_layer = nn.Linear(400, 200)
+        self.hidden_layer2 = nn.Linear(200, 100)
+        self.hidden_layer3 = nn.Linear(100, 50)
 
         # latent mean and variance layers
-        self.mean_layer = nn.Linear(round((input_dim+latent_dim)/4), latent_dim)  # μ represents center of the Gaussian distribution for each latent variable
+        self.mean_layer = nn.Linear(50, latent_dim)  # μ represents center of the Gaussian distribution for each latent variable
         # logvar_layer outputs the log-variance (log(σ^2)) of the Gaussian distribution for each latent variable
         # using log-variance rather than variance directly ensures numerical stability, as variance must be positive.
         # logvar_layer can produce negative values, but they are transformed back into positive variances during reparameterisation.
-        self.logvar_layer = nn.Linear(round((input_dim+latent_dim)/4), latent_dim)  # log(σ^2) represents the uncertainty or spread of the Gaussian distribution for each latent variable
+        self.logvar_layer = nn.Linear(50, latent_dim)  # log(σ^2) represents the uncertainty or spread of the Gaussian distribution for each latent variable
 
         self.LeakyReLU = nn.LeakyReLU(0.2)
 
@@ -261,8 +333,10 @@ class Encoder(nn.Module):
         """
         h = self.LeakyReLU(self.input_layer(x))
         h2 = self.LeakyReLU(self.hidden_layer(h))
+        h3 = self.LeakyReLU(self.hidden_layer2(h2))
+        h4 = self.LeakyReLU(self.hidden_layer3(h3))
 
-        mean, logvar = self.mean_layer(h2), self.logvar_layer(h2)
+        mean, logvar = self.mean_layer(h4), self.logvar_layer(h4)
 
         return mean, logvar
 
@@ -271,7 +345,7 @@ class Decoder(nn.Module):
     """
     Decodes a latent vector into a reconstructed output (x|z).
     """
-    def __init__(self, output_dim: int = 784, latent_dim: int = 200) -> None:
+    def __init__(self, output_dim: int = 784, latent_dim: int = 10) -> None:
         """
         Constructor defining Decoder model architecture.
 
@@ -280,9 +354,11 @@ class Decoder(nn.Module):
         """
         super(Decoder, self).__init__()
 
-        self.hidden_layer = nn.Linear(latent_dim, round((output_dim+latent_dim)/4))  # default vals would be 200 > 246
-        self.hidden_layer2 = nn.Linear(round((output_dim+latent_dim)/4), round((output_dim+latent_dim)/2))  # default vals would be 246 > 492
-        self.output_layer = nn.Linear(round((output_dim+latent_dim)/2), output_dim)
+        self.hidden_layer = nn.Linear(latent_dim, 50)
+        self.hidden_layer2 = nn.Linear(50, 100)
+        self.hidden_layer3 = nn.Linear(100, 200)
+        self.hidden_layer4 = nn.Linear(200, 400)
+        self.output_layer = nn.Linear(400, output_dim)
 
         self.LeakyReLU = nn.LeakyReLU(0.2)
 
@@ -295,8 +371,10 @@ class Decoder(nn.Module):
         """
         h = self.LeakyReLU(self.hidden_layer(z))
         h2 = self.LeakyReLU(self.hidden_layer2(h))
+        h3 = self.LeakyReLU(self.hidden_layer3(h2))
+        h4 = self.LeakyReLU(self.hidden_layer4(h3))
 
-        recon_x = torch.sigmoid(self.output_layer(h2))  # output values in range [0,1]
+        recon_x = torch.sigmoid(self.output_layer(h4))  # output values in range [0,1]
 
         return recon_x
 
@@ -307,7 +385,7 @@ class VAE(nn.Module):
     Manages the reparameterisation operation.
     Contains reconstruct method to reconstruct x given a mean and log variance value.
     """
-    def __init__(self, input_dim: int = 784, latent_dim: int = 200, device: Optional[torch.device] = None) -> None:
+    def __init__(self, input_dim: int = 784, latent_dim: int = 10, device: Optional[torch.device] = None) -> None:
         """
         Constructor for VAE model.
         Map inputs to a latent space mean and log variance vectors.
@@ -359,7 +437,7 @@ class VAE(nn.Module):
         :return: Sampled latent vector with shape (batch size, latent dim)
         """
         # epsilon actually reparameterises our VAE network. This allows the mean and log-variance vectors to still remain as the learnable parameters of the network while still maintaining the stochasticity of the entire system
-        epsilon = torch.randn_like(logvar).to(self.device)  # sample noise from a normal distribution with mean 0 and variance 1. Values can be negative or positive. Tensor will have same shape as logvar
+        epsilon = torch.randn_like(logvar).to(self.device)  # sample noise from a standard normal distribution with mean 0 and variance 1. Values can be negative or positive. Tensor will have same shape as logvar
         std = torch.exp(0.5 * logvar)  # compute standard deviation (σ) and ensures it is always positive
         z = mean + std * epsilon  # reparameterisation trick to allow backpropagation through stochastic sampling
 
@@ -387,6 +465,24 @@ class VAE(nn.Module):
         recon_x = self.decode(latent_vector)
 
         return recon_x
+
+    def reconstruct_from_vector(self, latent_vector: torch.Tensor) -> torch.Tensor:
+        """
+        Reconstruct x using a fixed latent_vector.
+
+        :param latent_vector: Fixed latent vector of shape (latent_dim)
+        :return: (x|z) with shape (batch size, input dim)
+        """
+        if latent_vector.dim() == 1 and latent_vector.shape[0] == self.latent_dim:
+            # convert vector to include batch dim for decoding
+            latent_vector = latent_vector.unsqueeze(0).to(self.device)
+
+            # reconstruct using the generated latent vector
+            recon_x = self.decode(latent_vector)
+
+            return recon_x
+        else:
+            print(f"Latent vector has shape: {latent_vector.shape}. Should have shape: ({self.latent_dim})")
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
@@ -629,13 +725,13 @@ def plot_latent_space(model: torch.nn.Module, mean_range: Union[int, float, tupl
     plt.title(f'VAE Latent Space Visualisation\nMean Range: {mean_range}, Variance: {logvar}')
 
     # Set the tick positions and labels for axes
-    pixel_range = set_pixel_range(n, img_width)  # define where the ticks should appear in relation to images
-    ax.set_xticks(pixel_range)
+    pixel_range_x = set_pixel_range(n, img_width)  # define where the ticks should appear in relation to images
+    ax.set_xticks(pixel_range_x)
     ax.set_xticklabels(grid_x)
     ax.set_xlabel("Mean")
 
-    pixel_range = set_pixel_range(n, img_height)  # define where the ticks should appear in relation to images
-    ax.set_yticks(pixel_range)
+    pixel_range_y = set_pixel_range(n, img_height)  # define where the ticks should appear in relation to images
+    ax.set_yticks(pixel_range_y)
     ax.set_yticklabels(grid_y)
     ax.set_ylabel("Var")
 
