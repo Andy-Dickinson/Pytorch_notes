@@ -312,6 +312,7 @@ def enforce_reproducibility(seed=42):
 enforce_reproducibility()
 
 rand_tensor = torch.rand(shape)  # random floats 0-1 (inclusive 0, exclusive 1)
+rand_std_norm = torch.randn(shape)  # random floats from standard normal distribution with mean 0 and variance 1
 ones_tensor = torch.ones(shape)  # tensor of floats 1.
 zeros_tensor = torch.zeros(shape)  # tensor of floats 0.
 identity_tensor = torch.eye(shape)  # identity tensor (1s on diagonal, everything else is 0)
