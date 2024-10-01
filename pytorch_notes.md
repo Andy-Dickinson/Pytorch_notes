@@ -258,6 +258,32 @@ x = torch.empty(3, 4)
 data = [[1, 2],[3, 4]]
 x = torch.tensor(data)
 
+# uint8 (0-255) tensor
+x = torch.ByteTensor(data)
+
+# int16 tensor
+x = torch.ShortTensor(data)
+
+# int32 tensor
+x = torch.IntTensor(data)
+
+# int64 tensor
+x = torch.LongTensor(data)
+
+# float16 (half precision) tensor
+x = torch.HalfTensor(data)
+
+# float32 tensor
+x = torch.FloatTensor(data)
+
+# float64 tensor
+x = torch.DoubleTensor(data)
+
+# boolean tensor
+x = torch.BoolTensor([[True, False], [False, True]])
+
+
+
 # other ways to create a tensor from data - note mix of collections
 x = torch.tensor((2, 3, 5, 7, 11, 13, 17, 19))
 x = torch.tensor(((2, 4, 6), [3, 6, 9]))
@@ -286,6 +312,13 @@ x_rand = torch.rand_like(x, dtype=torch.float) # overrides the datatype of x
 # cloned tensor retains the computation graph, which means it will still track operations for automatic differentiation if the original tensor does
 y = x.clone()
 y = x.detach().clone()  # clones with autograd turned off - autograd will remain on for x
+
+
+# convert from one type to another
+# using .to(dtype)
+x = t.to(torch.<unit>)  # float16, float32, float64, int16, int32, int64, uint8, bool
+# using shorthand methods
+x = t.<type>()  # half, float, double, short, int, long, byte, bool
 ```
 
 ###### With random or constant values:  
@@ -391,16 +424,15 @@ last_ele_2nd_dim = 3d_tensor[:, -1]  # Slice last ele of 2nd dimension for all r
 
 ###### Joining tensors:  
 ```py
-# torch.cat concatenates a sequence of tensors along a given dimension 
-#   - tensors must have the same shape except along the dimension specified by dim
-# torch.stack concatenates a sequence of tensors along a new dimension
-#   - tensors must have exactly the same shape
 tensor = torch.tensor([[1, 2, 3],
                        [4, 5, 6]])  # shape: [2, 3]
 
 
+# torch.cat concatenates a sequence of tensors along a given dimension 
+#   - tensors must have the same shape except along the dimension specified by dim
+
 # torch.cat(dim=0) - vertical concatenation (row-wise)
-joined_0 = torch.cat([tensor, tensor, tensor])  # default dim=0
+joined_0 = torch.cat((tensor, tensor, tensor))  # default dim=0
 """ tensor([[1, 2, 3],
             [4, 5, 6],
             [1, 2, 3],
@@ -409,9 +441,13 @@ joined_0 = torch.cat([tensor, tensor, tensor])  # default dim=0
             [4, 5, 6]])  shape: [6, 3] """
 
 # torch.cat(dim=1) - horizontal concatenation (column-wise)
-joined_1 = torch.cat([tensor, tensor, tensor], dim=1)  
+joined_1 = torch.cat((tensor, tensor, tensor), dim=1)  
 """ tensor([[1, 2, 3, 1, 2, 3, 1, 2, 3],
             [4, 5, 6, 4, 5, 6, 4, 5, 6]])  shape: [2, 9] """
+
+
+# torch.stack concatenates a sequence of tensors along a new dimension
+#   - tensors must have exactly the same shape
 
 # torch.stack(dim=0) - creates a new dimension at the start (like adding layers)
 stacked_0 = torch.stack([tensor, tensor, tensor])  # default dim=0
@@ -566,7 +602,7 @@ tensor.fill_(7)  # every element in tensor will be 7
 |[torch.t](#torcht)| Transpose a tensor |
 |[Flatten](#flatten)| Merge dimensions from a start to end dimension |
 |[Numel](#numel)| Return total number of elements in tensor |
-|[Nonzero]()| Returns a tensor containing the indices of all non-zero elements |
+|[Nonzero](#nonzero)| Returns a tensor containing the indices of all non-zero elements |
 |[Reshape](#reshape)| Reshape tensor to custom shape (total elements must be of same number)<br>- tensor does not need to be contiguous |
 |[View](#view)| Reshape tensor to custom shape (total elements must be of same number)<br>- tensor must be contiguous, and modifying returned affects original  |
 |[Unsqueeze](#unsqueeze)| Add a dimension of extent 1 at dimension specified |
