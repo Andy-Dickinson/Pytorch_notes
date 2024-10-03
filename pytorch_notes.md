@@ -1405,6 +1405,7 @@ for param in model.parameters():
 ###### Piecewise linear and thresholding functions:  
 |Function|<div align="center">Type and Differentiability</div>|Graph|
 |:---:|:---|:---:|
+|[Sign](#sign)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Not differentiable at zero</li></ul>|<img src="./img/sign.png" alt="ReLU" width="200">|
 |[ReLU (Rectified Linear Unit)](#relu-rectified-linear-unit)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Differentiable everywhere except at zero</li></ul>|<img src="./img/ReLU.png" alt="ReLU" width="200">|
 |[Leaky ReLU](#leaky-relu)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Differentiable everywhere, including at zero</li></ul>|<img src="./img/LeakyReLU.png" alt="Leaky_ReLU" width="200">|
 |[PReLU (Parametric ReLU)](#prelu-parametric-relu)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Differentiable everywhere</li></ul>|<img src="./img/PReLU.png" alt="PReLU" width="200">|
@@ -1443,6 +1444,29 @@ for param in model.parameters():
 |:---:|:---|:---|
 |[MultiheadAttention](#multiheadattention)|<ul><li>Non-linear (depending on activation)</li><li>Self-attention mechanism</li><li>Transformational</li></ul><ul><li>Differentiable everywhere (if components are differentiable, such as activations)</li></ul>|A core component of the Transformer architecture, MultiheadAttention allows the model to jointly attend to information from different representation subspaces at different positions. It extends the self-attention mechanism by splitting the input into multiple heads, each of which performs attention separately. The outputs of the heads are concatenated and transformed, enabling the model to capture a variety of dependencies from different perspectives.<br>Commonly used in models for NLP tasks like machine translation, summarisation, and language understanding.|
 
+
+###### Sign:  
+
+> `torch.sign(<tensor>)`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.sign.html).  
+
+$$
+\text{Sign}(x) = \begin{cases}
+1 & \text{if } x \gt 0 \\
+0 & \text{if } x = 0 \\
+-1 & \text{if } x \lt 0 \\
+\end{cases}
+$$
+
+<p align="center">
+<img src="./img/sign.png" alt="Sign" width="400"> 
+</p>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
+|<ul><li>Simple and fast computation</li><li>Useful for binary classification tasks</li><li>Provides clear decision boundaries</li></ul>|<ul><li>Not differentiable at zero, limiting its use in gradient-based optimisation</li><li>Can lead to unstable training in neural networks</li></ul>|<ul><li>Used in binary classification, decision-making processes, and certain neural network architectures</li><li>Applicable in signal processing and thresholding problems</li></ul>|<ul><li>Highly efficient due to simple comparison operations</li><li>Requires minimal computational resources</li></ul>|
+
+[⬆ Table of Functions ⬆](#table-of-activation-functions)   
 
 ###### ReLU (Rectified Linear Unit):  
 
