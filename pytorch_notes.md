@@ -1405,6 +1405,7 @@ for param in model.parameters():
 ###### Piecewise linear and thresholding functions:  
 |Function|<div align="center">Type and Differentiability</div>|Graph|
 |:---:|:---|:---:|
+|[Step](#step)|<ul><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Not differentiable at zero</li></ul>|<img src="./img/step.jpg" alt="ReLU" width="200">|
 |[Sign](#sign)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Not differentiable at zero</li></ul>|<img src="./img/sign.png" alt="ReLU" width="200">|
 |[ReLU (Rectified Linear Unit)](#relu-rectified-linear-unit)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Differentiable everywhere except at zero</li></ul>|<img src="./img/ReLU.png" alt="ReLU" width="200">|
 |[Leaky ReLU](#leaky-relu)|<ul><li>Piecewise linear</li><li>Non-linear</li><li>Thresholding</li></ul><ul><li>Differentiable everywhere, including at zero</li></ul>|<img src="./img/LeakyReLU.png" alt="Leaky_ReLU" width="200">|
@@ -1444,6 +1445,41 @@ for param in model.parameters():
 |:---:|:---|:---|
 |[MultiheadAttention](#multiheadattention)|<ul><li>Non-linear (depending on activation)</li><li>Self-attention mechanism</li><li>Transformational</li></ul><ul><li>Differentiable everywhere (if components are differentiable, such as activations)</li></ul>|A core component of the Transformer architecture, MultiheadAttention allows the model to jointly attend to information from different representation subspaces at different positions. It extends the self-attention mechanism by splitting the input into multiple heads, each of which performs attention separately. The outputs of the heads are concatenated and transformed, enabling the model to capture a variety of dependencies from different perspectives.<br>Commonly used in models for NLP tasks like machine translation, summarisation, and language understanding.|
 
+
+###### Step:  
+
+> Implement using `torch.where` function:
+> `def step_function(x,theta=0):`
+> &emsp;`return torch.where(x >= theta, torch.tensor(1.0), torch.tensor(0.0))`  
+* See [documentation](https://pytorch.org/docs/stable/generated/torch.where.html).  
+
+$$
+\text{Binary Step}(x) = \begin{cases}
+1 & \text{if } x \geq 0 \\
+0 & \text{if } x \lt 0 \\
+\end{cases}
+$$
+
+$$
+\text{Threshold Step}(x) = \begin{cases}
+1 & \text{if } x \geq \theta \\
+0 & \text{if } x \lt \theta \\
+\end{cases}
+$$
+<div align="center">
+
+Where $\theta$ is a custom threshold value.
+</div>
+
+<p align="center">
+<img src="./img/step.jpg" alt="Sign" width="400"> 
+</p>
+
+|<div align="center">Pros</div>|<div align="center">Cons</div>|<div align="center">Use</div>|<div align="center">Computational Efficiency</div>|
+|:---|:---|:---|:---|
+|<ul><li>Simple and easy to implement: The step function involves very basic computation (comparison to a threshold)</li><li>Non-linear behavior: Introduces non-linearity into the model, which is useful for handling complex decision boundaries</li><li>Binary decision-making: Ideal for tasks where hard classification or binary decisions are needed, such as early perceptron models</li><li>Fast evaluation: Since it only requires checking if the input is above or below a threshold, it can be very fast in certain low-resource environments</li></ul>|<ul><li>Non-differentiable: The step function has a discontinuity, making it non-differentiable at the threshold (e.g., at x=0), which makes it unsuitable for use in gradient-based optimisation techniques like backpropagation in neural networks</li><li>No gradient information: In regions where the function is constant (either 0 or 1), the gradient is zero, which means no useful information for updating weights in training</li><li>Can lead to stuck models: If used in training a neural network, the lack of gradients can cause the model to get "stuck" without making progress during learning</li></ul>|<ul><li>Early neural networks: Historically used in early perceptron models before the introduction of differentiable activation functions (like sigmoid or ReLU)</li><li>Binary classifiers: Suitable for tasks that require binary classification, hard thresholding, or decision-making with clear-cut boundaries</li><li>Threshold-based decision systems: Often used in rule-based or threshold-based systems where continuous gradients are not required</li></ul>|<ul><li>Extremely fast: The step function is computationally very efficient since it only requires a simple comparison (checking if x is greater than or less than a threshold). No complex mathematical operations are involved, so it is one of the least expensive functions to compute in terms of runtime</li><li>Minimal resource usage: Suitable for resource-constrained systems or environments that prioritise fast binary decisions over training sophisticated models</li></ul>|
+
+[⬆ Table of Functions ⬆](#table-of-activation-functions)   
 
 ###### Sign:  
 
