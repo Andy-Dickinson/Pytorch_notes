@@ -13,12 +13,13 @@
 | **4.** | [Datasets & DataLoaders](#datasets--dataloaders) | [Loading datasets](#loading-datasets),<br>[Transforms](#transforms),<br>[Creating a Custom Dataset](#creating-a-custom-dataset),<br>[Iterating & Visualising the Dataset](#iterating--visualising-the-dataset),<br>[Preparing Data for Training with DataLoaders](#preparing-data-for-training-with-dataloaders) |
 | **5.** | [Building a Neural Network<br>& Using Models](#building-a-neural-network--using-models) | [Get Device for Training](#get-device-for-training),<br>[Define the Class](#define-the-class),<br>[Using a Model](#using-a-model),<br>[Saving & Loading Models](#saving--loading-models) |
 | **6.** | [`torch.nn` Module](#torchnn-module) | Basic building blocks for graphs including neural net:<br>**layers, activation functions & loss functions** |
-| **7.** | [Activation Functions](#activation-functions) |[Information on Function Types & Problems](#activation-functions),<br>[Table of Activation Functions](#table-of-activation-functions)|
-| **8.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
-| **9.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
-| **10.** | [Loss Functions](#loss-functions)<br>- Includes Overview of Distributions & SVMs |[General Loss Function Information](#loss-functions),<br>[Overview of Losses](#overview-of-losses),<br>[Overview of Distributions](#overview-of-distributions),<br>[Overview of SVMs](#overview-of-support-vector-machines-svms),<br>[Table of Loss Functions](#table-of-loss-functions)|
-| **11.** | [Optimizers](#optimizers) |[Key Concepts & Universal Methods](#optimizers),<br>[Table of Optimisers](#table-of-optimisers)|
-| **12.** | [TensorBoard - Visualising Metrics](#tensorboard---visualising-metrics) ||
+| **7.** | [torch.nn.functional](#torchnnfunctional) | |
+| **8.** | [Activation Functions](#activation-functions) |[Information on Function Types & Problems](#activation-functions),<br>[Table of Activation Functions](#table-of-activation-functions)|
+| **9.** | [Automatic Differentiation With Autograd](#automatic-differentiation-with-autograd) | [Compute Gradients](#compute-gradients),<br>[Operations & Tracking](#operations--tracking) |
+| **10.** | [Optimising Model Parameters - Train/Test](#optimising-model-parameters---traintest) | [Hyperparameters](#hyperparameters),<br>[Initialise Loss Function](#initialise-loss-function),<br>[Initialise Optimizer](#initialise-optimizer),<br>[Optimisation Process](#optimisation-process),<br>[Define Train/Test Loops](#define-traintest-loops),<br>[Iterate Train/Test Loops in Epochs](#iterate-traintest-loops-in-epochs),<br>[Metrics](#metrics) |
+| **11.** | [Loss Functions](#loss-functions)<br>- Includes Overview of Distributions & SVMs |[General Loss Function Information](#loss-functions),<br>[Overview of Losses](#overview-of-losses),<br>[Overview of Distributions](#overview-of-distributions),<br>[Overview of SVMs](#overview-of-support-vector-machines-svms),<br>[Table of Loss Functions](#table-of-loss-functions)|
+| **12.** | [Optimizers](#optimizers) |[Key Concepts & Universal Methods](#optimizers),<br>[Table of Optimisers](#table-of-optimisers)|
+| **13.** | [TensorBoard - Visualising Metrics](#tensorboard---visualising-metrics) ||
 
 </div>
 
@@ -921,6 +922,11 @@ matplotlib.use('TkAgg')  # noqa: E402 comment here suppresses formatting warning
 
 from matplotlib import pyplot as plt
 
+# not sure if the above for setting backend is required when using this:
+# set the param
+plt.rc('figure', autolayout=True)
+plt.rc('image', cmap='magma')
+
 # maps numerical labels (0-9) to corresponding class names
 labels_map = {
     0: "T-Shirt",
@@ -1350,20 +1356,151 @@ for param in model.parameters():
 * [Loss functions](https://pytorch.org/docs/stable/nn.html#loss-functions) quantify the difference between the predicted output and the actual target, guiding the optimisation process. See [Loss Function](#loss-functions) below for more information.  
 * [Containers](https://pytorch.org/docs/stable/nn.html#containers) organize layers and operations in a modular, sequential manner.  
 * [Convolution layers](https://pytorch.org/docs/stable/nn.html#convolution-layers) detect spatial hierarchies in data, commonly used in image processing for extracting features.  
+```py
+# convolution layers
+# with square kernels and equal stride
+m = nn.Conv2d(16, 33, 3, stride=2)
+
+# in_channels (int) – Number of channels in the input image
+# out_channels (int) – Number of channels produced by the convolution
+# kernel_size (int or tuple) – Size of the convolving kernel
+
+input = torch.randn(20, 16, 51, 101) # H-3
+output = m(input)
+output.shape
+```
 * [Pooling layers](https://pytorch.org/docs/stable/nn.html#pooling-layers) reduce the spatial dimensions of the data while retaining important information, typically for down-sampling by selecting the maximum or average value in a region.  
+```py
+# pooling layers
+# pool of square window of size=3, stride=2
+maxPool = nn.MaxPool2d(3, stride=2)
+# kernel_size – the size of the window to take a max over
+
+input = torch.randn(20, 16, 50, 32)
+output = maxPool(input)
+output.shape
+
+
+# global pooling layers
+# pool of square window of size=3, stride=2
+globalAvgPool = nn.AdaptiveAvgPool2d((1, 1))
+# x = torch.mean(x.view(x.size(0), x.size(1), -1), dim=2)
+
+input = torch.randn(20, 16, 50, 32)
+output = globalAvgPool(input)
+output.shape
+```
 * [Padding layers](https://pytorch.org/docs/stable/nn.html#padding-layers) adjust the spatial dimensions of data by adding extra values (typically zeros) around the edges, useful for maintaining dimensionality before and after convolutions.  
 * [Non-linear activations](https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity) (e.g. ReLU) are what create the complex mappings between the model’s inputs and outputs. They are applied after linear transformations to introduce nonlinearity, helping neural networks learn a wide variety of phenomena. See [Activation Functions](#activation-functions) below for more information.  
 * [Linear layers](https://pytorch.org/docs/stable/nn.html#linear-layers) perform affine transformations (linear transformations), used to map inputs to outputs, often as the final layer in a network (aka dense layer or fully connected layer).  
+```py
+# fully connected layers
+input = torch.randn(15, 9)
+weight = torch.randn(7,9)
+
+# torch.mm(input, weight.t())
+
+fcl = nn.Linear(in_features=9, out_features=7, bias=False)
+fcl.weght = nn.Parameter(weight) # initialise weight
+fcl.weght
+output = fcl(input)
+output.shape
+```
 * [Dropout layers](https://pytorch.org/docs/stable/nn.html#dropout-layers) helps reduce overfitting by randomly setting a fraction of input units (or elements with a specifyied probability) to zero during training.  
+```py
+# regularisation layers
+input = torch.randn(20, 16)
+print (torch.sum(input))
+
+do = nn.Dropout(p=0.5)
+output = do(input)
+print (torch.sum(output))
+
+output.shape
+```
 * [Sparce layers](https://pytorch.org/docs/stable/nn.html#sparse-layers) efficiently handle operations with sparse tensors, commonly used in large-scale data with many zeroes.  
 * [Normalisation layers](https://pytorch.org/docs/stable/nn.html#normalization-layers) stabilise and accelerate training by normalising activations (across the batch or across the layer).  
+```py
+# normalisation layers
+# Image Example
+N, C, H, W = 20, 5, 10, 10
+input = torch.randn(N, C, H, W)
+print (torch.mean(input))
+
+# Normalise over the last three dimensions (i.e. the channel and spatial dimensions)
+# as shown in the image below
+layer_norm = nn.LayerNorm([C, H, W])
+output = layer_norm(input)
+print (output.shape)
+
+print (torch.mean(output))
+print (torch.var(output))
+```
 * [Recurrent layers](https://pytorch.org/docs/stable/nn.html#recurrent-layers) process sequential data by maintaining a hidden state that can capture temporal dependencies and patterns over time. Current input is influenced by previous inputs due to the use of a feedback loop. Includes long short-term memory and Elman RNN.  
+```py
+# recurrent layers
+input = torch.randn(5, 3, 10)
+h0 = torch.randn(2, 3, 20)
+
+rnn = nn.RNN(10, 20, 2)
+
+output, hn = rnn(input, h0)
+print (output.shape, hn.shape)
+```
 * [Transformer layers](https://pytorch.org/docs/stable/nn.html#transformer-layers) handle sequence data by leveraging attention mechanisms for parallelisable processing - used in language models like GPT and BERT.  
 * [Distance functions](https://pytorch.org/docs/stable/nn.html#distance-functions) measure similarity or dissimilarity between data points. `nn.PairwiseDistance` calculates Euclidean distance.  
 * [Vision layers](https://pytorch.org/docs/stable/nn.html#vision-layers) contains specialised layers for image processing tasks.  
 * [Shuffle layers](https://pytorch.org/docs/stable/nn.html#shuffle-layers) rearrange data order, often used to improve generalisation.  
 * [DataParallel Layers](https://pytorch.org/docs/stable/nn.html#module-torch.nn.parallel) distribute computations across multiple GPUs or machines.  
 * [Utilities](https://pytorch.org/docs/stable/nn.html#module-torch.nn.utils) helper functions and classes for managing and manipulating models and tensors - clip parameter gradients, flatten/unflatten Module parameters to/from a single vector, fuse Modules with BatchNorm modules, convert Module parameter memory formats, apply/remove weight normalisation from Module parameters, initialise Module parameters, pruning Module parameters, parametisation.  
+
+<br>
+
+[⬆ Table of Contents ⬆](#pytorch-notes)    
+
+---  
+
+### <u>torch.nn.functional</u>  
+
+[Documentation](https://pytorch.org/docs/stable/nn.functional.html)  
+> Stateless Functions for various neural network operations - lightweight
+> Provides flexibility - separates the functionality (the operation) from the layer parameters.
+* They **do not store any internal parameters** (unlike [torch.nn.Module](#torchnn-module) - which you should use when you want to automatically track parameters during training), e.g. weights and biases. Instead perform operations directly on the inputs and return the output.   
+* Contains many of the same functions as can be found in [torch.nn.Module](#torchnn-module).  
+  
+```py
+# example showing one hot encoding
+import torch
+import torch.nn.functional as F  # usually imported as F
+
+# class labels (for a batch of samples)
+labels = torch.LongTensor([0, 2, 1, 3])  # Ensure dtype is LongTensor
+
+# convert to one-hot encoding (assume 4 classes, so num_classes=4)
+one_hot_labels = F.one_hot(labels, num_classes=4)
+
+print(one_hot_labels) 
+"""
+tensor([[1, 0, 0, 0],
+        [0, 0, 1, 0],
+        [0, 1, 0, 0],
+        [0, 0, 0, 1]])
+"""
+```
+
+|Functions|<div align="center">Commonly used</div>|
+|:---:|:---|
+|[Convolution](https://pytorch.org/docs/stable/nn.functional.html#convolution-functions)|1D,2D,3D convolutions,<br>transpose2D|
+|[Pooling](https://pytorch.org/docs/stable/nn.functional.html#pooling-functions)|Max, average pool,<br>adaptive pooling (for resizing)|
+|[Attention mechanisms](https://pytorch.org/docs/stable/nn.functional.html#attention-mechanisms)||
+|[Non-linear activations](https://pytorch.org/docs/stable/nn.functional.html#non-linear-activation-functions)|ReLU, Leaky_ReLU, softmax, sigmoid|
+|[Linear](https://pytorch.org/docs/stable/nn.functional.html#linear-functions)|Linear - fully connected|
+|[Dropout](https://pytorch.org/docs/stable/nn.functional.html#dropout-functions)|dropout, dropout2D|
+|[Sparse](https://pytorch.org/docs/stable/nn.functional.html#sparse-functions)|One hot, embedding, embedding bag|
+|[Distance](https://pytorch.org/docs/stable/nn.functional.html#distance-functions)|Pariwise distance, cosine similarity|
+|[Loss](https://pytorch.org/docs/stable/nn.functional.html#loss-functions)|Cross Entropy, MSE, Binary Cross Entropy, Negative log likelihood (NLL)
+|[Vision](https://pytorch.org/docs/stable/nn.functional.html#vision-functions)|Interpolate, grid sample, affine sample|
+|[DataParallel](https://pytorch.org/docs/stable/nn.functional.html#dataparallel-functions-multi-gpu-distributed)||
 
 <br>
 
