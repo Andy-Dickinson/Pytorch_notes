@@ -1934,6 +1934,7 @@ Default: 1.0
 
 > `torch.nn.Sigmoid()`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Sigmoid.html#torch.nn.Sigmoid).  
+* Advisable to **NOT use in hidden layers** due to widespread saturation makeing learning difficult. Only strongly sensitive to inputs when `x` is clsoe to 1.  
 
 $$
 \text{Sigmoid}(x) = \sigma(x) = \frac{1}{1 + \text{exp}(-x)}
@@ -1953,6 +1954,7 @@ $$
 
 > `torch.nn.Tanh()`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Tanh.html#torch.nn.Tanh).  
+* Advisable to **NOT use in hidden layers** due to widespread saturation makeing learning difficult. Only strongly sensitive to inputs when `x` is clsoe to 1.  
 
 $$
 \text{Tanh}(x) = \frac{2}{1 + \text{exp}(-2x)} - 1 = \frac{\text{sinh}(x)}{\text{cosh}(x)} = \frac{\text{exp}(x)-\text{exp}(-x)}{\text{exp}(x)+\text{exp}(-x)}
@@ -2145,8 +2147,8 @@ $$
 > 
 > `dim (int) – a dimension along which LogSoftmax will be computed.`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.LogSoftmax.html#torch.nn.LogSoftmax).  
-
-Applies the $\text{log}(\text{Softmax}(x))$ function to an n-dimensional input Tensor.  
+* Applies the $\text{log}(\text{Softmax}(x))$ function to an n-dimensional input Tensor.  
+* May be used as a **kind of switch**.  
 
 $$
 \text{LogSoftmax}(x_i) = \text{log}(\frac{\text{exp}(x_i)}{\sum_j \text{exp}(x_j)})
@@ -2168,6 +2170,7 @@ Where $x_i$ is an element of the input vector.
 > 
 > `dim (int) - a dimension along which Softmax will be computed (so every slice along dim will sum to 1).`  
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html#torch.nn.Softmax).  
+* May be used as a **kind of switch**.  
 
 $$
 \text{Softmax}(x_i) = \frac{\text{exp}(x_i)}{\sum_{j}\text{exp}(x_j)}
@@ -2189,6 +2192,7 @@ Elements of the n-dimensional output Tensor lie in the range $[0,1]$ and sum to 
 > 
 > `dim (int) – A dimension along which Softmin will be computed (so every slice along dim will sum to 1).`    
 * See [documentation](https://pytorch.org/docs/stable/generated/torch.nn.Softmin.html#torch.nn.Softmin).  
+* May be used as a **kind of switch**.  
 
 $$
 \text{Softmin}(x_i) = \frac{\text{exp}(-x_i)}{\sum_{j}\text{exp}(-x_j)}
