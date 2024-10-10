@@ -1164,8 +1164,14 @@ for name, param in model.named_parameters():
 * Model should be pre-trained (unless you are varifying the models architecture or benchmarking its performance prior to training etc.).  
 * **Do NOT** directly call `forward()` - automatically called (via [nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html) when passing the model input data).
 ```py
+"""
+Set requires_grad=True when if you want to compute gradients with respect to a tensor
+(usually for training neural networks rather than just using a model). 
+Usually, such tensors are our model's parameters, 
+such as the weights and biases of feed-forward networks, and convolution filters
+"""
 # create input data, typically will load in the data > see Datasets & DataLoaders above
-X = torch.rand(1, 28, 28, device=device)  # [batch size, height, width], [1 image, 28 x 28]
+X = torch.rand((1, 28, 28), requires_grad=True, device=device)  # [batch size, height, width], [1 image, 28 x 28]
 
 # forward pass through the model
 # Example input shape: [1,28,28] -> output shape: [batch_size, output_classes_defined_in_NeuralNetwork], [1,10]
@@ -2274,6 +2280,7 @@ loss = torch.nn.functional.binary_cross_entropy_with_logits(z, y)  # computes th
 * To compute gradients of a loss function with respect to its variables (e.g. weights and biases), need to set `requires_grad` property of those tensors. Gradients will not be available for other graph nodes.  
     * Either set `requires_grad` **when creating tensor**,  
     * or later with `x.requires_grad_(True)` method.  
+* Usually, such tensors are our model's parameters, such as the weights and biases of feed-forward networks, and convolution filters.  
 *  Can only perform gradient calculations using `backward()` **once on a given graph** by default, for performance reasons. If we need to do several backward calls on the same graph, we need to pass `retain_graph=True` to the `backward()` call.  
 *  **Zero gradients between training iterations** to prevent accumulation from multiple backward passes, see below.  
 *  Need to call `optimizer.step()` to **actually update the weights**. See [optimisers](#optimizers) and [optimisation process](#optimisation-process).  
@@ -2875,8 +2882,8 @@ Key Concepts:
 ###### Multi-class classification:  
 |Function<br>(click for formula and parameters)|Function class<br>(click for documentation)|For task|<div align="center">Notes</div>|
 |:---:|:---:|:---:|:---|
-|[Negative Log Likelihood (NLL)](#negative-log-likelihood-nllloss)|[nn.NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss)|Classification|**Pros:**<ul><li>Works well with probabilistic outputs (softmax or log-softmax)</li><li>Provides a direct measure of how "unlikely" the model considers the correct class given the prediction</li></ul>**Cons:**<ul><li>Requires a log-softmax to be applied beforehand</li></ul>**Computational Efficiency:**<ul><li>Slightly less efficient than cross entropy due to separate softmax</li></ul>**Best Use:**<ul><li>When using a model that already applies log-softmax or where more control over the application of softmax is needed</li></ul>**Additional Notes:**<ul><li>Class imbalance - NLLLoss allows for weighting classes differently using the weight parameter, which is useful in cases of class imbalance</li><li>Logits vs. probabilities - ensure that the inputs are log-probabilities, not raw logits. If working with raw logits, consider using cross entropy loss for convenience</li><li>Smoothing techniques - label smoothing can be applied before NLL to make the model less confident and help generalise better</li></ul>|
-|[Cross Entropy (CE)](#cross-entropy-ce)|[nn.CrossEntropyLoss](https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html#torch.nn.CrossEntropyLoss)|Classification|**Pros:**<ul><li>Combines softmax and NLL in one operation, making it easier to implement</li></ul>**Cons:**<ul><li>Only works with logits (raw model outputs)</li></ul>**Computational Efficiency:**<ul><li>Efficient as it handles softmax and NLL together</li></ul>**Best Use:**<ul><li>Multi-class classification problems (e.g., image recognition)</li></ul>**Additional Notes:**<ul><li>Class weighting - use the weight parameter to address class imbalance, ensuring that minority classes are not overshadowed during training</li><li>Label encoding - target labels should be provided as class indices, not as one-hot encoded vectors, to work correctly</li><li>Softmax temperature - in certain advanced applications, modifying the temperature of the softmax (making it "sharper" or "softer") before applying CE can help control the confidence levels of the model’s predictions</li></ul>|
+|[Negative Log Likelihood (NLL)](#negative-log-likelihood-nllloss) - Based on the principle of Maximum Likelihood|[nn.NLLLoss](https://pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss)|Classification|**Pros:**<ul><li>Works well with probabilistic outputs (softmax or log-softmax)</li><li>Provides a direct measure of how "unlikely" the model considers the correct class given the prediction</li></ul>**Cons:**<ul><li>Requires a log-softmax to be applied beforehand</li></ul>**Computational Efficiency:**<ul><li>Slightly less efficient than cross entropy due to separate softmax</li></ul>**Best Use:**<ul><li>When using a model that already applies log-softmax or where more control over the application of softmax is needed</li></ul>**Additional Notes:**<ul><li>Class imbalance - NLLLoss allows for weighting classes differently using the weight parameter, which is useful in cases of class imbalance</li><li>Logits vs. probabilities - ensure that the inputs are log-probabilities, not raw logits. If working with raw logits, consider using cross entropy loss for convenience</li><li>Smoothing techniques - label smoothing can be applied before NLL to make the model less confident and help generalise better</li></ul>|
+|[Cross Entropy (CE)](#cross-entropy-ce) - Based on the principle of Maximum Likelihood|[nn.CrossEntropyLoss](https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html#torch.nn.CrossEntropyLoss)|Classification|**Pros:**<ul><li>Combines softmax and NLL in one operation, making it easier to implement</li></ul>**Cons:**<ul><li>Only works with logits (raw model outputs)</li></ul>**Computational Efficiency:**<ul><li>Efficient as it handles softmax and NLL together</li></ul>**Best Use:**<ul><li>Multi-class classification problems (e.g., image recognition)</li></ul>**Additional Notes:**<ul><li>Class weighting - use the weight parameter to address class imbalance, ensuring that minority classes are not overshadowed during training</li><li>Label encoding - target labels should be provided as class indices, not as one-hot encoded vectors, to work correctly</li><li>Softmax temperature - in certain advanced applications, modifying the temperature of the softmax (making it "sharper" or "softer") before applying CE can help control the confidence levels of the model’s predictions</li></ul>|
 |[Multi-Margin Loss](#multi-margin-loss)|[nn.MultiMarginLoss](https://pytorch.org/docs/stable/generated/torch.nn.MultiMarginLoss.html#torch.nn.MultiMarginLoss)|Multi-class classification|**Pros:**<ul><li>Margin maximisation - like hinge loss, it encourages the model to maintain a margin between the correct and incorrect classes</li><li>Flexible margin - the margin can be adjusted for different classes, making it adaptable to different classification tasks</li></ul>**Cons:**<ul><li>Not commonly used - less commonly used than cross entropy loss, which is generally more effective for multi-class tasks</li><li>Sensitive to scaling - the performance can be sensitive to the scaling of input features</li></ul>**Computational Efficiency:**<ul><li>Slightly more computationally intensive than cross entropy loss due to the multiple margin calculations but still practical for most applications</li></ul>**Best Use:**<ul><li>Suitable for multi-class classification tasks, particularly when margin maximisation is desired</li></ul>**Additional Notes:**<ul><li>Comparison with cross entropy - multi-margin loss can be seen as an alternative to cross entropy loss, though cross entropy is typically preferred for its probabilistic interpretation</li><li>Input scaling - careful input scaling can improve the performance and stability of the loss function</li></ul>|
 
 ###### Multi-label classification:  
@@ -3049,6 +3056,7 @@ Where $\mu_i$ and $\sigma_i^2$ are the predicted mean and variance, respectively
 <br>
 
 * BCE is used for binary classification tasks, measuring the loss between two classes, penalising incorrect classifications.  
+* Expects **a single probability value as input** (usually it's the output of the Sigmoid layer)
 
 $$
 \text{BCE}(y, \hat y) = \frac{1}{n}\sum_{i=1}^n (y_i \text{ log}(\hat y_i) + (1 - y_i) \text{ log}(1 - \hat y_i))
@@ -3069,6 +3077,7 @@ $$
 <br>
 
 * This loss combines a [sigmoid](#sigmoid) layer and [BCE](#binary-cross-entropy-bce) in one step, providing numerical stability for classification tasks.  
+* Assumes **raw scores as input and applies Sigmoid itself**. Is usually more numerically stable and efficient than [BCE](#binary-cross-entropy-bce).  
 
 $$
 \text{BCEWithLogitsLoss}(y, z) = \frac{1}{n}\sum_{i=1}^n (y_i \text{ log}(\sigma(z_i)) + (1 - y_i) \text{ log}(1 - \sigma(z_i)))
@@ -3130,6 +3139,7 @@ $$
 <br>
 
 * NLLLoss is used in conjunction with a [log-softmax](#logsoftmax) output layer for classification tasks, penalising incorrect class predictions.  
+* Expects to have **log probabilities as the input**.  
 
 $$
 \text{NLLLoss}(y, \text{log}(\hat y)) = \sum_{i=1}^n \text{ log}(\hat y_{i,y_i})
@@ -3155,6 +3165,7 @@ Where $\hat y_{i,y_i}$ is the log-probability of the true class.
 <br>
 
 * Cross entropy loss is used for multi-class classification tasks, calculating the difference between the true class distribution and the predicted probability distribution.  
+* Expects **raw scores for each class and applies LogSoftmax internally**.  
 
 $$
 \text{CE}(y, \hat y) = \sum_{i=1}^n \sum_{j=1}^C y_{ij} \text{ log}(\hat y_{ij})
