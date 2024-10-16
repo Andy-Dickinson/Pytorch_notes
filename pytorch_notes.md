@@ -3360,6 +3360,8 @@ Where $p(y | \hat y)$ is the probability of the output sequence $y$ given the in
 <br>
 
 * Margin ranking loss is used to learn the relative ranking between pairs of samples. It encourages the score of a positive sample to be higher than a negative sample by at least a certain margin.  
+* The loss is 0 when the preferred score is greater than the other score by at least the margin. This indicates that the model is ranking the inputs correctly, with sufficient confidence.  
+* If the difference in scores is less than the margin, the loss is positive, and the model will be penalized for not correctly ranking the pair with enough separation.  
 
 $$
 \text{Margin Ranking Loss}(x_1, x_2, y) = \text{max}(0, -y \cdot (x_1 - x_2) + \text{margin})
