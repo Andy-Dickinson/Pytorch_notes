@@ -760,6 +760,9 @@ Each example comprises a 28×28 grayscale image and an associated label from one
 import torch  # for tensor operations and transformations
 from torchvision import datasets  # for loading datasets
 from torchvision.transforms import ToTensor  # for converting images to tensors
+from torch.utils.data import random_split
+
+RANDOM_STATE = 42
 
 # load training dataset
 training_data = datasets.FashionMNIST(
@@ -775,6 +778,25 @@ test_data = datasets.FashionMNIST(
     train=False,
     download=True,
     transform=ToTensor()
+)
+
+# split training into train and validation, use 75% training, 25% validation
+TRAIN_SPLIT = 0.75
+VALID_SPLIT = 1 - TRAIN_SPLIT
+
+# get number of samples
+n_train_sample = int(len(training_data) * TRAIN_SPLIT)
+print(f"Number of training samples = {n_train_sample}")
+n_valid_sample = int(len(train_data) * VALID_SPLIT)
+print(f"Number of validation samples = {n_valid_sample}")
+
+print(f"Number of testing samples = {len(test_data)}")
+
+# split into train/validate sets
+(train_smpls, valid_smpls) = random_split(
+  train_data,  # data to split
+  [n_train_sample, n_valid_sample],  # split values
+  generator=torch.Generator().manual_seed(RANDOM_STATE)  # repeatability
 )
 ```
 
@@ -828,6 +850,8 @@ transform = transforms.Compose([
 train_dataset = MNIST(path, transform=transform, download=True)
 test_dataset = MNIST(path, transform=transform, download=True)
 
+# Can also be applied to data loaders directly (see below)
+dataloader_variable.dataset.dataset.transform = transform
 ```
 
 ##### <u>Creating a Custom Dataset</u>  
@@ -965,9 +989,12 @@ plt.show()  # renders entire figure with all subplots
 ```py
 from torch.utils.data import DataLoader
 
+BATCH_SIZE = 64
+
 # load dataset into dataloader
-train_dataloader = DataLoader(training_data, batch_size=64, shuffle=True)
-test_dataloader = DataLoader(test_data, batch_size=64, shuffle=True)
+train_dataloader = DataLoader(train_smpls, BATCH_SIZE, shuffle=True)  # only suffle training data!
+valid_dataloader = DataLoader(valid_smpls, BATCH_SIZE, shuffle=False)
+test_dataloader = DataLoader(test_data, BATCH_SIZE, shuffle=False)
 
 # Get next batch of features and labels
 train_features, train_labels = next(iter(train_dataloader))  
@@ -2509,7 +2536,7 @@ def test_loop(test_loader, model, loss_fn):
 for t in range(epochs):
     print(f"Epoch {t+1}\n-------------------------------")
     train_loop(train_dataloader, nn_model, ce_loss, sgd_optimizer)
-    test_loop(test_dataloader, nn_model, ce_loss)
+    test_loop(valid_dataloader, nn_model, ce_loss)  # use validation set to test during training - test set should remain hidden until sure model is trained. Test set only used to evaluate final performance.
 print("Done!")
 ```
 
