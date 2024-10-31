@@ -743,7 +743,11 @@ b = a.squeeze(1)  # no change, shape = (1,3,1)
 * PyTorch provides two data primatives: `torch.utils.data.DataLoader` and `torch.utils.data.Dataset` to use pre-loaded datasets as well as your own.  
 * `Dataset` stores the samples and corresponding labels.  
 * `DataLoader` wraps an iterable around `Dataset` to enable easy access to samples.  
-* PyTorch domain libraries provide a number of pre-loaded datasets (such as FashionMNIST) that subclass torch.utils.data.Dataset and implement functions specific to the particular data. See [Image datasets](https://pytorch.org/vision/stable/datasets.html), [Text datasets](https://pytorch.org/text/stable/datasets.html), and [Audio datasets](https://pytorch.org/audio/stable/datasets.html).  
+* PyTorch domain libraries provide a number of pre-loaded datasets that subclass torch.utils.data.Dataset and implement functions specific to the particular data. See [Image datasets](https://pytorch.org/vision/stable/datasets.html), [Text datasets](https://pytorch.org/text/stable/datasets.html), and [Audio datasets](https://pytorch.org/audio/stable/datasets.html).  
+  * Some image datasets:  
+    * *FashionMNIST*: Grayscale images of 10 clothing categories (e.g., shirts, shoes), 28x28 pixels, designed as a modern alternative to MNIST. 
+    * *MNIST*: Grayscale images of handwritten digits (0–9), 28x28 pixels, used for simple image classification tasks.  
+    * *CIFAR10*: Color images of 10 object classes (e.g., airplanes, cats, trucks), 32x32 pixels, for basic object recognition. 
 
 ##### <u>Loading Datasets</u>  
 ```py
