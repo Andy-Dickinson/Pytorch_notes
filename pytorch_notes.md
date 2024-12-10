@@ -1968,7 +1968,7 @@ Default: 1.0
 * Advisable to **NOT use in hidden layers** due to widespread saturation makeing learning difficult. Only strongly sensitive to inputs when `x` is clsoe to 1.  
 
 $$
-\text{Sigmoid}(x) = \sigma(x) = \frac{1}{1 + \text{exp}^{-x}}
+\text{Sigmoid}(x) = \sigma(x) = \frac{1}{1 + e^{-x}}
 $$
 
 <p align="center">
@@ -1988,7 +1988,7 @@ $$
 * Advisable to **NOT use in hidden layers** due to widespread saturation makeing learning difficult. Only strongly sensitive to inputs when `x` is clsoe to 1.  
 
 $$
-\text{Tanh}(x) = \frac{2}{1 + \text{exp}(-2x)} - 1 = \frac{\text{sinh}(x)}{\text{cosh}(x)} = \frac{\text{exp}(x)-\text{exp}(-x)}{\text{exp}(x)+\text{exp}(-x)}
+\text{Tanh}(x) = \frac{2}{1 + e^{-2x}} - 1 = \frac{\text{sinh}(x)}{\text{cosh}(x)} = \frac{e^x-e^{-x}}{e^x+e^{-x}}
 $$
 
 <p align="center">
