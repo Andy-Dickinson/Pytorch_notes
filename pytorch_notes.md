@@ -1968,7 +1968,7 @@ Default: 1.0
 * Advisable to **NOT use in hidden layers** due to widespread saturation makeing learning difficult. Only strongly sensitive to inputs when `x` is clsoe to 1.  
 
 $$
-\text{Sigmoid}(x) = \sigma(x) = \frac{1}{1 + \text{exp}(-x)}
+\text{Sigmoid}(x) = \sigma(x) = \frac{1}{1 + \text{exp}^{-x}}
 $$
 
 <p align="center">
